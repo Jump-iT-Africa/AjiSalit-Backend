@@ -72,6 +72,14 @@ __decorate([
 ], ResponseDto.prototype, "deliveryDate", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
+        example: 'null',
+        description: 'it will be unpdated in the pick up date',
+        required: true,
+    }),
+    __metadata("design:type", String)
+], ResponseDto.prototype, "pickupDate", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
         example: ['image1.jpg', 'image2.jpg'],
         description: 'images URLs related to the service',
         required: false,
@@ -89,7 +97,7 @@ __decorate([
 ], ResponseDto.prototype, "_id", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: '67bca1a1b3c6a150efad2045',
+        example: 'null',
         description: 'user ID related to the order, null if not scanned',
         nullable: true,
         required: false,

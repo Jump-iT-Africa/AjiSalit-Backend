@@ -53,8 +53,12 @@ __decorate([
 ], Command.prototype, "deliveryDate", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: null }),
+    __metadata("design:type", Date)
+], Command.prototype, "pickupDate", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, unique: true }),
     __metadata("design:type", String)
-], Command.prototype, "qrCodeUrl", void 0);
+], Command.prototype, "qrCode", void 0);
 exports.Command = Command = __decorate([
     (0, mongoose_1.Schema)()
 ], Command);

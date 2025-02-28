@@ -33,10 +33,11 @@ export class Command {
   @Prop({ required: true })
   deliveryDate: Date;
 
-  @Prop({required:false, default: null})
-  qrCodeUrl: string;
+  @Prop({ required: false, default:null})
+  pickupDate: Date;
 
-
+  @Prop({required:true, unique:true})
+  qrCode: string;
 }
 
 export const CommandSchema = SchemaFactory.createForClass(Command);

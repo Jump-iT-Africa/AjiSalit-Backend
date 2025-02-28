@@ -50,6 +50,12 @@ export default class ResponseDto {
     required: true,
   })
   deliveryDate: string;
+  @ApiProperty({
+    example: 'null',
+    description: 'it will be unpdated in the pick up date',
+    required: true,
+  })
+  pickupDate: string;
 
   @ApiProperty({
     example: ['image1.jpg', 'image2.jpg'],
@@ -67,7 +73,7 @@ export default class ResponseDto {
   _id: string;
 
   @ApiProperty({
-    example: '67bca1a1b3c6a150efad2045',
+    example: 'null',
     description: 'user ID related to the order, null if not scanned',
     nullable: true,
     required: false,

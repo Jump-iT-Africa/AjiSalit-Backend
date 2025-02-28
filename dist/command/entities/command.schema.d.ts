@@ -10,7 +10,8 @@ export declare class Command {
     price: number;
     images?: string[];
     deliveryDate: Date;
-    qrCodeUrl: string;
+    pickupDate: Date;
+    qrCode: string;
 }
 export declare const CommandSchema: mongoose.Schema<Command, mongoose.Model<Command, any, any, any, mongoose.Document<unknown, any, Command> & Command & {
     _id: mongoose.Types.ObjectId;

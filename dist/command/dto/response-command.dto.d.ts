@@ -7,6 +7,7 @@ export default class ResponseDto {
     advancedAmount?: number;
     city: string;
     deliveryDate: string;
+    pickupDate: string;
     images?: string[];
     _id: string;
     userId?: Types.ObjectId | null;

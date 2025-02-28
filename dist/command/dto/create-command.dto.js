@@ -84,8 +84,20 @@ __decorate([
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "deliveryDate", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "2025-10-28",
+        required: true
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], CreateCommandDto.prototype, "images", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "Hgdthej80000",
+        required: true
+    }),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateCommandDto.prototype, "qrCode", void 0);
 //# sourceMappingURL=create-command.dto.js.map

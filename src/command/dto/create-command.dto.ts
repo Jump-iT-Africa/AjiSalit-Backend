@@ -63,9 +63,23 @@ export class CreateCommandDto {
     @IsNotEmpty({message: "دخل تاريخ التسليم"})
     deliveryDate:string
 
+
+    @ApiProperty({
+        example: "2025-10-28",
+        required: true
+    })
+
     @IsString()
     @IsOptional()
     images?: string[]
+
+    @ApiProperty({
+        example: "Hgdthej80000",
+        required: true
+    })
+
+    @IsNotEmpty()
+    qrCode:string
 
 
 

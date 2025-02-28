@@ -9,4 +9,5 @@ export declare class CreateCommandDto {
     city: string;
     deliveryDate: string;
     images?: string[];
+    qrCode: string;
 }
