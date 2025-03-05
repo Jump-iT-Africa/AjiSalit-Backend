@@ -15,7 +15,6 @@ async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use('/swagger', express.static(join(__dirname, '..', 'node_modules', 'swagger-ui-dist')));
-
   app.useStaticAssets('public');
 
   app.useGlobalPipes(new ValidationPipe());

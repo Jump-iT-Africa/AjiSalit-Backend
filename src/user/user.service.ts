@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.schema';
@@ -8,13 +8,14 @@ import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import * as bcrypt from 'bcrypt';
-// import { TwilioService } from 'src/services/twilio.service';
+// import { TwilioService } from '../services/twilio.service';
 import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { instanceToPlain, plainToClass, plainToInstance} from 'class-transformer';
+import { plainToClass} from 'class-transformer';
 import {ResoponseCompanyDto} from "./dto/ResponseDto/response-company.dto"
 import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
+import {ResponseLoginDto} from './dto/ResponseDto/response-login.dto'
 
 
 
@@ -25,44 +26,7 @@ export class UserService {
     // private twilioService: TwilioService,
   ) { }
 
-  async signInToApp(signInToAppDto: SignInToAppDto) {
-    try {
-      const { phoneNumber } = signInToAppDto;
 
-      const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
-
-      if (existingUser) {
-        throw new BadRequestException('هذا الرقم مستعمل من قبل، جرب رقم آخر.');
-      }
-
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiry = new Date();
-      otpExpiry.setMinutes(otpExpiry.getMinutes() + 10);
-
-      const newUser = new this.userModel({
-        phoneNumber,
-        password: "dommyPassowrd",
-        isVerified: false,
-        otp,
-        otpExpiry,
-      });
-
-      const savedUser = await newUser.save();
-      return savedUser
-
-      // try {
-      //   await this.twilioService.sendOtpSms(phoneNumber, otp);
-      // } catch (error) {
-      //   await this.userModel.deleteOne({ _id: savedUser._id });
-      //   throw new BadRequestException('فشل في إرسال كود OTP');
-      // }
-
-      // return { message: 'OTP sent successfully', userId: savedUser._id };
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException('خطأ في تسجيل الدخول');
-    }
-  }
 
 
   async register(createUserDto: CreateUserDto) {
@@ -155,10 +119,14 @@ export class UserService {
         secretKey,
         { expiresIn: '1h' }
       );
+      let userinfo =  plainToClass(ResponseLoginDto,User, {
+        excludeExtraneousValues:true,
+        enableImplicitConversion:true
+      }) 
 
       return {
         message: 'Login successful',
-        User,
+        userinfo,
         token,
       };
     } catch (error) {
@@ -217,6 +185,9 @@ export class UserService {
       }
     }catch(e){
       console.log("there's an error", e)
+      if(e instanceof NotFoundException){
+        throw new NotFoundException("حساب مكاينش، حاول مرة أخرى")
+      }
       throw new BadRequestException("حاول مرة أخرى")
 
     }
@@ -226,11 +197,25 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-  // remove(id: string) {
-  //   try{
-
-  //   }catch(e){
-  //     throw new BadRequestException("حاول مرة أخرى")
-  //   }
-  // }
+async deleteAccount(id: string, userId) {
+    try{
+        let account = await this.userModel.findById(id);
+        if(!account){
+          throw new NotFoundException("الحساب ديالك مكاينش")
+        }
+        if(account._id.toString() !== userId){
+          throw new ForbiddenException("ممسموحش لك تمسح هاد الحساب")
+        }
+        let deleteAccount = await this.userModel.findByIdAndDelete(id).exec();
+        return "تم مسح الحساب بنجاح"
+    }catch(e){
+      if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError)
+        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+      if(e instanceof ForbiddenException){
+        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+      }
+      throw new BadRequestException("حاول مرة خرى")
+    }
+  }
 }
+
