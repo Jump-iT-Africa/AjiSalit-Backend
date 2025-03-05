@@ -11,19 +11,20 @@ dotenv.config();
 async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useStaticAssets('public');
 
   app.useGlobalPipes(new ValidationPipe());
   const options = new DocumentBuilder()
   .setTitle('AjiSalit API ')
   .setDescription('AjiSalit is an app that help you track your orders and get them on time')
   .setVersion('1.0')
-  .addServer('http://localhost:3000/', 'Local environment')
   .addServer('https://www.ajisalit.com/', 'Production')
+  .addServer('http://localhost:3000/', 'Local environment')
   .addTag('ajisalit')
   .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api-ajisalit', app, document);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
 }
