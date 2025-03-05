@@ -8,6 +8,9 @@ export declare class User {
     isVerified: boolean;
     otp?: string;
     otpExpiry?: Date;
+    fullAddress?: string;
+    field: string;
+    ice: number;
 }
 export declare const UserSchema: import("mongoose").Schema<User, import("mongoose").Model<User, any, any, any, Document<unknown, any, User> & User & {
     _id: import("mongoose").Types.ObjectId;

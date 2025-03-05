@@ -1,10 +1,10 @@
-import { IsNotEmpty, IsString, Matches,IsEnum } from "class-validator";
+import { IsNotEmpty, IsString, Matches,IsEnum, IsOptional } from "class-validator";
 
 export class CreateUserDto {
 
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     name: string;
 
     @IsString()
@@ -19,7 +19,7 @@ export class CreateUserDto {
     password: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @IsEnum(['admin', 'client', 'company']) 
     role: string;
 

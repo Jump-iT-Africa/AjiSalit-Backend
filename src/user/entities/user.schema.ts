@@ -5,7 +5,7 @@ export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: false })
+  @Prop({ required: false, default:null })
   name?: string;
 
   @Prop({required: false, enum: ["admin", "client", "company"]})
@@ -14,8 +14,7 @@ export class User {
   @Prop({ required: true, unique: true, type: String })
   phoneNumber: string;
 
-
-  @Prop({ required: false, unique: false, type: String })
+  @Prop({ required: true, unique: false, type: String })
   password?: string;
 
   @Prop({ default: false })
@@ -26,6 +25,16 @@ export class User {
 
   @Prop({ type: Date })
   otpExpiry?: Date;
+
+  @Prop({ required:false, default:null })
+  fullAddress?:string;
+
+  @Prop({required:false, default:null})
+  field:string
+
+  @Prop({required:false, default:null})
+  ice:number
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

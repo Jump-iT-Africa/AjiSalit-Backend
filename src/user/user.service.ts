@@ -1,9 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { https } from 'follow-redirects';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
@@ -11,16 +10,24 @@ dotenv.config();
 import * as bcrypt from 'bcrypt';
 import { TwilioService } from 'src/services/twilio.service';
 import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
+import { UpdateCompanyDto } from './dto/update-company.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { instanceToPlain, plainToClass, plainToInstance} from 'class-transformer';
+import {ResoponseCompanyDto} from "./dto/ResponseDto/response-company.dto"
+import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
+
+
+
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private twilioService: TwilioService,
-  ) {}
+  ) { }
 
-  async signInToApp(signInToAppDto:SignInToAppDto) {
+  async signInToApp(signInToAppDto: SignInToAppDto) {
     try {
-      const {phoneNumber} = signInToAppDto;
+      const { phoneNumber } = signInToAppDto;
 
       const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
 
@@ -34,7 +41,7 @@ export class UserService {
 
       const newUser = new this.userModel({
         phoneNumber,
-        password:"dommyPassowrd",
+        password: "dommyPassowrd",
         isVerified: false,
         otp,
         otpExpiry,
@@ -66,13 +73,13 @@ export class UserService {
         throw new BadRequestException('هاد الرقم مستعمل من قبل جرب رقم أخر');
       }
 
-      const otp =  Math.floor(100000 + Math.random() * 900000).toString();
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpExpiry = new Date();
       otpExpiry.setMinutes(otpExpiry.getMinutes() + 10);
 
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
-      
+
       const newUser = new this.userModel({
         name,
         phoneNumber,
@@ -84,7 +91,7 @@ export class UserService {
       });
       const savedUser = await newUser.save();
 
-      
+
     } catch (error) {
       console.error('Registration error:', error);
       if (error instanceof BadRequestException) {
@@ -96,7 +103,7 @@ export class UserService {
 
   async verifyOTP(phoneNumber: string, otp: string) {
     const user = await this.userModel.findOne({ phoneNumber }).exec();
-    
+
     if (!user) {
       throw new BadRequestException('User not found');
     }
@@ -119,24 +126,24 @@ export class UserService {
 
   async login(LoginUserDto: LoginUserDto): Promise<any> {
     const { phoneNumber, password } = LoginUserDto;
-    const User = await this.userModel.findOne({phoneNumber}).exec();
-  
+    const User = await this.userModel.findOne({ phoneNumber }).exec();
+
     if (!User) {
       throw new BadRequestException("This User Does not exists");
     }
-  
+
     if (!User.isVerified) {
       throw new BadRequestException('Phone number not verified');
     }
-  
+
     const isPasswordValid = await bcrypt.compare(password, User.password);
-  
+
     if (!isPasswordValid) {
       throw new BadRequestException('Password incorrect'); // Changed from Error to BadRequestException
     }
-  
+
     const secretKey = process.env.JWT_SECRET;
-    
+
     try {
       const token = jwt.sign(
         {
@@ -147,15 +154,36 @@ export class UserService {
         secretKey,
         { expiresIn: '1h' }
       );
-  
+
       return {
         message: 'Login successful',
         User,
         token,
       };
-    } catch(error) {
+    } catch (error) {
       throw new BadRequestException("There was an error while login");
     }
+  }
+
+  async updateAuthentifictaion(id: string, updateDto, authentificatedId) {
+    try{
+      console.log("hello from service ,", updateDto)
+      let result = await this.userModel.findById(id).exec()
+      if (!result) {
+        throw new NotFoundException("حاول دخل رقم ديالك مرة أخرى")
+      }
+      // console.log(authentificatedId, "user ",result._id)
+      if(authentificatedId !== result._id.toString()){
+          throw new ForbiddenException("ممسموحش لك")
+      }
+      const updateAuthentificator = await this.userModel.findByIdAndUpdate(id, updateDto, {new:true}).exec()
+      return "تم إنشاء حسابك بنجاح"
+
+    }catch(e){
+      console.log(e)
+      throw new BadRequestException("حاول مرة أخرى")
+    }
+
   }
 
 
@@ -164,15 +192,44 @@ export class UserService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    try{
+      let result = await this.userModel.findById(id).exec()
+      if(!result){
+        throw new NotFoundException("حساب مكاينش، حاول مرة أخرى")
+      }
+      // console.log(result)
+      if(result.role == "company"){
+        let data = plainToClass(ResoponseCompanyDto,result, {
+          excludeExtraneousValues:true,
+          enableImplicitConversion:true
+        }) 
+        return data
+      }else if(result.role == "client"){
+        let data =plainToClass(ResponseUserDto,result, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true
+          
+      });
+        //  plainToInstance(ResponseUserDto,result)
+        return data
+      }
+    }catch(e){
+      console.log("there's an error", e)
+      throw new BadRequestException("حاول مرة أخرى")
+
+    }
   }
 
-  update(id: number, updateUserDto) {
+  update(id: string, updateDto: UpdateUserDto | UpdateCompanyDto) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
+  // remove(id: string) {
+  //   try{
+
+  //   }catch(e){
+  //     throw new BadRequestException("حاول مرة أخرى")
+  //   }
+  // }
 }

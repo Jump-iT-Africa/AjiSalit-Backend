@@ -22,6 +22,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 const bcrypt = require("bcrypt");
 const twilio_service_1 = require("../services/twilio.service");
+const class_transformer_1 = require("class-transformer");
+const response_company_dto_1 = require("./dto/ResponseDto/response-company.dto");
+const response_user_dto_1 = require("./dto/ResponseDto/response-user.dto");
 let UserService = class UserService {
     constructor(userModel, twilioService) {
         this.userModel = userModel;
@@ -137,17 +140,55 @@ let UserService = class UserService {
             throw new common_1.BadRequestException("There was an error while login");
         }
     }
+    async updateAuthentifictaion(id, updateDto, authentificatedId) {
+        try {
+            console.log("hello from service ,", updateDto);
+            let result = await this.userModel.findById(id).exec();
+            if (!result) {
+                throw new common_1.NotFoundException("حاول دخل رقم ديالك مرة أخرى");
+            }
+            if (authentificatedId !== result._id.toString()) {
+                throw new common_1.ForbiddenException("ممسموحش لك");
+            }
+            const updateAuthentificator = await this.userModel.findByIdAndUpdate(id, updateDto, { new: true }).exec();
+            return "تم إنشاء حسابك بنجاح";
+        }
+        catch (e) {
+            console.log(e);
+            throw new common_1.BadRequestException("حاول مرة أخرى");
+        }
+    }
     findAll() {
         return `This action returns all users`;
     }
-    findOne(id) {
-        return `This action returns a #${id} user`;
+    async findOne(id) {
+        try {
+            let result = await this.userModel.findById(id).exec();
+            if (!result) {
+                throw new common_1.NotFoundException("حساب مكاينش، حاول مرة أخرى");
+            }
+            if (result.role == "company") {
+                let data = (0, class_transformer_1.plainToClass)(response_company_dto_1.ResoponseCompanyDto, result, {
+                    excludeExtraneousValues: true,
+                    enableImplicitConversion: true
+                });
+                return data;
+            }
+            else if (result.role == "client") {
+                let data = (0, class_transformer_1.plainToClass)(response_user_dto_1.ResponseUserDto, result, {
+                    excludeExtraneousValues: true,
+                    enableImplicitConversion: true
+                });
+                return data;
+            }
+        }
+        catch (e) {
+            console.log("there's an error", e);
+            throw new common_1.BadRequestException("حاول مرة أخرى");
+        }
     }
-    update(id, updateUserDto) {
+    update(id, updateDto) {
         return `This action updates a #${id} user`;
-    }
-    remove(id) {
-        return `This action removes a #${id} user`;
     }
 };
 exports.UserService = UserService;

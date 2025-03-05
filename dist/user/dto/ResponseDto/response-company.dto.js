@@ -9,33 +9,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateUserDto = void 0;
-const class_validator_1 = require("class-validator");
-class UpdateUserDto {
+exports.ResoponseCompanyDto = void 0;
+const class_transformer_1 = require("class-transformer");
+class ResoponseCompanyDto {
 }
-exports.UpdateUserDto = UpdateUserDto;
+exports.ResoponseCompanyDto = ResoponseCompanyDto;
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "الاسم و اللقب ديالك ضروري" }),
+    (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
-], UpdateUserDto.prototype, "name", void 0);
+], ResoponseCompanyDto.prototype, "name", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format (e.g., +212697042868)'
-    }),
+    (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
-], UpdateUserDto.prototype, "phoneNumber", void 0);
+], ResoponseCompanyDto.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
-], UpdateUserDto.prototype, "password", void 0);
+], ResoponseCompanyDto.prototype, "fullAddress", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsEnum)(['admin', 'client', 'company']),
+    (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
-], UpdateUserDto.prototype, "role", void 0);
-//# sourceMappingURL=update-user.dto.js.map
+], ResoponseCompanyDto.prototype, "field", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Number)
+], ResoponseCompanyDto.prototype, "ice", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
+], ResoponseCompanyDto.prototype, "role", void 0);
+//# sourceMappingURL=response-company.dto.js.map

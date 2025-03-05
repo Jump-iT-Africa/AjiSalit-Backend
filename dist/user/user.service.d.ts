@@ -4,6 +4,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
 import { TwilioService } from 'src/services/twilio.service';
 import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
+import { UpdateCompanyDto } from './dto/update-company.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { ResoponseCompanyDto } from "./dto/ResponseDto/response-company.dto";
+import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
 export declare class UserService {
     private userModel;
     private twilioService;
@@ -17,8 +21,8 @@ export declare class UserService {
         message: string;
     }>;
     login(LoginUserDto: LoginUserDto): Promise<any>;
+    updateAuthentifictaion(id: string, updateDto: any, authentificatedId: any): Promise<string>;
     findAll(): string;
-    findOne(id: number): string;
-    update(id: number, updateUserDto: any): string;
-    remove(id: number): string;
+    findOne(id: string): Promise<ResoponseCompanyDto | ResponseUserDto>;
+    update(id: string, updateDto: UpdateUserDto | UpdateCompanyDto): string;
 }

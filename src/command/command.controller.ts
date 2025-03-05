@@ -5,9 +5,7 @@ import { UpdateCommandDto } from './dto/update-command.dto';
 import { validateJwt } from "../services/verifyJwt"
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import ResponseDto from "./dto/response-command.dto"
-import { throwError } from 'rxjs';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { isInstance } from 'class-validator';
 
 @ApiTags('Orders ')
 @Controller('order')

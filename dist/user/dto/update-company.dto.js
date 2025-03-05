@@ -9,33 +9,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateUserDto = void 0;
+exports.UpdateCompanyDto = void 0;
+const update_user_dto_1 = require("./update-user.dto");
 const class_validator_1 = require("class-validator");
-class UpdateUserDto {
+class UpdateCompanyDto extends update_user_dto_1.UpdateUserDto {
 }
-exports.UpdateUserDto = UpdateUserDto;
+exports.UpdateCompanyDto = UpdateCompanyDto;
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "الاسم و اللقب ديالك ضروري" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "دخل العنوان و المدينة ديالك" }),
     __metadata("design:type", String)
-], UpdateUserDto.prototype, "name", void 0);
+], UpdateCompanyDto.prototype, "fullAddress", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format (e.g., +212697042868)'
-    }),
+    (0, class_validator_1.IsNotEmpty)({ message: "دخل المجال ديالك" }),
     __metadata("design:type", String)
-], UpdateUserDto.prototype, "phoneNumber", void 0);
+], UpdateCompanyDto.prototype, "field", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], UpdateUserDto.prototype, "password", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.IsEnum)(['admin', 'client', 'company']),
-    __metadata("design:type", String)
-], UpdateUserDto.prototype, "role", void 0);
-//# sourceMappingURL=update-user.dto.js.map
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)({ message: "خصك دخل رقم البطاقة الضريبية أو رقم ICE" }),
+    __metadata("design:type", Number)
+], UpdateCompanyDto.prototype, "ice", void 0);
+//# sourceMappingURL=update-company.dto.js.map

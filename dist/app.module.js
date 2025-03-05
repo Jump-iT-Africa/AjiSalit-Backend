@@ -10,7 +10,6 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const config_1 = require("@nestjs/config");
-const company_module_1 = require("./company/company.module");
 const command_module_1 = require("./command/command.module");
 const user_module_1 = require("./user/user.module");
 const notifications_module_1 = require("./notifications/notifications.module");
@@ -25,7 +24,6 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true
             }),
             mongoose_1.MongooseModule.forRoot(process.env.MONGO_URL),
-            company_module_1.CompanyModule,
             command_module_1.CommandModule,
             user_module_1.UserModule,
             notifications_module_1.NotificationsModule,
