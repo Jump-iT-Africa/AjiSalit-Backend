@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from './entities/user.schema';
-import { OtpModule } from 'src/services/otp.module';
+import { OtpModule } from '../services/otp.module';
 // import { TwilioModule } from 'src/services/twilio.module';
 
 @Module({
