@@ -8,7 +8,7 @@ import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import * as bcrypt from 'bcrypt';
-import { TwilioService } from 'src/services/twilio.service';
+// import { TwilioService } from 'src/services/twilio.service';
 import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -22,7 +22,7 @@ import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private twilioService: TwilioService,
+    // private twilioService: TwilioService,
   ) { }
 
   async signInToApp(signInToAppDto: SignInToAppDto) {
@@ -48,15 +48,16 @@ export class UserService {
       });
 
       const savedUser = await newUser.save();
+      return savedUser
 
-      try {
-        await this.twilioService.sendOtpSms(phoneNumber, otp);
-      } catch (error) {
-        await this.userModel.deleteOne({ _id: savedUser._id });
-        throw new BadRequestException('فشل في إرسال كود OTP');
-      }
+      // try {
+      //   await this.twilioService.sendOtpSms(phoneNumber, otp);
+      // } catch (error) {
+      //   await this.userModel.deleteOne({ _id: savedUser._id });
+      //   throw new BadRequestException('فشل في إرسال كود OTP');
+      // }
 
-      return { message: 'OTP sent successfully', userId: savedUser._id };
+      // return { message: 'OTP sent successfully', userId: savedUser._id };
     } catch (error) {
       console.error(error);
       throw new BadRequestException('خطأ في تسجيل الدخول');

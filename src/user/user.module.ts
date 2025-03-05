@@ -4,7 +4,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from './entities/user.schema';
 import { OtpModule } from 'src/services/otp.module';
-import { TwilioModule } from 'src/services/twilio.module';
+// import { TwilioModule } from 'src/services/twilio.module';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { TwilioModule } from 'src/services/twilio.module';
       { name: User.name, schema: UserSchema }
     ]),
     OtpModule,
-    TwilioModule
+    // TwilioModule
   ],
   controllers: [UserController],
   providers: [UserService],
