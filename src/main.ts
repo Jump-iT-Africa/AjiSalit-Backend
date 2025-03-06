@@ -31,8 +31,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  const notifgat = app.get(NotificationsGateway)
-  setInterval(()=>notifgat.handleNotification())
+  // const notifgat = app.get(NotificationsGateway)
+  // setInterval(()=>notifgat.handleNotification())
 
   await app.listen(process.env.PORT ?? 3000);
 }
