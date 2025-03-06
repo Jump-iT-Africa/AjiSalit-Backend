@@ -3,7 +3,7 @@ import { CommandService } from './command.service';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { validateJwt } from "../services/verifyJwt"
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import ResponseDto from "./dto/response-command.dto"
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
@@ -347,6 +347,9 @@ export class CommandController {
 
   @Put(':id')
   @ApiOperation({ summary: "The company owner can update his own order" })
+  @ApiBody({
+    type: ResponseDto,
+  })
   @ApiResponse({
     status: 200,
     description: "The company owner can update the order successfully",

@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CommandModule } from './command/command.module';
 import { UserModule } from './user/user.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { NotificationsGateway } from './notifications/notifications.gateway';
 
 
 @Module({
@@ -15,6 +16,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     CommandModule,
     UserModule,
     NotificationsModule,
+    NotificationsGateway
     
   ],
 

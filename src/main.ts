@@ -6,6 +6,7 @@ import * as dotenv from 'dotenv';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
 import { join } from 'path';
+import { NotificationsGateway } from './notifications/notifications.gateway';
 
 
 
@@ -29,6 +30,9 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
+
+  const notifgat = app.get(NotificationsGateway)
+  setInterval(()=>notifgat.handleNotification())
 
   await app.listen(process.env.PORT ?? 3000);
 }
