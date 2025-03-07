@@ -12,9 +12,9 @@ npm run dev:start --watch
 npm install 
 npm run dev:start --watch 
 if you are running this project on your localhost: 
-http://localhost:3000/api-ajisalit
+http://localhost:3000/api
 
 if want to access it from domain name : 
-https://www.ajisalit.com/api-ajisalit
+https://www.ajisalit.com/api
 
 
