@@ -15,11 +15,11 @@ let User = class User {
 };
 exports.User = User;
 __decorate([
-    (0, mongoose_1.Prop)({ required: false, default: null }),
+    (0, mongoose_1.Prop)({ required: true, default: null }),
     __metadata("design:type", String)
 ], User.prototype, "name", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: false, enum: ["admin", "client", "company"] }),
+    (0, mongoose_1.Prop)({ required: true, enum: ["admin", "client", "company"] }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
@@ -31,21 +31,9 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: false }),
-    __metadata("design:type", Boolean)
-], User.prototype, "isVerified", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: String }),
+    (0, mongoose_1.Prop)({ required: true, default: null }),
     __metadata("design:type", String)
-], User.prototype, "otp", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: Date }),
-    __metadata("design:type", Date)
-], User.prototype, "otpExpiry", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: false, default: null }),
-    __metadata("design:type", String)
-], User.prototype, "fullAddress", void 0);
+], User.prototype, "city", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: null }),
     __metadata("design:type", String)
@@ -54,6 +42,18 @@ __decorate([
     (0, mongoose_1.Prop)({ required: false, default: null }),
     __metadata("design:type", Number)
 ], User.prototype, "ice", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false, unique: true }),
+    __metadata("design:type", String)
+], User.prototype, "ownRef", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false }),
+    __metadata("design:type", String)
+], User.prototype, "refBy", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], required: false, default: [] }),
+    __metadata("design:type", Array)
+], User.prototype, "listRefs", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);

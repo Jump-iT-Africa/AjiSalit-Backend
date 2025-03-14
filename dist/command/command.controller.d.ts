@@ -25,5 +25,13 @@ export declare class CommandController {
     }> & {
         __v: number;
     }>;
-    remove(id: string, req: any): Promise<string>;
+    remove(id: string, req: any): Promise<{
+        mess: string;
+        deleteOrder: import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+            _id: unknown;
+        }> & {
+            __v: number;
+        };
+    }>;
+    scanQrCode(qrCode: string): Promise<import("./entities/command.schema").Command>;
 }

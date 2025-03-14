@@ -151,7 +151,10 @@ let CommandService = class CommandService {
                 throw new common_1.ForbiddenException("ممسموحش لك تمسح هاد طلب");
             }
             let deleteOrder = await this.commandModel.findByIdAndDelete(id).exec();
-            return "تم مسح طلب بنجاح";
+            return {
+                mess: "تم مسح طلب بنجاح",
+                deleteOrder
+            };
         }
         catch (e) {
             console.log("there's an error", e);
@@ -164,6 +167,22 @@ let CommandService = class CommandService {
             if (e instanceof common_1.ForbiddenException) {
                 throw new common_1.ForbiddenException("ممسموحش لك تمسح هاد طلب");
             }
+            throw new common_1.BadRequestException("حاول مرة خرى");
+        }
+    }
+    async getCommandByQrCode(qrCode) {
+        try {
+            const command = await this.commandModel.findOne({ qrCode })
+                .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status')
+                .exec();
+            console.log(command);
+            if (!command) {
+                throw new common_1.NotFoundException('لم يتم العثور على الطلب');
+            }
+            return command;
+        }
+        catch (e) {
+            console.log(e);
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }

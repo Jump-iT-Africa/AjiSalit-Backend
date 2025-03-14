@@ -27,8 +27,9 @@ let CommandController = class CommandController {
     }
     create(createCommandDto, req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            console.log(infoUser.role);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
             }
@@ -70,7 +71,7 @@ let CommandController = class CommandController {
     }
     findAll(req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization'].split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             console.log(infoUser);
             if (!infoUser) {
@@ -87,7 +88,7 @@ let CommandController = class CommandController {
     }
     findOne(id, req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization'].split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             console.log(infoUser);
             if (!infoUser) {
@@ -103,7 +104,7 @@ let CommandController = class CommandController {
     }
     update(id, updateCommandDto, req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization'].split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
@@ -125,7 +126,7 @@ let CommandController = class CommandController {
     }
     remove(id, req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization'].split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
@@ -144,6 +145,9 @@ let CommandController = class CommandController {
             }
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
+    }
+    async scanQrCode(qrCode) {
+        return this.commandService.getCommandByQrCode(qrCode);
     }
 };
 exports.CommandController = CommandController;
@@ -419,6 +423,9 @@ __decorate([
 __decorate([
     (0, common_1.Put)(':id'),
     (0, swagger_1.ApiOperation)({ summary: "The company owner can update his own order" }),
+    (0, swagger_1.ApiBody)({
+        type: response_command_dto_1.default,
+    }),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: "The company owner can update the order successfully",
@@ -551,6 +558,30 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], CommandController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Get)('scan/:qrCode'),
+    (0, swagger_1.ApiOperation)({ summary: 'Scan QR code and retrieve command details' }),
+    (0, swagger_1.ApiParam)({ name: 'qrCode', description: 'The unique QR code string from the scanned code' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Command details retrieved successfully',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Command not found',
+        schema: {
+            example: {
+                message: 'لم يتم العثور على الطلب',
+                error: 'Not Found',
+                statusCode: 404
+            }
+        }
+    }),
+    __param(0, (0, common_1.Param)('qrCode')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CommandController.prototype, "scanQrCode", null);
 exports.CommandController = CommandController = __decorate([
     (0, swagger_1.ApiTags)('Orders '),
     (0, common_1.Controller)('order'),

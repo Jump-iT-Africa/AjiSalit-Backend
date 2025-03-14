@@ -16,11 +16,10 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const create_user_dto_1 = require("./dto/create-user.dto");
+const update_user_dto_1 = require("./dto/update-user.dto");
 const login_user_dto_1 = require("./dto/Logindto/login-user.dto");
-const update_company_dto_1 = require("./dto/update-company.dto");
 const verifyJwt_1 = require("../services/verifyJwt");
 const jsonwebtoken_1 = require("jsonwebtoken");
-const RoleValidationPipe_1 = require("./pipes/RoleValidationPipe");
 const swagger_1 = require("@nestjs/swagger");
 (0, swagger_1.ApiTags)('User');
 let UserController = class UserController {
@@ -30,35 +29,12 @@ let UserController = class UserController {
     async register(CreateUserDto) {
         return this.userService.register(CreateUserDto);
     }
-    async verifyOTP(phoneNumber, otp) {
-        return this.userService.verifyOTP(phoneNumber, otp);
-    }
     async login(LoginUserDto) {
         return this.userService.login(LoginUserDto);
     }
-    async updateAuthentifictaion(id, updateDto, req) {
-        try {
-            let token = req.headers['authorization'];
-            let infoUser = (0, verifyJwt_1.validateJwt)(token);
-            if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
-            }
-            if (!updateDto) {
-                return "خصك تعمر المعلومات ديالك";
-            }
-            return this.userService.updateAuthentifictaion(id, updateDto, infoUser.id);
-        }
-        catch (e) {
-            console.log("there's an error", e);
-            if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError) {
-                throw new common_1.UnauthorizedException("حاول تسجل ف الحساب ديالك مرة أخرى");
-            }
-            throw new common_1.BadRequestException("حاول مرة أخرى");
-        }
-    }
     findOne(id, req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization'].split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
@@ -75,12 +51,34 @@ let UserController = class UserController {
     }
     deleteAccount(id, req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization'].split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
             }
             return this.userService.deleteAccount(id, infoUser.id);
+        }
+        catch (e) {
+            console.log(e);
+            if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
+                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+            if (e instanceof common_1.ForbiddenException) {
+                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+            }
+            throw new common_1.BadRequestException("حاول مرة خرى");
+        }
+    }
+    updateUserProfile(id, updateUserDto, req) {
+        try {
+            let token = req.headers['authorization'].split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+            }
+            if (id !== infoUser.id) {
+                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+            }
+            return this.userService.updateUserInfo(id, updateUserDto);
         }
         catch (e) {
             console.log(e);
@@ -133,51 +131,6 @@ __decorate([
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "register", null);
-__decorate([
-    (0, common_1.Post)('verify'),
-    (0, swagger_1.ApiOperation)({ summary: "The user verify his number using the otp code " }),
-    (0, swagger_1.ApiResponse)({
-        status: 400,
-        description: "The verification failed for the reason behind",
-        content: {
-            'application/json': {
-                examples: {
-                    'User Not found ': {
-                        value: {
-                            "message": 'User not found',
-                            "error": "Bad Request",
-                            "statusCode": 400
-                        }
-                    },
-                    'Using invalid OTP CODE': {
-                        value: {
-                            "message": 'الرمز غلط',
-                            "error": "Bad Request",
-                            "statusCode": 400
-                        }
-                    },
-                    'The otp code has been expired': {
-                        value: {
-                            "message": 'هاد رمز نتهات صلحية تاعو',
-                            "error": "Bad Request",
-                            "statusCode": 400
-                        }
-                    }
-                }
-            }
-        }
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: "The user has verified his account successfully",
-        type: 'تم أتحقق بنجاح'
-    }),
-    __param(0, (0, common_1.Body)('phoneNumber')),
-    __param(1, (0, common_1.Body)('otp')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "verifyOTP", null);
 __decorate([
     (0, common_1.Post)('login'),
     (0, swagger_1.ApiOperation)({ summary: "The user is logged in" }),
@@ -249,41 +202,6 @@ __decorate([
     __metadata("design:paramtypes", [login_user_dto_1.LoginUserDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
-__decorate([
-    (0, common_1.Put)(':id'),
-    (0, swagger_1.ApiOperation)({ summary: "The user has to update his information for the first time in order to finish his authentification" }),
-    (0, swagger_1.ApiResponse)({
-        status: 401,
-        description: 'Unauthorized error: the user should login again using his phone number and password to continue filling his informations',
-        schema: {
-            example: {
-                "message": "حاول تسجل ف الحساب ديالك مرة أخرى",
-                "error": "Unauthorized",
-                "statusCode": 401
-            }
-        },
-    }),
-    (0, swagger_1.ApiBody)({
-        description: "here's example of auth of company info",
-        type: update_company_dto_1.UpdateCompanyDto,
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 200,
-        description: "The user or the company owner continue the authentification successfully",
-        example: "تم إنشاء حسابك بنجاح"
-    }),
-    (0, swagger_1.ApiResponse)({
-        status: 400,
-        description: "The user or the company owner continue the authentification successfully",
-        example: "حاول مرة أخرى"
-    }),
-    __param(0, (0, common_1.Param)("id")),
-    __param(1, (0, common_1.Body)(new RoleValidationPipe_1.RoleValidationPipe())),
-    __param(2, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "updateAuthentifictaion", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'the user or the company owner can preview their own informations' }),
@@ -389,6 +307,64 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "deleteAccount", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "Update user profile information" }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: "User profile updated successfully",
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: "Bad request - Invalid data provided",
+        schema: {
+            example: {
+                message: "تعذر تحديث الملف الشخصي",
+                error: "Bad Request",
+                statusCode: 400
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: "Unauthorized - Invalid or expired token",
+        schema: {
+            example: {
+                message: "حاول تسجل مرة أخرى",
+                error: "Unauthorized",
+                statusCode: 401
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: "Forbidden - User doesn't have permission to update this profile",
+        schema: {
+            example: {
+                message: "ممسموحش لك تبدل هاد طلب",
+                error: "Forbidden",
+                statusCode: 403
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: "Not Found - User not found",
+        schema: {
+            example: {
+                message: "المستخدم غير موجود",
+                error: "Not Found",
+                statusCode: 404
+            }
+        }
+    }),
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_user_dto_1.UpdateUserDto, Object]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "updateUserProfile", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

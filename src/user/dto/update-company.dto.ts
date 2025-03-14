@@ -24,7 +24,7 @@ export class UpdateCompanyDto extends UpdateUserDto {
         example: '74839898090939393',
         required: true
     })
-    @IsNumber()
+    @IsString()
     @IsNotEmpty({ message: "خصك دخل رقم البطاقة الضريبية أو رقم ICE" })
-    ice: number
+    ice: string
 }

@@ -39,8 +39,8 @@ __decorate([
         example: '74839898090939393',
         required: true
     }),
-    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)({ message: "خصك دخل رقم البطاقة الضريبية أو رقم ICE" }),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], UpdateCompanyDto.prototype, "ice", void 0);
 //# sourceMappingURL=update-company.dto.js.map

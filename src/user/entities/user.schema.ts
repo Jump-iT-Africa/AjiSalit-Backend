@@ -1,15 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: false, default:null })
-  name?: string;
+  @Prop({ required: true, default:null })
+  name: string;
 
-  @Prop({required: false, enum: ["admin", "client", "company"]})
-  role?: string;
+  @Prop({required: true, enum: ["admin", "client", "company"]})
+  role: string;
 
   @Prop({ required: true, unique: true, type: String })
   phoneNumber: string;
@@ -17,23 +17,24 @@ export class User {
   @Prop({ required: true, unique: false, type: String })
   password?: string;
 
-  @Prop({ default: false })
-  isVerified: boolean;
-
-  @Prop({ type: String })
-  otp?: string;
-
-  @Prop({ type: Date })
-  otpExpiry?: Date;
-
-  @Prop({ required:false, default:null })
-  fullAddress?:string;
+  @Prop({ required:true, default:null })
+  city?:string;
 
   @Prop({required:false, default:null})
-  field:string
+  field?:string
 
   @Prop({required:false, default:null})
-  ice:number
+  ice?:number
+
+
+  @Prop({ required: false, unique: true })
+  ownRef: string;
+
+  @Prop({ required: false })
+  refBy?: string;
+
+  @Prop({ type: [String], required: false, default: [] })
+  listRefs?: string[];
 
 }
 

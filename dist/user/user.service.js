@@ -25,57 +25,69 @@ const class_transformer_1 = require("class-transformer");
 const response_company_dto_1 = require("./dto/ResponseDto/response-company.dto");
 const response_user_dto_1 = require("./dto/ResponseDto/response-user.dto");
 const response_login_dto_1 = require("./dto/ResponseDto/response-login.dto");
+const crypto = require("crypto");
+const secretKey = process.env.JWT_SECRET;
 let UserService = class UserService {
     constructor(userModel) {
         this.userModel = userModel;
     }
     async register(createUserDto) {
         try {
-            const { name, phoneNumber, role, password } = createUserDto;
+            const { name, phoneNumber, role, password, city, field, ice, ownRef, refBy, listRefs } = createUserDto;
             const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
             if (existingUser) {
-                throw new common_1.BadRequestException('هاد الرقم مستعمل من قبل جرب رقم أخر');
+                return {
+                    message: 'هاد الرقم مستعمل من قبل جرب رقم أخر'
+                };
             }
-            const otp = Math.floor(100000 + Math.random() * 900000).toString();
-            const otpExpiry = new Date();
-            otpExpiry.setMinutes(otpExpiry.getMinutes() + 10);
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
+            const GeneratedRefCode = this.generateReferralCode();
             const newUser = new this.userModel({
                 name,
                 phoneNumber,
                 role,
                 password: hashedPassword,
-                isVerified: false,
-                otp,
-                otpExpiry
+                city,
+                field,
+                ice,
+                ownRef: GeneratedRefCode,
+                refBy,
+                listRefs: listRefs || []
             });
             const savedUser = await newUser.save();
+            if (refBy) {
+                const referrer = await this.userModel.findOne({ ownRef: refBy }).exec();
+                if (referrer) {
+                    await this.userModel.findByIdAndUpdate(referrer._id, { $push: { listRefs: savedUser._id.toString() } }, { new: true });
+                }
+            }
+            const payload = {
+                id: savedUser._id,
+                name: savedUser.name,
+                phoneNumber: savedUser.phoneNumber,
+                role: savedUser.role,
+                city: savedUser.city,
+                field: savedUser.field,
+                ice: savedUser.ice,
+                ownRef: savedUser.ownRef,
+                listRefs: savedUser.listRefs
+            };
+            const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
+            return {
+                user: payload,
+                token,
+            };
         }
         catch (error) {
             console.error('Registration error:', error);
-            if (error instanceof common_1.BadRequestException) {
-                throw error;
-            }
-            throw new common_1.BadRequestException('Registration failed');
+            return {
+                ErrorMessage: error
+            };
         }
     }
-    async verifyOTP(phoneNumber, otp) {
-        const user = await this.userModel.findOne({ phoneNumber }).exec();
-        if (!user) {
-            throw new common_1.BadRequestException('User not found');
-        }
-        if (user.otp !== otp) {
-            throw new common_1.BadRequestException('الرمز غلط');
-        }
-        if (new Date() > user.otpExpiry) {
-            throw new common_1.BadRequestException('هاد رمز نتهات صلحية تاعو');
-        }
-        user.isVerified = true;
-        user.otp = undefined;
-        user.otpExpiry = undefined;
-        await user.save();
-        return { message: 'تم أتحقق بنجاح' };
+    generateReferralCode() {
+        return crypto.randomBytes(4).toString('hex').toUpperCase();
     }
     async login(LoginUserDto) {
         const { phoneNumber, password } = LoginUserDto;
@@ -83,20 +95,20 @@ let UserService = class UserService {
         if (!User) {
             throw new common_1.BadRequestException("This User Does not exists");
         }
-        if (!User.isVerified) {
-            throw new common_1.BadRequestException('Phone number not verified');
-        }
         const isPasswordValid = await bcrypt.compare(password, User.password);
         if (!isPasswordValid) {
             throw new common_1.BadRequestException('Password incorrect');
         }
-        const secretKey = process.env.JWT_SECRET;
         try {
             const token = jwt.sign({
                 id: User._id,
                 phoneNumber: User.phoneNumber,
+                username: User.name,
+                city: User.city,
+                field: User.field,
+                ice: User.ice,
                 role: User.role,
-            }, secretKey, { expiresIn: '1h' });
+            }, secretKey, { expiresIn: '1d' });
             let userinfo = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, User, {
                 excludeExtraneousValues: true,
                 enableImplicitConversion: true
@@ -183,6 +195,37 @@ let UserService = class UserService {
                 throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
             }
             throw new common_1.BadRequestException("حاول مرة خرى");
+        }
+    }
+    async updateUserInfo(id, updateUserDto) {
+        try {
+            const toUpdate = await this.userModel.findById(id);
+            if (!toUpdate) {
+                throw new common_1.NotFoundException('المستخدم غير موجود');
+            }
+            const originalRefBy = toUpdate.refBy;
+            delete updateUserDto.password;
+            delete updateUserDto.ownRef;
+            const newRefBy = updateUserDto.refBy;
+            if (newRefBy && newRefBy !== originalRefBy) {
+                const newReferrer = await this.userModel.findOne({ ownRef: newRefBy }).exec();
+                if (newReferrer) {
+                    await this.userModel.findByIdAndUpdate(newReferrer._id, { $addToSet: { listRefs: id } }, { new: true });
+                }
+                if (originalRefBy) {
+                    const originalReferrer = await this.userModel.findOne({ ownRef: originalRefBy }).exec();
+                    if (originalReferrer) {
+                        await this.userModel.findByIdAndUpdate(originalReferrer._id, { $pull: { listRefs: id } }, { new: true });
+                    }
+                }
+            }
+            Object.assign(toUpdate, updateUserDto);
+            await toUpdate.save();
+            return toUpdate;
+        }
+        catch (error) {
+            console.error("Error updating user profile:", error);
+            throw new common_1.BadRequestException('تعذر تحديث الملف الشخصي');
         }
     }
 };

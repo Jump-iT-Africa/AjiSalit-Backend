@@ -144,7 +144,10 @@ export class CommandService {
         throw new ForbiddenException("ممسموحش لك تمسح هاد طلب")
       }
       let deleteOrder = await this.commandModel.findByIdAndDelete(id).exec();
-      return "تم مسح طلب بنجاح"
+      return {
+        mess: "تم مسح طلب بنجاح",
+        deleteOrder
+      }
     }catch(e){
       console.log("there's an error",e)
       if (e.name === 'CastError') {
@@ -157,6 +160,31 @@ export class CommandService {
         throw new ForbiddenException("ممسموحش لك تمسح هاد طلب")
       }
       throw new BadRequestException("حاول مرة خرى")
+    }
+  }
+
+
+
+  async getCommandByQrCode(qrCode: string): Promise<Command> {
+    try{
+
+      const command = await this.commandModel.findOne({ qrCode })
+      .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status') 
+      .exec();
+      
+    console.log(command);
+
+    if (!command) {
+      throw new NotFoundException('لم يتم العثور على الطلب');
+    }
+    
+    return command;
+
+    }catch(e)
+    {
+      console.log(e);
+      throw new BadRequestException("حاول مرة خرى")
+      
     }
   }
 }

@@ -16,19 +16,13 @@ class UpdateUserDto {
 }
 exports.UpdateUserDto = UpdateUserDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({
-        example: 'Test test',
-        required: true
-    }),
+    (0, swagger_1.ApiProperty)({ example: 'Test test', required: false }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "الاسم و اللقب ديالك ضروري" }),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "name", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({
-        example: '212600000000',
-        required: false
-    }),
+    (0, swagger_1.ApiProperty)({ example: '+212600000000', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
@@ -37,22 +31,54 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({
-        example: '1234',
-        required: false
-    }),
+    (0, swagger_1.ApiProperty)({ example: '1234', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "password", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({
-        example: 'company',
-        required: true
-    }),
+    (0, swagger_1.ApiProperty)({ example: 'company', required: false }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(['admin', 'client', 'company']),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "role", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Casablanca', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "city", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Technology', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "field", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: '12345678910123', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.Matches)(/^\d{14}$/, { message: 'ICE خاص اكن فيه 14 لرقم' }),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "ice", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'AS30Dd2', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "ownRef", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'AS30Dd2', required: false, default: null }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "refBy", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: ['AS30Dd2', 'ZX56Yn4'], required: false, default: null }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], UpdateUserDto.prototype, "listRefs", void 0);
 //# sourceMappingURL=update-user.dto.js.map

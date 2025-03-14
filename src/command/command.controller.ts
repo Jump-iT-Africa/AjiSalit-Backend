@@ -3,7 +3,7 @@ import { CommandService } from './command.service';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { validateJwt } from "../services/verifyJwt"
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody,ApiParam } from '@nestjs/swagger';
 import ResponseDto from "./dto/response-command.dto"
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
@@ -95,19 +95,22 @@ export class CommandController {
   })
   create(@Body() createCommandDto: CreateCommandDto, @Req() req) {
     try {
-      let token = req.headers['authorization'];
+      let token = req.headers['authorization']?.split(" ")[1];
+
       let infoUser = validateJwt(token);
+      console.log(infoUser.role);
+      
       if (!infoUser) {
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
       }
+
       if (infoUser.role !== "company") {
         throw new ForbiddenException("ممسموحش لك تزيد طلب")
       }
-      //guard to add later, those who has company role are the one who can create the offer 
       const authentificatedId = infoUser.id;
       return this.commandService.create(createCommandDto, authentificatedId);
+
     } catch (e) {
-      // console.log(e)
       if (e instanceof JsonWebTokenError)
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
       if (e instanceof ForbiddenException) {
@@ -261,7 +264,7 @@ export class CommandController {
   })
   findAll(@Req() req) {
     try {
-      let token = req.headers['authorization'];
+      let token = req.headers['authorization'].split(" ")[1];
       let infoUser = validateJwt(token);
       console.log(infoUser)
       if (!infoUser) {
@@ -331,7 +334,7 @@ export class CommandController {
 
   findOne(@Param('id') id: string, @Req() req) {
     try{
-      let token = req.headers['authorization'];
+      let token = req.headers['authorization'].split(" ")[1];
       let infoUser = validateJwt(token);
       console.log(infoUser)
       if (!infoUser) {
@@ -411,7 +414,7 @@ export class CommandController {
   })
   update(@Param('id') id: string, @Body() updateCommandDto: UpdateCommandDto, @Req() req) {
     try{
-      let token = req.headers['authorization'];
+      let token = req.headers['authorization'].split(" ")[1];
       let infoUser = validateJwt(token);
       // console.log(infoUser)
       if (!infoUser) {
@@ -498,7 +501,7 @@ export class CommandController {
 
   remove(@Param('id') id: string, @Req() req) {
     try{
-      let token = req.headers['authorization'];
+      let token = req.headers['authorization'].split(" ")[1];
       let infoUser = validateJwt(token);
       if (!infoUser) {
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
@@ -517,4 +520,39 @@ export class CommandController {
       throw new BadRequestException("حاول مرة خرى")
     }
   }
+
+
+
+
+
+
+
+
+  //  HNA KAYN COMPANY & CODE HANDLEMENT
+
+
+  @Get('scan/:qrCode')
+  @ApiOperation({ summary: 'Scan QR code and retrieve command details' })
+  @ApiParam({ name: 'qrCode', description: 'The unique QR code string from the scanned code' })
+  @ApiResponse({
+    status: 200,
+    description: 'Command details retrieved successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Command not found',
+    schema: {
+      example: {
+        message: 'لم يتم العثور على الطلب',
+        error: 'Not Found',
+        statusCode: 404
+      }
+    }
+  })
+
+
+  async scanQrCode(@Param('qrCode') qrCode: string) {
+    return this.commandService.getCommandByQrCode(qrCode);
+  }
+
 }
