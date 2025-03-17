@@ -69,7 +69,6 @@ export class CreateCommandDto {
         required: true
     })
 
-    @IsString()
     @IsOptional()
     images?: string[]
 

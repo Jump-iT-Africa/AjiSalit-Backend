@@ -2,11 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
 
 export default class ResponseDto {
-  @ApiProperty({
-    example: '67bda9260433e5b76e39de06',
-    description: 'companyId is the id of the company that creates an order',
-    required: true,
-  })
+
   companyId: Types.ObjectId;
 
   @ApiProperty({
@@ -51,14 +47,14 @@ export default class ResponseDto {
   })
   deliveryDate: string;
   @ApiProperty({
-    example: 'null',
+    example: null,
     description: 'it will be unpdated in the pick up date',
     required: true,
   })
   pickupDate: string;
 
   @ApiProperty({
-    example: ['image1.jpg', 'image2.jpg'],
+    example: ["image.jpg", "image2.jpg"],
     description: 'images URLs related to the service',
     required: false,
     type: [String],

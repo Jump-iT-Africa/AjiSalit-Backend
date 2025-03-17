@@ -17,12 +17,44 @@ const common_1 = require("@nestjs/common");
 const notifications_service_1 = require("./notifications.service");
 const create_notification_dto_1 = require("./dto/create-notification.dto");
 const update_notification_dto_1 = require("./dto/update-notification.dto");
+const verifyJwt_1 = require("../services/verifyJwt");
 let NotificationsController = class NotificationsController {
     constructor(notificationsService) {
         this.notificationsService = notificationsService;
     }
-    create(createNotificationDto) {
-        return this.notificationsService.create(createNotificationDto);
+    createNotification(recevierId, createNotificationDto, req) {
+        try {
+            let token = req.headers.authorization;
+            if (!token) {
+                throw new common_1.UnauthorizedException("you aren't allowed to perform this action, please login and try again");
+            }
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("you have to login again");
+            }
+            return this.notificationsService.createNewNotification(recevierId, infoUser.id, createNotificationDto);
+        }
+        catch (e) {
+            console.log(e);
+            throw new common_1.BadRequestException("ops smth went wrong");
+        }
+    }
+    notifyOrderCompleted(orderId, receiverId, req) {
+        try {
+            let token = req.headers.authorization;
+            if (!token) {
+                throw new common_1.UnauthorizedException("you aren't allowed to perform this action, please login and try again");
+            }
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("you have to login again");
+            }
+            return this.notificationsService.notificationCompleteOrder(orderId, infoUser, receiverId);
+        }
+        catch (e) {
+            console.log(e);
+            throw new common_1.BadRequestException("Ops smth went wrong");
+        }
     }
     findAll() {
         return this.notificationsService.findAll();
@@ -39,12 +71,23 @@ let NotificationsController = class NotificationsController {
 };
 exports.NotificationsController = NotificationsController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Post)(':recevierId'),
+    __param(0, (0, common_1.Param)("recevierId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_notification_dto_1.CreateNotificationDto]),
+    __metadata("design:paramtypes", [String, create_notification_dto_1.CreateNotificationDto, Object]),
     __metadata("design:returntype", void 0)
-], NotificationsController.prototype, "create", null);
+], NotificationsController.prototype, "createNotification", null);
+__decorate([
+    (0, common_1.Get)(':orderId/:recieverId'),
+    __param(0, (0, common_1.Param)("orderId")),
+    __param(1, (0, common_1.Param)("recieverId")),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "notifyOrderCompleted", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),

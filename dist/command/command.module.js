@@ -20,6 +20,7 @@ exports.CommandModule = CommandModule = __decorate([
         imports: [mongoose_1.MongooseModule.forFeature([{ name: command_schema_1.Command.name, schema: command_schema_1.CommandSchema }])],
         controllers: [command_controller_1.CommandController],
         providers: [command_service_1.CommandService],
+        exports: [command_service_1.CommandService]
     })
 ], CommandModule);
 //# sourceMappingURL=command.module.js.map

@@ -7,6 +7,7 @@ const swagger_1 = require("@nestjs/swagger");
 const dotenv = require("dotenv");
 const express = require("express");
 const path_1 = require("path");
+const notifications_gateway_1 = require("./notifications/notifications.gateway");
 dotenv.config();
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
@@ -23,6 +24,7 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, options);
     swagger_1.SwaggerModule.setup('api', app, document);
+    const notifgat = app.get(notifications_gateway_1.NotificationsGateway);
     await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

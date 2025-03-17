@@ -68,6 +68,17 @@ let UserController = class UserController {
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }
+    updateSocketId(id, socketId, req) {
+        let token = req.headers['authorization'].split(" ")[1];
+        let infoUser = (0, verifyJwt_1.validateJwt)(token);
+        if (!infoUser) {
+            throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+        }
+        if (id !== infoUser.id) {
+            throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+        }
+        return this.userService.updateSocketId(id, socketId);
+    }
     updateUserProfile(id, updateUserDto, req) {
         try {
             let token = req.headers['authorization'].split(" ")[1];
@@ -307,6 +318,15 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "deleteAccount", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "updateSocketId", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: "Update user profile information" }),
     (0, swagger_1.ApiResponse)({

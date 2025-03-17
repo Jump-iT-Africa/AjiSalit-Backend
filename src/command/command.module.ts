@@ -8,5 +8,6 @@ import { Command, CommandSchema } from './entities/command.schema';
   imports: [MongooseModule.forFeature([{name: Command.name, schema: CommandSchema}])],
   controllers: [CommandController],
   providers: [CommandService],
+  exports:[CommandService]
 })
 export class CommandModule {}

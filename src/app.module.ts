@@ -15,10 +15,12 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
     MongooseModule.forRoot(process.env.MONGO_URL),
     CommandModule,
     UserModule,
-    NotificationsModule,
-    NotificationsGateway
-    
+    NotificationsModule,    
   ],
+  providers:[
+    NotificationsGateway
+
+  ]
 
 })
 export class AppModule {}

@@ -107,17 +107,23 @@ export class CommandService {
     }
   }
 
-  async update(authentificatedId,id, updateCommandDto: UpdateCommandDto) {
+  async update(authentificatedId,orderid, updateCommandDto: UpdateCommandDto) {
     try{
-      const command = await this.commandModel.findById(id).exec();
-      console.log(id, command)
+      const command = await this.commandModel.findById(orderid).exec();
+      // console.log(id, command)
       if(!command){
         throw new NotFoundException("طلب ديالك مكاينش")
       }
-      if(command.companyId.toString() !==  authentificatedId){
+      console.log("++++++++++++++++++++++++++++",authentificatedId, command.companyId)
+      if(await command.companyId.toString() !==  authentificatedId){
+        let results = command.companyId.toString() !==  authentificatedId;
+        console.log("heeeeeeeere", results);
         throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
       }
-      const updatedCommand = await this.commandModel.findByIdAndUpdate( id, updateCommandDto,{new: true }).exec();
+      console.log("++++++++++++++++++++++++++++updated",authentificatedId, command.companyId)
+      const updatedCommand = await this.commandModel.findByIdAndUpdate( orderid, updateCommandDto,{new: true }).exec();
+      console.log("++++++++++++++++++++++++++++updated command",updatedCommand)
+
       return updatedCommand
     }catch(e){
       if (e.name === 'CastError') {
@@ -130,6 +136,7 @@ export class CommandService {
         throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
 
       }
+      console.log("thsissssssssssssssss", e)
       throw new BadRequestException("حاول مرة خرى")
     }
   }

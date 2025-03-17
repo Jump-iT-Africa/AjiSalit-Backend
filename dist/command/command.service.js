@@ -115,17 +115,21 @@ let CommandService = class CommandService {
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }
-    async update(authentificatedId, id, updateCommandDto) {
+    async update(authentificatedId, orderid, updateCommandDto) {
         try {
-            const command = await this.commandModel.findById(id).exec();
-            console.log(id, command);
+            const command = await this.commandModel.findById(orderid).exec();
             if (!command) {
                 throw new common_1.NotFoundException("طلب ديالك مكاينش");
             }
-            if (command.companyId.toString() !== authentificatedId) {
+            console.log("++++++++++++++++++++++++++++", authentificatedId, command.companyId);
+            if (await command.companyId.toString() !== authentificatedId) {
+                let results = command.companyId.toString() !== authentificatedId;
+                console.log("heeeeeeeere", results);
                 throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
             }
-            const updatedCommand = await this.commandModel.findByIdAndUpdate(id, updateCommandDto, { new: true }).exec();
+            console.log("++++++++++++++++++++++++++++updated", authentificatedId, command.companyId);
+            const updatedCommand = await this.commandModel.findByIdAndUpdate(orderid, updateCommandDto, { new: true }).exec();
+            console.log("++++++++++++++++++++++++++++updated command", updatedCommand);
             return updatedCommand;
         }
         catch (e) {
@@ -138,6 +142,7 @@ let CommandService = class CommandService {
             if (e instanceof common_1.ForbiddenException) {
                 throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
             }
+            console.log("thsissssssssssssssss", e);
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }

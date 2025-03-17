@@ -88,7 +88,6 @@ __decorate([
         example: "2025-10-28",
         required: true
     }),
-    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Array)
 ], CreateCommandDto.prototype, "images", void 0);

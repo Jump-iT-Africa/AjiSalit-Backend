@@ -362,6 +362,23 @@ export class UserController {
 
 
 
+  @Put(':id')
+  updateSocketId(@Param('id') id: string, @Body() socketId, @Req() req){
+    let token = req.headers['authorization'].split(" ")[1];
+    let infoUser = validateJwt(token);
+    
+    if (!infoUser) {
+      throw new UnauthorizedException("حاول تسجل مرة أخرى")
+    }
+    
+    if (id !== infoUser.id) {
+      throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+    }
+  
+    return this.userService.updateSocketId(id, socketId);
+  }
+
+
 
   @ApiOperation({ summary: "Update user profile information" })
   @ApiResponse({

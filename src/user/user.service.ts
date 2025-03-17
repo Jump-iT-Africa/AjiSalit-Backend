@@ -233,8 +233,25 @@ export class UserService {
     }
   }
 
-  update(id: string, updateDto: UpdateUserDto | UpdateCompanyDto) {
-    return `This action updates a #${id} user`;
+ async updateSocketId(userId: string, socketUserId:string) {
+    try{
+      let result = await this.userModel.findById(userId).exec()
+      if (!result) {
+        throw new NotFoundException("حاول دخل رقم ديالك مرة أخرى")
+      }
+      // console.log(authentificatedId, "user ",result._id)
+      if(userId !== result._id.toString()){
+          throw new ForbiddenException("ممسموحش لك")
+      }
+      let updateDto = {
+        socketId: socketUserId
+      }
+      const updateAuthentificator = await this.userModel.findByIdAndUpdate(userId, updateDto, {new:true}).exec()
+      return "updated successfully"
+
+    }catch(e){
+      console.log('ops')
+    }
   }
 
 async deleteAccount(id: string, userId) {

@@ -1,0 +1,412 @@
+// Step 1: Set up the project structure
+// First, create a new NestJS project
+// $ nest new notification-system
+// $ cd notification-system
+// $ npm install @nestjs/websockets @nestjs/platform-socket.io socket.io
+
+// Step 2: Create role-based models
+// src/models/roles.enum.ts
+
+
+// src/models/user.model.ts
+// import { UserRole } from './roles.enum';
+
+// export class User {
+//   id: string;
+//   email: string;
+//   role: UserRole;
+//   socketId?: string;
+// }
+
+// src/models/notification.model.ts
+// export class Notification {
+//   id: string;
+//   message: string;
+//   createdAt: Date;
+//   read: boolean;
+//   senderId: string;
+//   recipientId: string;
+// }
+
+// src/models/order.model.ts
+// export class Order {
+//   id: string;
+//   userId: string;
+//   companyId: string;
+//   status: 'pending' | 'processing' | 'completed';
+//   createdAt: Date;
+//   updatedAt: Date;
+// }
+
+// Step 3: Create a WebSocket gateway
+// src/gateways/notification.gateway.ts
+// import { 
+//   OnGatewayConnection,
+//   OnGatewayDisconnect,
+//   ConnectedSocket
+// } from '@nestjs/websockets';
+// import { Server, Socket } from 'socket.io';
+// import { Injectable, Logger } from '@nestjs/common';
+// import { NotificationService } from '../services/notification.service';
+// import { UserService } from '../services/user.service';
+// import { UserRole } from '../models/roles.enum';
+
+// @WebSocketGateway({
+//   cors: {
+//     origin: '*',
+//   },
+// })
+// @Injectable()
+// export class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
+//   private readonly logger = new Logger(NotificationGateway.name);
+
+//   @WebSocketServer()
+//   server: Server;
+
+//   constructor(
+//     private readonly notificationService: NotificationService,
+//     private readonly userService: UserService,
+//   ) {}
+
+  async handleConnection(client: Socket) {
+    // const userId = client.handshake.query.userId as string;
+    // if (!userId) {
+    //   client.disconnect();
+    //   return;
+    // }
+
+    try {
+    //   // Store user's socket ID for direct messaging
+    //   await this.userService.updateUserSocketId(userId, client.id);
+    //   this.logger.log(`Client connected: ${userId}`);
+      
+      // Join rooms based on user role
+      const user = await this.userService.findById(userId);
+      if (user) {
+        client.join(user.role); // Join role-based room
+        client.join(userId);    // Join personal room
+        
+        // Send pending notifications
+        const pendingNotifications = await this.notificationService.getPendingNotifications(userId);
+        if (pendingNotifications.length > 0) {
+          client.emit('pendingNotifications', pendingNotifications);
+        }
+      }
+    } catch (error) {
+      this.logger.error(`Error during connection: ${error.message}`);
+      client.disconnect();
+    }
+  }
+
+//   async handleDisconnect(client: Socket) {
+//     const userId = client.handshake.query.userId as string;
+//     if (userId) {
+//       await this.userService.updateUserSocketId(userId, null);
+//       this.logger.log(`Client disconnected: ${userId}`);
+//     }
+//   }
+
+  @SubscribeMessage('markAsRead')
+  async markNotificationAsRead(
+    @ConnectedSocket() client: Socket,
+    payload: { notificationId: string },
+  ) {
+    try { 
+      const userId = client.handshake.query.userId as string;
+      await this.notificationService.markAsRead(payload.notificationId, userId);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+// Step 4: Create notification service
+// src/services/notification.service.ts
+import { Injectable } from '@nestjs/common';
+import { WebSocketServer } from '@nestjs/websockets';
+import { Server } from 'socket.io';
+import { v4 as uuidv4 } from 'uuid';
+import { Notification } from '../models/notification.model';
+import { UserService } from './user.service';
+import { UserRole } from '../models/roles.enum';
+
+@Injectable()
+export class NotificationService {
+  @WebSocketServer()
+  private server: Server;
+
+  private notifications: Notification[] = [];
+
+  // constructor(private readonly userService: UserService) {}
+
+  // async createNotification(senderId: string, recipientId: string, message: string): Promise<Notification> {
+  //   const notification: Notification = {
+  //     id: uuidv4(),
+  //     message,
+  //     createdAt: new Date(),
+  //     read: false,
+  //     senderId,
+  //     recipientId,
+  //   };
+
+  //   this.notifications.push(notification);
+    
+  //   // Get recipient's socket ID if they're online
+  //   const recipient = await this.userService.findById(recipientId);
+  //   if (recipient && recipient.socketId) {
+  //     this.server.to(recipient.socketId).emit('notification', notification);
+  //   }
+
+  //   return notification;
+  // }
+
+  // Send notification when order is completed
+  async notifyOrderCompleted(orderId: string, companyId: string, userId: string): Promise<void> {
+    const company = await this.userService.findById(companyId);
+    if (!company) {
+      throw new Error('Company not found');
+    }
+
+    await this.createNotification(
+      companyId,
+      userId,
+      `Your order #${orderId} has been completed by ${company.email}.`
+    );
+  }
+
+  // Admin broadcast to all users
+  async adminBroadcastToAllUsers(adminId: string, message: string): Promise<void> {
+    const admin = await this.userService.findById(adminId);
+    if (!admin || admin.role !== UserRole.ADMIN) {
+      throw new Error('Only admins can broadcast messages to all users');
+    }
+
+    // Get all users with USER role
+    const users = await this.userService.findAllByRole(UserRole.USER);
+    
+    for (const user of users) {
+      await this.createNotification(adminId, user.id, message);
+    }
+    
+    // Also broadcast to the room directly
+    this.server.to(UserRole.USER).emit('broadcastNotification', {
+      message,
+      from: admin.email,
+      timestamp: new Date(),
+    });
+  }
+
+  async getPendingNotifications(userId: string): Promise<Notification[]> {
+    return this.notifications.filter(
+      notification => notification.recipientId === userId && !notification.read
+    );
+  }
+
+  async markAsRead(notificationId: string, userId: string): Promise<void> {
+    const notification = this.notifications.find(
+      n => n.id === notificationId && n.recipientId === userId
+    );
+
+    if (notification) {
+      notification.read = true;
+    }
+  }
+}
+
+// Step 5: Create user service
+// src/services/user.service.ts
+import { Injectable } from '@nestjs/common';
+import { User } from '../models/user.model';
+import { UserRole } from '../models/roles.enum';
+import { v4 as uuidv4 } from 'uuid';
+
+@Injectable()
+export class UserService {
+  private users: User[] = [];
+
+  constructor() {
+    // Add some mock data for testing
+    this.createUser('user@example.com', UserRole.USER);
+    this.createUser('company@example.com', UserRole.COMPANY);
+    this.createUser('admin@example.com', UserRole.ADMIN);
+  }
+
+  async createUser(email: string, role: UserRole): Promise<User> {
+    const user: User = {
+      id: uuidv4(),
+      email,
+      role,
+    };
+
+    this.users.push(user);
+    return user;
+  }
+
+  async findById(id: string): Promise<User | undefined> {
+    return this.users.find(user => user.id === id);
+  }
+
+  async findAllByRole(role: UserRole): Promise<User[]> {
+    return this.users.filter(user => user.role === role);
+  }
+
+  async updateUserSocketId(userId: string, socketId: string | null): Promise<void> {
+    const user = await this.findById(userId);
+    if (user) {
+      user.socketId = socketId;
+    }
+  }
+}
+
+// Step 6: Create order service
+// src/services/order.service.ts
+import { Injectable } from '@nestjs/common';
+import { Order } from '../models/order.model';
+import { NotificationService } from './notification.service';
+import { v4 as uuidv4 } from 'uuid';
+
+@Injectable()
+export class OrderService {
+  private orders: Order[] = [];
+
+  constructor(private readonly notificationService: NotificationService) {}
+
+  async createOrder(userId: string, companyId: string): Promise<Order> {
+    const order: Order = {
+      id: uuidv4(),
+      userId,
+      companyId,
+      status: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.orders.push(order);
+    return order;
+  }
+
+  async completeOrder(orderId: string, companyId: string): Promise<Order> {
+    const order = this.orders.find(o => o.id === orderId && o.companyId === companyId);
+    
+    if (!order) {
+      throw new Error('Order not found or you are not authorized');
+    }
+
+    order.status = 'completed';
+    order.updatedAt = new Date();
+
+    // Send notification to user
+    await this.notificationService.notifyOrderCompleted(
+      orderId,
+      companyId,
+      order.userId
+    );
+
+    return order;
+  }
+
+  async getOrderById(orderId: string): Promise<Order | undefined> {
+    return this.orders.find(order => order.id === orderId);
+  }
+}
+
+// Step 7: Create controllers
+// src/controllers/notification.controller.ts
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { NotificationService } from '../services/notification.service';
+import { AuthGuard } from '../guards/auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { UserRole } from '../models/roles.enum';
+
+@Controller('notifications')
+@UseGuards(AuthGuard, RolesGuard)
+export class NotificationController {
+  constructor(private readonly notificationService: NotificationService) {}
+
+  @Post('broadcast')
+  @Roles(UserRole.ADMIN)
+  async broadcastToAllUsers(@Req() req, @Body() body: { message: string }) {
+    const adminId = req.user.id;
+    await this.notificationService.adminBroadcastToAllUsers(adminId, body.message);
+    return { success: true };
+  }
+}
+
+// src/controllers/order.controller.ts
+import { Controller, Post, Param, UseGuards, Req } from '@nestjs/common';
+import { OrderService } from '../services/order.service';
+import { AuthGuard } from '../guards/auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { UserRole } from '../models/roles.enum';
+
+@Controller('orders')
+@UseGuards(AuthGuard, RolesGuard)
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
+
+  @Post(':orderId/complete')
+  @Roles(UserRole.COMPANY)
+  async completeOrder(@Req() req, @Param('orderId') orderId: string) {
+    const companyId = req.user.id;
+    const order = await this.orderService.completeOrder(orderId, companyId);
+    return order;
+  }
+}
+
+// Step 8: Create module
+// src/app.module.ts
+import { Module } from '@nestjs/common';
+import { NotificationGateway } from './gateways/notification.gateway';
+import { NotificationService } from './services/notification.service';
+import { UserService } from './services/user.service';
+import { OrderService } from './services/order.service';
+import { NotificationController } from './controllers/notification.controller';
+import { OrderController } from './controllers/order.controller';
+
+@Module({
+  imports: [],
+  controllers: [NotificationController, OrderController],
+  providers: [
+    NotificationGateway,
+    NotificationService,
+    UserService,
+    OrderService,
+  ],
+})
+export class AppModule {}
+
+// Step 9: Frontend client example (for testing)
+// client.js
+/*
+const socket = io('http://localhost:3000', {
+  query: {
+    userId: 'user-id-here'
+  }
+});
+
+socket.on('connect', () => {
+  console.log('Connected to WebSocket server');
+});
+
+socket.on('notification', (notification) => {
+  console.log('New notification:', notification);
+  // Display notification to user
+});
+
+socket.on('broadcastNotification', (data) => {
+  console.log('Broadcast notification:', data);
+  // Display admin broadcast to user
+});
+
+socket.on('pendingNotifications', (notifications) => {
+  console.log('Pending notifications:', notifications);
+  // Display pending notifications
+});
+
+// Mark notification as read
+socket.emit('markAsRead', { notificationId: 'notification-id-here' }, (response) => {
+  console.log('Mark as read response:', response);
+});
+*/

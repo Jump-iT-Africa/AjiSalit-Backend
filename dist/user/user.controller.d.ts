@@ -34,5 +34,6 @@ export declare class UserController {
     login(LoginUserDto: LoginUserDto): Promise<any>;
     findOne(id: string, req: any): Promise<import("./dto/ResponseDto/response-company.dto").ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
     deleteAccount(id: string, req: any): Promise<string>;
+    updateSocketId(id: string, socketId: any, req: any): Promise<string>;
     updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any): Promise<import("./entities/user.schema").User>;
 }

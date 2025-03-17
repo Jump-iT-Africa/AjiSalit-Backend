@@ -28,8 +28,10 @@ exports.AppModule = AppModule = __decorate([
             command_module_1.CommandModule,
             user_module_1.UserModule,
             notifications_module_1.NotificationsModule,
-            notifications_gateway_1.NotificationsGateway
         ],
+        providers: [
+            notifications_gateway_1.NotificationsGateway
+        ]
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

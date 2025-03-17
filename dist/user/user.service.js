@@ -173,8 +173,24 @@ let UserService = class UserService {
             throw new common_1.BadRequestException("حاول مرة أخرى");
         }
     }
-    update(id, updateDto) {
-        return `This action updates a #${id} user`;
+    async updateSocketId(userId, socketUserId) {
+        try {
+            let result = await this.userModel.findById(userId).exec();
+            if (!result) {
+                throw new common_1.NotFoundException("حاول دخل رقم ديالك مرة أخرى");
+            }
+            if (userId !== result._id.toString()) {
+                throw new common_1.ForbiddenException("ممسموحش لك");
+            }
+            let updateDto = {
+                socketId: socketUserId
+            };
+            const updateAuthentificator = await this.userModel.findByIdAndUpdate(userId, updateDto, { new: true }).exec();
+            return "updated successfully";
+        }
+        catch (e) {
+            console.log('ops');
+        }
     }
     async deleteAccount(id, userId) {
         try {

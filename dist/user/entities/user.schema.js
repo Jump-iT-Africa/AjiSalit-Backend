@@ -54,6 +54,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: [String], required: false, default: [] }),
     __metadata("design:type", Array)
 ], User.prototype, "listRefs", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false }),
+    __metadata("design:type", String)
+], User.prototype, "socketId", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);
