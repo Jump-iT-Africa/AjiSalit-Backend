@@ -34,6 +34,13 @@ async function bootstrap() {
   // const notifgat = app.get(NotificationsGateway)
   // setInterval(()=>notifgat.handleNotification())
 
-  await app.listen(process.env.PORT ?? 3000);
+  // await app.listen(process.env.PORT ?? 3000);
+  app.enableCors({
+    origin: '*', 
+    credentials: true,
+  });
+  
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+
 }
 bootstrap();

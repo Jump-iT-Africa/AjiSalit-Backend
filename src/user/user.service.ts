@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import * as bcrypt from 'bcrypt';
 // import { TwilioService } from '../services/twilio.service';
-import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
+// import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { plainToClass} from 'class-transformer';

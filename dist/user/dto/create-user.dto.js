@@ -16,6 +16,7 @@ class CreateUserDto {
 }
 exports.CreateUserDto = CreateUserDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'OSM', required: true }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
@@ -33,17 +34,20 @@ __decorate([
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "password", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'company', required: true }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEnum)(['admin', 'client', 'company']),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "role", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'marrakech', required: true }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "city", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'pressing', required: true }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -56,19 +60,16 @@ __decorate([
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "ice", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'AS30Dd2', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "ownRef", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'AS30Dd2', required: false, default: null }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "refBy", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: ['AS30Dd2', 'ZX56Yn4'], required: false, default: null }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),

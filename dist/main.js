@@ -23,7 +23,11 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, options);
     swagger_1.SwaggerModule.setup('api', app, document);
-    await app.listen(process.env.PORT ?? 3000);
+    app.enableCors({
+        origin: '*',
+        credentials: true,
+    });
+    await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
