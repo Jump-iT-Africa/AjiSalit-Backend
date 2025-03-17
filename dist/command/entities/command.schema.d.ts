@@ -8,7 +8,9 @@ export declare class Command {
     advancedAmount: number;
     city: string;
     price: number;
-    images?: string[];
+    images: [{
+        type: String;
+    }];
     deliveryDate: Date;
     pickupDate: Date;
     qrCode: string;

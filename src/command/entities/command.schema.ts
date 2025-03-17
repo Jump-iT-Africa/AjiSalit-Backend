@@ -28,7 +28,9 @@ export class Command {
   price: number; 
 
   @Prop({ required: false})
-  images?: string[];
+  images: [{ type: String }]
+
+
 
   @Prop({ required: true })
   deliveryDate: Date;
