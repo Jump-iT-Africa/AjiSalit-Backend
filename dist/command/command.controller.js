@@ -50,7 +50,7 @@ let CommandController = class CommandController {
     }
     scanedUserId(qrcode, req) {
         try {
-            let token = req.headers['authorization'];
+            let token = req.headers['authorization'].split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
@@ -146,14 +146,31 @@ let CommandController = class CommandController {
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }
-    async scanQrCode(qrCode) {
-        return this.commandService.getCommandByQrCode(qrCode);
+    async scanQrCode(qrCode, req) {
+        try {
+            let token = req.headers['authorization'].split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+            }
+            return this.commandService.getCommandByQrCode(qrCode);
+        }
+        catch (e) {
+            console.log(e);
+            if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
+                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+            if (e instanceof common_1.ForbiddenException) {
+                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+            }
+            throw new common_1.BadRequestException("حاول مرة خرى");
+        }
     }
 };
 exports.CommandController = CommandController;
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: "Give the company the ability to add new order" }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'the response returns the details of the Order ',
@@ -285,6 +302,7 @@ __decorate([
             example: "Ops smth went wrong",
         },
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('qrcode')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -294,6 +312,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: "The client or the company can check their orders" }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiResponse)({
         status: 401,
         description: 'Unauthorized error: the user is not logged in ',
@@ -414,6 +433,7 @@ __decorate([
             },
         },
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -484,6 +504,7 @@ __decorate([
             }
         },
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
@@ -493,6 +514,7 @@ __decorate([
 ], CommandController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: "The company order want to delete an order" }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -552,6 +574,7 @@ __decorate([
             },
         }
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -577,9 +600,11 @@ __decorate([
             }
         }
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, common_1.Param)('qrCode')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], CommandController.prototype, "scanQrCode", null);
 exports.CommandController = CommandController = __decorate([

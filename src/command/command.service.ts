@@ -107,30 +107,53 @@ export class CommandService {
     }
   }
 
-  async update(authentificatedId,id, updateCommandDto: UpdateCommandDto) {
-    try{
-      const command = await this.commandModel.findById(id).exec();
-      console.log(id, command)
-      if(!command){
-        throw new NotFoundException("طلب ديالك مكاينش")
-      }
-      if(command.companyId.toString() !==  authentificatedId){
-        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
-      }
-      const updatedCommand = await this.commandModel.findByIdAndUpdate( id, updateCommandDto,{new: true }).exec();
-      return updatedCommand
-    }catch(e){
-      if (e.name === 'CastError') {
+  async update(authentificatedId, id, updateCommandDto: UpdateCommandDto) {
+    try {
+      // Validate ID format first
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
       }
-      if(e instanceof NotFoundException){
-        throw new NotFoundException("طلب ديالك مكاينش")
+      
+      const command = await this.commandModel.findById(id).exec();
+      console.log(id, command);
+      
+      if (!command) {
+        throw new NotFoundException("طلب ديالك مكاينش");
       }
-      if(e instanceof ForbiddenException){
-        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
-
+      
+      console.log("Authenticated ID:", authentificatedId);
+      console.log("Command company ID:", command.companyId.toString());
+      
+      if (command.companyId.toString() !== authentificatedId) {
+        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب");
       }
-      throw new BadRequestException("حاول مرة خرى")
+      
+      console.log("Update DTO:", JSON.stringify(updateCommandDto));
+      
+      const updatedCommand = await this.commandModel
+        .findByIdAndUpdate(
+          id, 
+          updateCommandDto, 
+          {new: true, runValidators: true}
+        )
+        .exec();
+      
+      console.log("Updated command:", updatedCommand);
+      return updatedCommand;
+    } catch(e) {
+      console.log("Error type:", e.constructor.name);
+      console.log("Full error:", e);
+      
+      if (e.name === 'CastError' || e.name === 'ValidationError') {
+        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+      }
+      if (e instanceof NotFoundException) {
+        throw e;
+      }
+      if (e instanceof ForbiddenException) {
+        throw e;
+      }
+      throw new BadRequestException(`حاول مرة خرى: ${e.message}`);
     }
   }
 
@@ -167,7 +190,6 @@ export class CommandService {
 
   async getCommandByQrCode(qrCode: string): Promise<Command> {
     try{
-
       const command = await this.commandModel.findOne({ qrCode })
       .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status') 
       .exec();

@@ -9,6 +9,5 @@ export default class ResponseDto {
     deliveryDate: string;
     pickupDate: string;
     images?: string[];
-    _id: string;
     userId?: Types.ObjectId | null;
 }

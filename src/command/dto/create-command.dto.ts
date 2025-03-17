@@ -1,12 +1,9 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString} from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray} from "class-validator";
 import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateCommandDto {
-    @ApiProperty({
-        example: '67bda9260433e5b76e39de06',
-        required: true
-    })
+    
     @IsOptional()
     @IsMongoId()
     companyId?:Types.ObjectId
@@ -68,16 +65,25 @@ export class CreateCommandDto {
         example: "2025-10-28",
         required: true
     })
+    pickupDate:string
 
-    @IsString()
+
+
+    @ApiProperty({
+        example: ['image1.jpg', 'image2.jpg'],
+        description: 'images URLs related to the service',
+        required: false,
+        type: [String],
+    })
     @IsOptional()
+    @IsString({ each: true })
+    @IsArray()
     images?: string[]
 
     @ApiProperty({
         example: "Hgdthej80000",
         required: true
     })
-
     @IsNotEmpty()
     qrCode:string
 

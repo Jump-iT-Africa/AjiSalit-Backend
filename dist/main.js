@@ -19,6 +19,7 @@ async function bootstrap() {
         .setVersion('1.0')
         .addServer('https://www.ajisalit.com/', 'Production')
         .addServer('http://localhost:3000/', 'Local environment')
+        .addBearerAuth()
         .addTag('ajisalit')
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, options);

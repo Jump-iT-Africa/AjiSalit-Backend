@@ -16,6 +16,7 @@ exports.CommandService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const mongoose_3 = require("mongoose");
 const command_schema_1 = require("./entities/command.schema");
 const validationOrder_1 = require("../services/validationOrder");
 let CommandService = class CommandService {
@@ -117,28 +118,39 @@ let CommandService = class CommandService {
     }
     async update(authentificatedId, id, updateCommandDto) {
         try {
+            if (!mongoose_3.default.Types.ObjectId.isValid(id)) {
+                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+            }
             const command = await this.commandModel.findById(id).exec();
             console.log(id, command);
             if (!command) {
                 throw new common_1.NotFoundException("طلب ديالك مكاينش");
             }
+            console.log("Authenticated ID:", authentificatedId);
+            console.log("Command company ID:", command.companyId.toString());
             if (command.companyId.toString() !== authentificatedId) {
                 throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
             }
-            const updatedCommand = await this.commandModel.findByIdAndUpdate(id, updateCommandDto, { new: true }).exec();
+            console.log("Update DTO:", JSON.stringify(updateCommandDto));
+            const updatedCommand = await this.commandModel
+                .findByIdAndUpdate(id, updateCommandDto, { new: true, runValidators: true })
+                .exec();
+            console.log("Updated command:", updatedCommand);
             return updatedCommand;
         }
         catch (e) {
-            if (e.name === 'CastError') {
+            console.log("Error type:", e.constructor.name);
+            console.log("Full error:", e);
+            if (e.name === 'CastError' || e.name === 'ValidationError') {
                 throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
             }
             if (e instanceof common_1.NotFoundException) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw e;
             }
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw e;
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException(`حاول مرة خرى: ${e.message}`);
         }
     }
     async deleteOrder(id, userId) {

@@ -22,9 +22,12 @@ __decorate([
     (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
         message: 'Phone number must be in international format (e.g., +212697042868)'
     }),
+    __metadata("design:type", String)
+], LoginUserDto.prototype, "phoneNumber", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ example: '123456', required: true }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], LoginUserDto.prototype, "phoneNumber", void 0);
+], LoginUserDto.prototype, "password", void 0);
 //# sourceMappingURL=login-user.dto.js.map

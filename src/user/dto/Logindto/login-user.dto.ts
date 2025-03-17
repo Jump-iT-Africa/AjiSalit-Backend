@@ -9,10 +9,13 @@ export class LoginUserDto {
     @Matches(/^\+[1-9]\d{1,14}$/, {
     message: 'Phone number must be in international format (e.g., +212697042868)'
     })
+    phoneNumber: string;
 
+
+    
     @ApiProperty({ example: '123456', required: true })
     @IsString()
     @IsNotEmpty()
-    phoneNumber: string;
+    password:string
 
 }

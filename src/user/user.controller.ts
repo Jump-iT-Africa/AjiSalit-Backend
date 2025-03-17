@@ -8,7 +8,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { validateJwt } from "../services/verifyJwt"
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { RoleValidationPipe } from './pipes/RoleValidationPipe'
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, refs, ApiExtraModels } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, refs, ApiExtraModels,ApiBearerAuth } from '@nestjs/swagger';
 import { log } from 'console';
 
 
@@ -109,7 +109,7 @@ export class UserController {
   @Post('login')
   @ApiOperation({ summary: "The user is logged in" })
   @ApiBody({
-    type: CreateUserDto,
+    type: LoginUserDto,
   })
   @ApiResponse({
     status: 200,
@@ -231,6 +231,7 @@ export class UserController {
 
   @Get(':id')
   @ApiOperation({ summary: 'the user or the company owner can preview their own informations' })
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'the response returns the info of user ',
@@ -311,7 +312,11 @@ export class UserController {
     }
   }
 
+
+
+
   @Delete(':id')
+  @ApiBearerAuth()
   @ApiOperation({ summary: "the user or the company owner delete his account " })
   @ApiResponse({
     status: 200,
@@ -413,7 +418,7 @@ export class UserController {
     }
   })
 
-
+  @ApiBearerAuth()
   @Put(':id')
   updateUserProfile(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req) {
   try {

@@ -16,14 +16,6 @@ class ResponseDto {
 exports.default = ResponseDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: '67bda9260433e5b76e39de06',
-        description: 'companyId is the id of the company that creates an order',
-        required: true,
-    }),
-    __metadata("design:type", mongoose_1.Types.ObjectId)
-], ResponseDto.prototype, "companyId", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
         example: '50000',
         description: 'Price of the service',
         required: true,
@@ -72,7 +64,7 @@ __decorate([
 ], ResponseDto.prototype, "deliveryDate", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: 'null',
+        example: null,
         description: 'it will be unpdated in the pick up date',
         required: true,
     }),
@@ -80,21 +72,12 @@ __decorate([
 ], ResponseDto.prototype, "pickupDate", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: ['image1.jpg', 'image2.jpg'],
+        example: ['image1111.jpg', 'image2.jpg'],
         description: 'images URLs related to the service',
         required: false,
-        type: [String],
     }),
     __metadata("design:type", Array)
 ], ResponseDto.prototype, "images", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        example: '67bf398590bd476466de96c0',
-        description: 'unique identifier of the order',
-        required: true,
-    }),
-    __metadata("design:type", String)
-], ResponseDto.prototype, "_id", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: 'null',

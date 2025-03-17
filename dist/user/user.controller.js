@@ -135,7 +135,7 @@ __decorate([
     (0, common_1.Post)('login'),
     (0, swagger_1.ApiOperation)({ summary: "The user is logged in" }),
     (0, swagger_1.ApiBody)({
-        type: create_user_dto_1.CreateUserDto,
+        type: login_user_dto_1.LoginUserDto,
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -205,6 +205,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'the user or the company owner can preview their own informations' }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'the response returns the info of user ',
@@ -273,6 +274,7 @@ __decorate([
 ], UserController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: "the user or the company owner delete his account " }),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -357,6 +359,7 @@ __decorate([
             }
         }
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Put)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
