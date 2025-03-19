@@ -4,17 +4,17 @@ import { UpdateCommandDto } from './dto/update-command.dto';
 export declare class CommandController {
     private readonly commandService;
     constructor(commandService: CommandService);
-    create(createCommandDto: CreateCommandDto, req: any): Promise<"حاول مرة خرى" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    create(createCommandDto: CreateCommandDto, req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })>;
+    }) | "حاول مرة خرى">;
     scanedUserId(qrcode: string, req: any): Promise<string>;
-    findAll(req: any): Promise<"ماكين حتا طلب" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[]>;
+    })[] | "ماكين حتا طلب">;
     findOne(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {

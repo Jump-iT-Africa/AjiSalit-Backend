@@ -44,13 +44,13 @@ export class CreateCommandDto {
     @IsOptional()
     advancedAmount:number
 
-    @ApiProperty({
-        example: "rabat",
-        required: true
-    })   
-    @IsNotEmpty({message:"دخل المدينة"})
-    @IsString({message:"دخل  إسم المدينة صحيح"})
-    city:string
+    // @ApiProperty({
+    //     example: "rabat",
+    //     required: true
+    // })   
+    // @IsNotEmpty({message:"دخل المدينة"})
+    // @IsString({message:"دخل  إسم المدينة صحيح"})
+    // city:string
 
     @ApiProperty({
         example: "2025-10-26",

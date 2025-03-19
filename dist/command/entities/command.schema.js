@@ -36,7 +36,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Command.prototype, "advancedAmount", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ required: false }),
     __metadata("design:type", String)
 ], Command.prototype, "city", void 0);
 __decorate([

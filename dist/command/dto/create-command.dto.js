@@ -63,15 +63,6 @@ __decorate([
 ], CreateCommandDto.prototype, "advancedAmount", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: "rabat",
-        required: true
-    }),
-    (0, class_validator_1.IsNotEmpty)({ message: "دخل المدينة" }),
-    (0, class_validator_1.IsString)({ message: "دخل  إسم المدينة صحيح" }),
-    __metadata("design:type", String)
-], CreateCommandDto.prototype, "city", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
         example: "2025-10-26",
         required: true
     }),
