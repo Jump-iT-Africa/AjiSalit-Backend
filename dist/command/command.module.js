@@ -12,12 +12,13 @@ const command_service_1 = require("./command.service");
 const command_controller_1 = require("./command.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const command_schema_1 = require("./entities/command.schema");
+const notifications_module_1 = require("../notifications/notifications.module");
 let CommandModule = class CommandModule {
 };
 exports.CommandModule = CommandModule;
 exports.CommandModule = CommandModule = __decorate([
     (0, common_1.Module)({
-        imports: [mongoose_1.MongooseModule.forFeature([{ name: command_schema_1.Command.name, schema: command_schema_1.CommandSchema }])],
+        imports: [mongoose_1.MongooseModule.forFeature([{ name: command_schema_1.Command.name, schema: command_schema_1.CommandSchema }]), (0, common_1.forwardRef)(() => notifications_module_1.NotificationsModule)],
         controllers: [command_controller_1.CommandController],
         providers: [command_service_1.CommandService],
         exports: [command_service_1.CommandService]

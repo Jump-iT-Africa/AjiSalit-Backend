@@ -8,6 +8,7 @@ export declare class CreateCommandDto {
     advancedAmount: number;
     city: string;
     deliveryDate: string;
+    pickupDate: string;
     images?: string[];
     qrCode: string;
 }

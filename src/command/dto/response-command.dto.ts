@@ -5,6 +5,7 @@ export default class ResponseDto {
 
   companyId: Types.ObjectId;
 
+
   @ApiProperty({
     example: '50000',
     description: 'Price of the service',
@@ -57,16 +58,10 @@ export default class ResponseDto {
     example: ["image.jpg", "image2.jpg"],
     description: 'images URLs related to the service',
     required: false,
-    type: [String],
   })
   images?: string[];
 
-  @ApiProperty({
-    example: '67bf398590bd476466de96c0',
-    description: 'unique identifier of the order',
-    required: true,
-  })
-  _id: string;
+ 
 
   @ApiProperty({
     example: 'null',

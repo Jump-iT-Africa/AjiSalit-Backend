@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { User, UserDocument } from './entities/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
@@ -38,7 +38,7 @@ export declare class UserService {
     login(LoginUserDto: LoginUserDto): Promise<any>;
     updateAuthentifictaion(id: string, updateDto: any, authentificatedId: any): Promise<string>;
     findAll(): string;
-    findOne(id: string): Promise<ResoponseCompanyDto | ResponseUserDto>;
+    findOne(userid: string | ObjectId): Promise<ResoponseCompanyDto | ResponseUserDto>;
     updateSocketId(userId: string, socketUserId: string): Promise<string>;
     deleteAccount(id: string, userId: any): Promise<string>;
     updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User>;

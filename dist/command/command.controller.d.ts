@@ -10,11 +10,11 @@ export declare class CommandController {
         __v: number;
     })>;
     scanedUserId(qrcode: string, req: any): Promise<string>;
-    findAll(req: any): Promise<"ماكين حتا طلب" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[]>;
+    })[] | "ماكين حتا طلب">;
     findOne(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
@@ -33,5 +33,10 @@ export declare class CommandController {
             __v: number;
         };
     }>;
-    scanQrCode(qrCode: string): Promise<import("./entities/command.schema").Command>;
+    scanQrCode(qrCode: string, req: any): Promise<import("./entities/command.schema").Command>;
+    updateStatusToDone(orderId: string, status: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
 }

@@ -5,6 +5,7 @@ import { CommandModule } from './command/command.module';
 import { UserModule } from './user/user.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { NotificationsGateway } from './notifications/notifications.gateway';
+import { FcmModule } from './fcm/fcm.module';
 
 
 @Module({
@@ -15,7 +16,8 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
     MongooseModule.forRoot(process.env.MONGO_URL),
     CommandModule,
     UserModule,
-    NotificationsModule,    
+    NotificationsModule,
+    FcmModule,    
   ],
   providers:[
     NotificationsGateway

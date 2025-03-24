@@ -75,18 +75,9 @@ __decorate([
         example: ["image.jpg", "image2.jpg"],
         description: 'images URLs related to the service',
         required: false,
-        type: [String],
     }),
     __metadata("design:type", Array)
 ], ResponseDto.prototype, "images", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        example: '67bf398590bd476466de96c0',
-        description: 'unique identifier of the order',
-        required: true,
-    }),
-    __metadata("design:type", String)
-], ResponseDto.prototype, "_id", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: 'null',

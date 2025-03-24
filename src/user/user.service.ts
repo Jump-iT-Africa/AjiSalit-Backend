@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import { User, UserDocument } from './entities/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
@@ -9,7 +9,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import * as bcrypt from 'bcrypt';
 // import { TwilioService } from '../services/twilio.service';
-import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
+// import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { plainToClass} from 'class-transformer';
@@ -39,7 +39,7 @@ export class UserService {
       const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
       if (existingUser) {
         return {
-          message: 'هاد الرقم مستعمل من قبل جرب رقم أخر'
+          message: "This number is already used, try to login or use another one"
         }
       }
   
@@ -201,13 +201,13 @@ export class UserService {
     return `This action returns all users`;
   }
 
-  async findOne(id: string) {
+  async findOne(userid:string | ObjectId) {
     try{
-      let result = await this.userModel.findById(id).exec()
+      let result = await this.userModel.findById({_id:userid}).exec()
+
       if(!result){
         throw new NotFoundException("حساب مكاينش، حاول مرة أخرى")
       }
-      // console.log(result)
       if(result.role == "company"){
         let data = plainToClass(ResoponseCompanyDto,result, {
           excludeExtraneousValues:true,

@@ -9,7 +9,11 @@ export declare class NotificationsController {
     }> & {
         __v: number;
     }>;
-    notifyOrderCompleted(orderId: string, receiverId: string, req: any): Promise<void>;
+    notifyOrderCompleted(orderId: string, receiverId: string, req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/notification.schema").NotificationDocument> & import("./entities/notification.schema").Notification & import("mongoose").Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }) | "there's no client added to send the notification">;
     findAll(): string;
     findOne(id: string): string;
     update(id: string, updateNotificationDto: UpdateNotificationDto): string;

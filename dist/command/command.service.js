@@ -16,11 +16,14 @@ exports.CommandService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const mongoose_3 = require("mongoose");
 const command_schema_1 = require("./entities/command.schema");
 const validationOrder_1 = require("../services/validationOrder");
+const notifications_gateway_1 = require("../notifications/notifications.gateway");
 let CommandService = class CommandService {
-    constructor(commandModel) {
+    constructor(commandModel, notificationsGateway) {
         this.commandModel = commandModel;
+        this.notificationsGateway = notificationsGateway;
     }
     async create(createCommandDto, authentificatedId) {
         try {
@@ -115,35 +118,63 @@ let CommandService = class CommandService {
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }
-    async update(authentificatedId, orderid, updateCommandDto) {
+    async update(authentificatedId, id, updateCommandDto) {
         try {
-            const command = await this.commandModel.findById(orderid).exec();
+            if (!mongoose_3.default.Types.ObjectId.isValid(id)) {
+                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+            }
+            const command = await this.commandModel.findById(id).exec();
+            console.log(id, command);
             if (!command) {
                 throw new common_1.NotFoundException("طلب ديالك مكاينش");
             }
-            console.log("++++++++++++++++++++++++++++", authentificatedId, command.companyId);
-            if (await command.companyId.toString() !== authentificatedId) {
-                let results = command.companyId.toString() !== authentificatedId;
-                console.log("heeeeeeeere", results);
+            console.log("authenticated ID:", authentificatedId);
+            console.log("command company ID:", command.companyId.toString());
+            if (command.companyId.toString() !== authentificatedId) {
                 throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
             }
-            console.log("++++++++++++++++++++++++++++updated", authentificatedId, command.companyId);
-            const updatedCommand = await this.commandModel.findByIdAndUpdate(orderid, updateCommandDto, { new: true }).exec();
-            console.log("++++++++++++++++++++++++++++updated command", updatedCommand);
+            const updatedCommand = await this.commandModel.findByIdAndUpdate(id, updateCommandDto, { new: true, runValidators: true }).exec();
+            console.log("Updated command:", updatedCommand);
             return updatedCommand;
         }
         catch (e) {
-            if (e.name === 'CastError') {
+            console.log("error type:", e.constructor.name);
+            console.log("Full error:", e);
+            if (e.name === 'CastError' || e.name === 'ValidationError') {
                 throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
             }
             if (e instanceof common_1.NotFoundException) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw e;
             }
             if (e instanceof common_1.ForbiddenException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException(`حاول مرة خرى: ${e.message}`);
+        }
+    }
+    async updateOrderToDoneStatus(userId, orderId, data) {
+        try {
+            const command = await this.commandModel.findById(orderId).exec();
+            console.log(orderId, command);
+            if (!command) {
+                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+            }
+            if (command.companyId.toString() !== userId) {
                 throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
             }
-            console.log("thsissssssssssssssss", e);
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true, runValidators: true }).exec();
+            console.log("++++++++++++", result);
+            if (!result) {
+                throw new common_1.BadRequestException("smth bad happend");
+            }
+            else {
+                const response = this.notificationsGateway.handleStatusNotification(orderId, result.clientId.toString(), userId);
+                console.log("+++++++++ dddd", response);
+            }
+            return result;
+        }
+        catch (e) {
+            console.log(e);
         }
     }
     async deleteOrder(id, userId) {
@@ -196,6 +227,8 @@ exports.CommandService = CommandService;
 exports.CommandService = CommandService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_gateway_1.NotificationsGateway))),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        notifications_gateway_1.NotificationsGateway])
 ], CommandService);
 //# sourceMappingURL=command.service.js.map

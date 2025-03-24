@@ -17,7 +17,7 @@ export class Notification {
   @Prop({ default: false })
   read: boolean;
 
-  @Prop({})
+  @Prop()
   createdAt:Date
 
 }

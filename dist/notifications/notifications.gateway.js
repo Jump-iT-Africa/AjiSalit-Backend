@@ -39,7 +39,7 @@ let NotificationsGateway = NotificationsGateway_1 = class NotificationsGateway {
         let userId = infoUser.id;
         try {
             let updateSocketId = await this.userService.updateSocketId(userId, client.id);
-            this.logger.log(`yeeeeee connected: ${userId}, with this socketid`, client.id);
+            this.logger.log(`yeeeeee connected ${userId} with socketid`, client.id);
         }
         catch (e) {
             console.log('message');
@@ -67,12 +67,39 @@ let NotificationsGateway = NotificationsGateway_1 = class NotificationsGateway {
             this.logger.log(`client disconnected: ${userId}`);
         }
     }
+    async handleStatusNotification(orderId, clientId, companyId) {
+        try {
+            const clientSocketData = await this.userService.findOne(clientId);
+            const clientSocketId = clientSocketData?.socketId;
+            console.log('yeeeeeeeeeee socket id', clientSocketId);
+            if (clientSocketId) {
+                await this.notificationService.createNewNotification(clientId, orderId, {
+                    message: `طلبك رقم ${orderId} جاهز للتسليم من ${companyId}`
+                });
+                this.server.to(clientSocketId).emit('newNotification', {
+                    type: 'statusUpdate',
+                    message: `طلبك رقم ${orderId} جاهز للتسليم من ${companyId}`,
+                    orderId: orderId
+                });
+                this.logger.log(`notification sent to client: ${clientId}`);
+            }
+        }
+        catch (error) {
+            this.logger.error(`error sending notification: ${error.message}`);
+        }
+    }
 };
 exports.NotificationsGateway = NotificationsGateway;
 __decorate([
     (0, websockets_1.WebSocketServer)(),
     __metadata("design:type", socket_io_1.Server)
 ], NotificationsGateway.prototype, "server", void 0);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('statusUpdate'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], NotificationsGateway.prototype, "handleStatusNotification", null);
 exports.NotificationsGateway = NotificationsGateway = NotificationsGateway_1 = __decorate([
     (0, websockets_1.WebSocketGateway)({ namespace: "notification", cors: { origin: '*' } }),
     (0, common_1.Injectable)(),

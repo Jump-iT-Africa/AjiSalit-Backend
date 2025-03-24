@@ -11,15 +11,23 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SignInToAppDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class SignInToAppDto {
 }
 exports.SignInToAppDto = SignInToAppDto;
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, swagger_1.ApiProperty)({ example: '+212697042868', required: true }),
+    (0, class_validator_1.IsPhoneNumber)(),
     (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
         message: 'Phone number must be in international format (e.g., +212697042868)'
     }),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], SignInToAppDto.prototype, "phoneNumber", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: '123456', required: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], SignInToAppDto.prototype, "password", void 0);
 //# sourceMappingURL=signInToApp.dto.js.map

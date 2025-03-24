@@ -10,4 +10,5 @@ export declare class NotificationsGateway implements OnGatewayConnection, OnGate
     constructor(notificationService: NotificationsService, userService: UserService);
     handleConnection(client: any): Promise<void>;
     handleDisconnect(client: Socket): Promise<void>;
+    handleStatusNotification(orderId: string, clientId: string, companyId: string): Promise<void>;
 }

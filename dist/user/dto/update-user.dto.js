@@ -31,7 +31,7 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '1234', required: false }),
+    (0, swagger_1.ApiProperty)({ example: '12456', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -50,7 +50,7 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "city", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'Technology', required: false }),
+    (0, swagger_1.ApiProperty)({ example: 'pressing', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -69,13 +69,11 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "ownRef", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: 'AS30Dd2', required: false, default: null }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "refBy", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: ['AS30Dd2', 'ZX56Yn4'], required: false, default: null }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsString)({ each: true }),

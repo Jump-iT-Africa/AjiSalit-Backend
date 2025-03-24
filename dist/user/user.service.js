@@ -37,7 +37,7 @@ let UserService = class UserService {
             const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
             if (existingUser) {
                 return {
-                    message: 'هاد الرقم مستعمل من قبل جرب رقم أخر'
+                    message: "This number is already used, try to login or use another one"
                 };
             }
             const saltRounds = 10;
@@ -144,9 +144,9 @@ let UserService = class UserService {
     findAll() {
         return `This action returns all users`;
     }
-    async findOne(id) {
+    async findOne(userid) {
         try {
-            let result = await this.userModel.findById(id).exec();
+            let result = await this.userModel.findById({ _id: userid }).exec();
             if (!result) {
                 throw new common_1.NotFoundException("حساب مكاينش، حاول مرة أخرى");
             }

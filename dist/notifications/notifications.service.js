@@ -17,8 +17,6 @@ const common_1 = require("@nestjs/common");
 const notification_schema_1 = require("./entities/notification.schema");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-const socket_io_1 = require("socket.io");
-const websockets_1 = require("@nestjs/websockets");
 const user_service_1 = require("../user/user.service");
 const command_service_1 = require("../command/command.service");
 let NotificationsService = class NotificationsService {
@@ -33,9 +31,12 @@ let NotificationsService = class NotificationsService {
             if (recevierId == undefined) {
                 throw new common_1.UnprocessableEntityException("the reciever id is empty");
             }
+            if (typeof recevierId === 'string' && recevierId.length !== 24) {
+                throw new common_1.BadRequestException('invalid receiver ID format kindly check your id and try again');
+            }
             const recevier = await this.userService.findOne(recevierId);
             if (!recevier) {
-                throw new common_1.NotFoundException("the reciever Id is not valid");
+                throw new common_1.NotFoundException("the reciever is not found");
             }
             const notification = {
                 senderId: senderId,
@@ -43,11 +44,9 @@ let NotificationsService = class NotificationsService {
                 message: createNotificationDto.message,
                 read: false,
             };
-            if (recevier && recevier.socketId) {
-                this.server.to(recevier.socketId).emit('notification', notification);
-            }
             let newNotification = new this.notificationModel(notification);
             let result = await newNotification.save();
+            this.notifications.push(notification);
             if (!result) {
                 throw new common_1.BadRequestException("please try again");
             }
@@ -66,6 +65,13 @@ let NotificationsService = class NotificationsService {
     }
     async notificationCompleteOrder(orderId, senderInfo, recevierId) {
         try {
+            const order = await this.commandServide.findOne(orderId, senderInfo);
+            if (!order) {
+                throw new common_1.NotFoundException("Order not found verify id again");
+            }
+            if (order.clientId == null) {
+                return "there's no client added to send the notification";
+            }
             if (recevierId == undefined) {
                 throw new common_1.UnprocessableEntityException("the reciever id is empty");
             }
@@ -73,12 +79,11 @@ let NotificationsService = class NotificationsService {
             if (!recevier) {
                 throw new common_1.NotFoundException("the reciever Id is not valid");
             }
-            const order = await this.commandServide.findOne(orderId, senderInfo);
-            if (!order) {
-                throw new common_1.NotFoundException("Order not found verify id again");
-            }
-            let send;
+            let send = await this.createNewNotification(recevierId, senderInfo.id, {
+                message: `Aji salit, khod l order dailk  #${orderId}`
+            });
             console.log(order);
+            return send;
         }
         catch (e) {
             console.log("message error", e);
@@ -98,13 +103,10 @@ let NotificationsService = class NotificationsService {
     }
 };
 exports.NotificationsService = NotificationsService;
-__decorate([
-    (0, websockets_1.WebSocketServer)(),
-    __metadata("design:type", socket_io_1.Server)
-], NotificationsService.prototype, "server", void 0);
 exports.NotificationsService = NotificationsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(notification_schema_1.Notification.name)),
+    __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => command_service_1.CommandService))),
     __metadata("design:paramtypes", [mongoose_2.Model,
         user_service_1.UserService,
         command_service_1.CommandService])

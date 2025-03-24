@@ -32,7 +32,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Notification.prototype, "read", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({}),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Date)
 ], Notification.prototype, "createdAt", void 0);
 exports.Notification = Notification = __decorate([

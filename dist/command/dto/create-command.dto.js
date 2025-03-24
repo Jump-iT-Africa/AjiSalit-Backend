@@ -17,10 +17,6 @@ class CreateCommandDto {
 }
 exports.CreateCommandDto = CreateCommandDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({
-        example: '67bda9260433e5b76e39de06',
-        required: true
-    }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsMongoId)(),
     __metadata("design:type", mongoose_1.Types.ObjectId)
@@ -88,7 +84,18 @@ __decorate([
         example: "2025-10-28",
         required: true
     }),
+    __metadata("design:type", String)
+], CreateCommandDto.prototype, "pickupDate", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: ['image1.jpg', 'image2.jpg'],
+        description: 'images URLs related to the service',
+        required: false,
+        type: [String],
+    }),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    (0, class_validator_1.IsArray)(),
     __metadata("design:type", Array)
 ], CreateCommandDto.prototype, "images", void 0);
 __decorate([

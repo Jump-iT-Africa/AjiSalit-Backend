@@ -3,26 +3,33 @@ import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 export declare class CommandService {
     private commandModel;
-    constructor(commandModel: Model<CommandDocument>);
+    private readonly notificationsGateway;
+    constructor(commandModel: Model<CommandDocument>, notificationsGateway: NotificationsGateway);
     create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"حاول مرة خرى" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     })>;
     scanedUserId(qrcode: string, userId: string): Promise<string>;
-    findAll(userId: string, role: string): Promise<"ماكين حتا طلب" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[]>;
+    })[] | "ماكين حتا طلب">;
     findOne(id: string, infoUser: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    update(authentificatedId: any, orderid: any, updateCommandDto: UpdateCommandDto): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    update(authentificatedId: any, id: any, updateCommandDto: UpdateCommandDto): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
+    updateOrderToDoneStatus(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;

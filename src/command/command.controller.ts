@@ -3,7 +3,7 @@ import { CommandService } from './command.service';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { validateJwt } from "../services/verifyJwt"
-import { ApiTags, ApiOperation, ApiResponse, ApiBody,ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody,ApiParam,ApiBearerAuth } from '@nestjs/swagger';
 import ResponseDto from "./dto/response-command.dto"
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
@@ -14,6 +14,7 @@ export class CommandController {
 
   @Post()
   @ApiOperation({ summary: "Give the company the ability to add new order" })
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'the response returns the details of the Order ',
@@ -169,9 +170,10 @@ export class CommandController {
     },
   })
 
+  @ApiBearerAuth()
   scanedUserId(@Param('qrcode') qrcode: string, @Req() req) {
     try {
-      let token = req.headers['authorization'];
+      let token = req.headers['authorization'].split(" ")[1];
       let infoUser = validateJwt(token);
       if (!infoUser) {
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
@@ -179,7 +181,7 @@ export class CommandController {
       if (infoUser.role !== "client" && infoUser.role !== "admin") {
         throw new ForbiddenException("ممسموحش لك مسح QR هاد الخاصية غير المستعملين العاديين")
       }
-      return this.commandService.scanedUserId(qrcode, infoUser.id);
+  return this.commandService.scanedUserId(qrcode, infoUser.id);
 
     } catch (e) {
       if (e instanceof ForbiddenException) {
@@ -189,13 +191,12 @@ export class CommandController {
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
       throw new BadRequestException("ops smth went wrong")
     }
-
   }
 
 
   @Get()
   @ApiOperation({ summary: "The client or the company can check their orders" })
-
+  @ApiBearerAuth()
   @ApiResponse({
     status: 401,
     description: 'Unauthorized error: the user is not logged in ',
@@ -331,6 +332,7 @@ export class CommandController {
       },
     },
   })
+  @ApiBearerAuth()
 
   findOne(@Param('id') id: string, @Req() req) {
     try{
@@ -347,6 +349,8 @@ export class CommandController {
       throw new BadRequestException("حاول مرة خرى")
     }
   }
+
+
 
   @Put(':id')
   @ApiOperation({ summary: "The company owner can update his own order" })
@@ -412,6 +416,8 @@ export class CommandController {
     }
     },
   })
+  @ApiBearerAuth()
+
   update(@Param('id') id: string, @Body() updateCommandDto: UpdateCommandDto, @Req() req) {
     try{
       let token = req.headers['authorization'].split(" ")[1];
@@ -438,6 +444,8 @@ export class CommandController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+
   @ApiOperation({summary:"The company order want to delete an order"})
   @ApiResponse({
     status: 200,
@@ -498,10 +506,11 @@ export class CommandController {
     },
   }
   })
+  @ApiBearerAuth()
 
   remove(@Param('id') id: string, @Req() req) {
     try{
-      let token = req.headers['authorization'].split(" ")[1];
+      let token = req.headers['authorization'].split(" ")[1]
       let infoUser = validateJwt(token);
       if (!infoUser) {
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
@@ -530,7 +539,6 @@ export class CommandController {
 
   //  HNA KAYN COMPANY & CODE HANDLEMENT
 
-
   @Get('scan/:qrCode')
   @ApiOperation({ summary: 'Scan QR code and retrieve command details' })
   @ApiParam({ name: 'qrCode', description: 'The unique QR code string from the scanned code' })
@@ -549,10 +557,46 @@ export class CommandController {
       }
     }
   })
+  @ApiBearerAuth()
+  async scanQrCode(@Param('qrCode') qrCode: string, @Req() req) {
+    try{
+
+      let token = req.headers['authorization'].split(" ")[1]
+      let infoUser = validateJwt(token);
+
+      
+      if (!infoUser) {
+        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+      }
 
 
-  async scanQrCode(@Param('qrCode') qrCode: string) {
-    return this.commandService.getCommandByQrCode(qrCode);
+      return this.commandService.getCommandByQrCode(qrCode);
+    }
+    catch(e){
+      console.log(e);
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
+        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+      if(e instanceof ForbiddenException){
+        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+      }
+      throw new BadRequestException("حاول مرة خرى")
+    }
   }
+
+
+@Patch("status/:orderId")
+async updateStatusToDone(@Param("orderId") orderId:string, @Body() status:string, @Req() req){
+  try{
+    let token = req.headers['authorization'].split(" ")[1]
+    let infoUser = validateJwt(token);
+
+    if (!infoUser) {
+      throw new UnauthorizedException("حاول تسجل مرة أخرى")
+    }
+    return await this.commandService.updateOrderToDoneStatus(infoUser.id,orderId,status)
+  }catch(e){
+    console.log(e)
+  }
+}
 
 }

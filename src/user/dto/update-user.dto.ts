@@ -15,7 +15,7 @@ export class UpdateUserDto {
     })
     phoneNumber?: string;
 
-    @ApiProperty({ example: '1234', required: false })
+    @ApiProperty({ example: '12456', required: false })
     @IsString()
     @IsOptional()
     password?: string;
@@ -31,7 +31,7 @@ export class UpdateUserDto {
     @IsOptional()
     city?: string;
 
-    @ApiProperty({ example: 'Technology', required: false })
+    @ApiProperty({ example: 'pressing', required: false })
     @IsString()
     @IsOptional()
     field?: string;
@@ -47,12 +47,10 @@ export class UpdateUserDto {
     @IsOptional()
     ownRef?: string; 
 
-    @ApiProperty({ example: 'AS30Dd2', required: false, default: null })
     @IsString()
     @IsOptional()
     refBy?: string;
 
-    @ApiProperty({ example: ['AS30Dd2', 'ZX56Yn4'], required: false, default: null })
     @IsOptional()
     @IsArray()
     @IsString({ each: true })  

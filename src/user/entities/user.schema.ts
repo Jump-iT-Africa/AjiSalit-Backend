@@ -8,7 +8,7 @@ export class User {
   @Prop({ required: true, default:null })
   name: string;
 
-  @Prop({required: true, enum: ["admin", "client", "company"]})
+  @Prop({required: true, type: String})
   role: string;
 
   @Prop({ required: true, unique: true, type: String })
@@ -38,6 +38,7 @@ export class User {
   
   @Prop({required:false})
   socketId?: string;
+  
 
 
 }
