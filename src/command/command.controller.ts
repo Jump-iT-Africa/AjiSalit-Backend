@@ -62,7 +62,6 @@ export class CommandController {
       },
     }
   })
-
   @ApiResponse({
     status: 409,
     description: 'Conflict error: the qrcode supposes to be unique',
@@ -74,7 +73,6 @@ export class CommandController {
       },
     },
   })
-
   @ApiResponse({
     status: 400,
     description: 'Bad Request: new exception',
@@ -94,6 +92,7 @@ export class CommandController {
       },
     },
   })
+
   create(@Body() createCommandDto: CreateCommandDto, @Req() req) {
     try {
       let token = req.headers['authorization']?.split(" ")[1];
@@ -181,7 +180,8 @@ export class CommandController {
       if (infoUser.role !== "client" && infoUser.role !== "admin") {
         throw new ForbiddenException("ممسموحش لك مسح QR هاد الخاصية غير المستعملين العاديين")
       }
-  return this.commandService.scanedUserId(qrcode, infoUser.id);
+    
+      return this.commandService.scanedUserId(qrcode, infoUser.id);
 
     } catch (e) {
       if (e instanceof ForbiddenException) {
@@ -446,7 +446,6 @@ export class CommandController {
 
   @Delete(':id')
   @ApiBearerAuth()
-
   @ApiOperation({summary:"The company order want to delete an order"})
   @ApiResponse({
     status: 200,
@@ -533,13 +532,6 @@ export class CommandController {
 
 
 
-
-
-
-
-
-  //  HNA KAYN COMPANY & CODE HANDLEMENT
-
   @Get('scan/:qrCode')
   @ApiOperation({ summary: 'Scan QR code and retrieve command details' })
   @ApiParam({ name: 'qrCode', description: 'The unique QR code string from the scanned code' })
@@ -559,17 +551,19 @@ export class CommandController {
     }
   })
   @ApiBearerAuth()
+
   async scanQrCode(@Param('qrCode') qrCode: string, @Req() req) {
     try{
-
-      let token = req.headers['authorization'].split(" ")[1]
+      console.log(`controller`);
+      
+      let token = req.headers['authorization'].split(" ")[1];
+      console.log(token);
+      
       let infoUser = validateJwt(token);
 
-      
       if (!infoUser) {
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
       }
-
 
       return this.commandService.getCommandByQrCode(qrCode);
     }
@@ -583,5 +577,4 @@ export class CommandController {
       throw new BadRequestException("حاول مرة خرى")
     }
   }
-
 }

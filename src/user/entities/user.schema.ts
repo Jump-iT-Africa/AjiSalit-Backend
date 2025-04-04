@@ -26,7 +26,6 @@ export class User {
   @Prop({required:false, default:null})
   ice?:number
 
-
   @Prop({ required: false, unique: true })
   ownRef: string;
 
@@ -36,6 +35,7 @@ export class User {
   @Prop({ type: [String], required: false, default: [] })
   listRefs?: string[];
 
+ 
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

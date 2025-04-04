@@ -148,7 +148,9 @@ let CommandController = class CommandController {
     }
     async scanQrCode(qrCode, req) {
         try {
+            console.log(`controller`);
             let token = req.headers['authorization'].split(" ")[1];
+            console.log(token);
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");

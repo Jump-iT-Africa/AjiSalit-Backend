@@ -57,54 +57,6 @@ export class UserController {
     return this.userService.register(CreateUserDto);
   }
 
-  // @Post('verify')
-  // @ApiOperation({summary:"The user verify his number using the otp code "})
-  // @ApiResponse({
-  //   status: 400,
-  //   description: "The verification failed for the reason behind",
-  //   content: {
-  //     'application/json': {
-  //       examples: {
-  //         'User Not found ': {
-  //           value: {
-  //             "message": 'User not found',
-  //             "error": "Bad Request",
-  //             "statusCode": 400
-  //           }
-  //         },
-  //         'Using invalid OTP CODE': {
-  //           value: {
-  //             "message":'الرمز غلط',
-  //             "error": "Bad Request",
-  //             "statusCode": 400
-  //           }
-  //         },
-  //         'The otp code has been expired': {
-  //           value: {
-  //             "message":'هاد رمز نتهات صلحية تاعو',
-  //             "error": "Bad Request",
-  //             "statusCode": 400
-  //           }
-  //         }
-
-
-  //       }
-  //     }
-
-  //   }
-  // })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: "The user has verified his account successfully",
-  //   type: 'تم أتحقق بنجاح' 
-  // })
-  // async verifyOTP(
-  //   @Body('phoneNumber') phoneNumber: string,
-  //   @Body('otp') otp: string,
-  // ) {
-  //   return this.userService.verifyOTP(phoneNumber, otp);
-  // }
-
 
   @Post('login')
   @ApiOperation({ summary: "The user is logged in" })
@@ -180,54 +132,6 @@ export class UserController {
     return this.userService.login(LoginUserDto);
   }
 
-
-  // @Put(':id')
-  // @ApiOperation({ summary: "The user has to update his information for the first time in order to finish his authentification" })
-  // @ApiResponse({
-  //   status: 401,
-  //   description: 'Unauthorized error: the user should login again using his phone number and password to continue filling his informations',
-  //   schema: {
-  //     example: {
-  //       "message": "حاول تسجل ف الحساب ديالك مرة أخرى",
-  //       "error": "Unauthorized",
-  //       "statusCode": 401
-  //     }
-  //   },
-  // })
-  // @ApiBody({
-  //   description: "here's example of auth of company info",
-  //   type: UpdateCompanyDto,
-  // })
-
-  // @ApiResponse({
-  //   status: 200,
-  //   description: "The user or the company owner continue the authentification successfully",
-  //   example: "تم إنشاء حسابك بنجاح"
-  // })
-  // @ApiResponse({
-  //   status: 400,
-  //   description: "The user or the company owner continue the authentification successfully",
-  //   example: "حاول مرة أخرى"
-  // })
-  // async updateAuthentifictaion(@Param("id") id, @Body(new RoleValidationPipe()) updateDto: UpdateUserDto | UpdateCompanyDto, @Req() req) {
-  //   try {
-  //     let token = req.headers['authorization'];
-  //     let infoUser = validateJwt(token);
-  //     if (!infoUser) {
-  //       throw new UnauthorizedException("حاول تسجل مرة أخرى")
-  //     }
-  //     if (!updateDto) {
-  //       return "خصك تعمر المعلومات ديالك"
-  //     }
-  //     return this.userService.updateAuthentifictaion(id, updateDto, infoUser.id)
-  //   } catch (e) {
-  //     console.log("there's an error", e)
-  //     if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError) {
-  //       throw new UnauthorizedException("حاول تسجل ف الحساب ديالك مرة أخرى")
-  //     }
-  //     throw new BadRequestException("حاول مرة أخرى")
-  //   }
-  // }
 
   @Get(':id')
   @ApiOperation({ summary: 'the user or the company owner can preview their own informations' })
@@ -313,8 +217,6 @@ export class UserController {
   }
 
 
-
-
   @Delete(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: "the user or the company owner delete his account " })
@@ -366,8 +268,6 @@ export class UserController {
   }
 
 
-
-
   @ApiOperation({ summary: "Update user profile information" })
   @ApiResponse({
     status: 200,
@@ -417,9 +317,9 @@ export class UserController {
       }
     }
   })
-
   @ApiBearerAuth()
   @Put(':id')
+
   updateUserProfile(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req) {
   try {
     let token = req.headers['authorization'].split(" ")[1];
@@ -444,7 +344,7 @@ export class UserController {
     throw new BadRequestException("حاول مرة خرى")
   }
   }
-  
 
-  
+
+x
 }

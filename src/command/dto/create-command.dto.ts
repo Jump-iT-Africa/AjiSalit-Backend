@@ -68,7 +68,6 @@ export class CreateCommandDto {
     pickupDate:string
 
 
-
     @ApiProperty({
         example: ['image1.jpg', 'image2.jpg'],
         description: 'images URLs related to the service',
@@ -86,7 +85,5 @@ export class CreateCommandDto {
     })
     @IsNotEmpty()
     qrCode:string
-
-
 
 }

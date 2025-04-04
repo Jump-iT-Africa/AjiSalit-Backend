@@ -5,6 +5,7 @@ import { Document } from 'mongoose';
 
 export type CommandDocument = Command & mongoose.Document;
 @Schema()
+
 export class Command {
   @Prop({type: mongoose.Schema.Types.ObjectId, ref:'User'})
   companyId: string;
@@ -29,8 +30,6 @@ export class Command {
 
   @Prop({ required: false})
   images: [{ type: String }]
-
-
 
   @Prop({ required: true })
   deliveryDate: Date;

@@ -35,8 +35,8 @@ export class UserService {
   async register(createUserDto: CreateUserDto) {
     try {
       const { name, phoneNumber, role, password, city, field, ice, ownRef, refBy, listRefs } = createUserDto;
-  
       const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
+
       if (existingUser) {
         return {
           message: 'هاد الرقم مستعمل من قبل جرب رقم أخر'
@@ -86,7 +86,7 @@ export class UserService {
         listRefs: savedUser.listRefs
       };
   
-      const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
+      const token = jwt.sign(payload, secretKey, { expiresIn: '30d' });
   
       return {
         user: payload,
@@ -157,7 +157,7 @@ export class UserService {
           role: User.role,
         },
         secretKey,
-        { expiresIn: '1d' }
+        { expiresIn: '30d' }
       );
       let userinfo =  plainToClass(ResponseLoginDto,User, {
         excludeExtraneousValues:true,
@@ -305,7 +305,6 @@ async deleteAccount(id: string, userId) {
         }
       }
   
-     
       Object.assign(toUpdate, updateUserDto);
       await toUpdate.save();
   
@@ -316,11 +315,5 @@ async deleteAccount(id: string, userId) {
     }
   }
 
-
-
-
-  
-  
-  
 }
 

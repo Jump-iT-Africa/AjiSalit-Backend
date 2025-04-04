@@ -100,7 +100,8 @@ let CommandService = class CommandService {
             else if (infoUser.role == "company") {
                 query = { companyId: infoUser.id };
             }
-            let order = await this.commandModel.findOne({ _id: id, ...query }).exec();
+            console.log(query);
+            let order = await this.commandModel.findOne({ ...query }).exec();
             if (!order) {
                 throw new common_1.NotFoundException("ماكين حتا طلب");
             }
@@ -110,8 +111,8 @@ let CommandService = class CommandService {
             if (e.name === 'CastError') {
                 throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
             }
-            if (common_1.NotFoundException) {
-                throw new common_1.NotFoundException("ماكين حتا طلب");
+            if (e instanceof common_1.NotFoundException) {
+                throw e;
             }
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
@@ -184,6 +185,7 @@ let CommandService = class CommandService {
     }
     async getCommandByQrCode(qrCode) {
         try {
+            console.log(`Service`);
             const command = await this.commandModel.findOne({ qrCode })
                 .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status')
                 .exec();

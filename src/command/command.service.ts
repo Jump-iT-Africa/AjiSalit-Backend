@@ -12,6 +12,7 @@ export class CommandService {
   constructor(
     @InjectModel(Command.name) private commandModel: Model<CommandDocument>,
   ) { }
+  
   async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
     try {
       const existingOrder = await this.commandModel.findOne({qrCode : createCommandDto.qrCode}).exec();
@@ -90,7 +91,9 @@ export class CommandService {
         }else if (infoUser.role == "company"){
           query = {companyId:infoUser.id}
         }
-        let order = await this.commandModel.findOne({_id:id, ...query}).exec()
+        console.log(query);
+        
+        let order = await this.commandModel.findOne({...query}).exec()
         if(!order){
           throw new NotFoundException("ماكين حتا طلب")
         }
@@ -100,8 +103,8 @@ export class CommandService {
       if (e.name === 'CastError') {
         throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
       }
-      if(NotFoundException){
-        throw new NotFoundException("ماكين حتا طلب")
+      if(e instanceof NotFoundException){
+        throw e;
       }
       throw new BadRequestException("حاول مرة خرى")
     }
@@ -190,6 +193,9 @@ export class CommandService {
 
   async getCommandByQrCode(qrCode: string): Promise<Command> {
     try{
+      
+      console.log(`Service`);
+
       const command = await this.commandModel.findOne({ qrCode })
       .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status') 
       .exec();

@@ -73,7 +73,7 @@ let UserService = class UserService {
                 ownRef: savedUser.ownRef,
                 listRefs: savedUser.listRefs
             };
-            const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
+            const token = jwt.sign(payload, secretKey, { expiresIn: '30d' });
             return {
                 user: payload,
                 token,
@@ -108,7 +108,7 @@ let UserService = class UserService {
                 field: User.field,
                 ice: User.ice,
                 role: User.role,
-            }, secretKey, { expiresIn: '1d' });
+            }, secretKey, { expiresIn: '30d' });
             let userinfo = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, User, {
                 excludeExtraneousValues: true,
                 enableImplicitConversion: true
