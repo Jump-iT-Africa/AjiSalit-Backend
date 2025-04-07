@@ -20,6 +20,7 @@ export declare class CommandService {
         __v: number;
     })[] | {
         customerDisplayName: any;
+        customerField: any;
         companyId: string;
         clientId: string;
         situation: string;

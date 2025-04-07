@@ -96,14 +96,20 @@ let CommandService = class CommandService {
                 _id: { $in: clientIds.map(id => new mongoose_2.Types.ObjectId(id)) }
             });
             const userMap = users.reduce((map, user) => {
-                map[user._id.toString()] = user.name || "عميل غير معروف";
+                map[user._id.toString()] = {
+                    name: user.name || "عميل غير معروف",
+                    field: user.field || "مجال غير معروف"
+                };
                 return map;
             }, {});
             const ordersWithCustomerNames = allOrders.map(order => {
                 const clientId = order.clientId ? order.clientId.toString() : null;
+                const plainOrder = order.toObject();
+                const userData = clientId ? userMap[clientId] : null;
                 return {
-                    ...order.toObject(),
-                    customerDisplayName: clientId ? (userMap[clientId] || "عميل غير معروف") : "عميل غير معروف"
+                    ...plainOrder,
+                    customerDisplayName: userData?.name || "عميل غير معروف",
+                    customerField: userData?.field || "مجال غير معروف"
                 };
             });
             return ordersWithCustomerNames;

@@ -16,6 +16,7 @@ export declare class CommandController {
         __v: number;
     })[] | {
         customerDisplayName: any;
+        customerField: any;
         companyId: string;
         clientId: string;
         situation: string;
