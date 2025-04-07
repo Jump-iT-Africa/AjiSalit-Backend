@@ -18,10 +18,12 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const mongoose_3 = require("mongoose");
 const command_schema_1 = require("./entities/command.schema");
+const user_schema_1 = require("../user/entities/user.schema");
 const validationOrder_1 = require("../services/validationOrder");
 let CommandService = class CommandService {
-    constructor(commandModel) {
+    constructor(commandModel, userModel) {
         this.commandModel = commandModel;
+        this.userModel = userModel;
     }
     async create(createCommandDto, authentificatedId) {
         try {
@@ -84,7 +86,27 @@ let CommandService = class CommandService {
             if (allOrders.length == 0) {
                 return "ماكين حتا طلب";
             }
-            return allOrders;
+            const clientIds = [...new Set(allOrders
+                    .filter(order => order.clientId)
+                    .map(order => order.clientId.toString()))];
+            if (clientIds.length === 0) {
+                return allOrders;
+            }
+            const users = await this.userModel.find({
+                _id: { $in: clientIds.map(id => new mongoose_2.Types.ObjectId(id)) }
+            });
+            const userMap = users.reduce((map, user) => {
+                map[user._id.toString()] = user.name || "عميل غير معروف";
+                return map;
+            }, {});
+            const ordersWithCustomerNames = allOrders.map(order => {
+                const clientId = order.clientId ? order.clientId.toString() : null;
+                return {
+                    ...order.toObject(),
+                    customerDisplayName: clientId ? (userMap[clientId] || "عميل غير معروف") : "عميل غير معروف"
+                };
+            });
+            return ordersWithCustomerNames;
         }
         catch (e) {
             console.log(e);
@@ -205,6 +227,8 @@ exports.CommandService = CommandService;
 exports.CommandService = CommandService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model])
 ], CommandService);
 //# sourceMappingURL=command.service.js.map

@@ -4,13 +4,15 @@ import { Model, Types } from "mongoose"
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
-import { Command, CommandDocument, } from './entities/command.schema';
-import {ValidationOrder} from "../services/validationOrder"
+import { Command, CommandDocument } from './entities/command.schema';
+import { User, UserDocument } from '../user/entities/user.schema'; // Import your User schema
+import { ValidationOrder } from "../services/validationOrder"
 
 @Injectable()
 export class CommandService {
   constructor(
     @InjectModel(Command.name) private commandModel: Model<CommandDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>, // Inject User model
   ) { }
   
   async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
@@ -63,21 +65,55 @@ export class CommandService {
 
   }
 
-  async findAll(userId :string, role: string) {
-    try{
+  async findAll(userId: string, role: string) {
+    try {
       let query = {}
-      if(role == "client"){
-        query = {clientId:userId}
-      }else if (role == "company"){
-        query = {companyId:userId}
-
+      if (role == "client") {
+        query = { clientId: userId }
+      } else if (role == "company") {
+        query = { companyId: userId }
       }
+      
       const allOrders = await this.commandModel.find(query)
-      if(allOrders.length == 0){
+      
+      if (allOrders.length == 0) {
         return "ماكين حتا طلب"
       }
-      return allOrders
-    }catch(e){
+      
+      // Get all unique client IDs from orders
+      const clientIds = [...new Set(
+        allOrders
+          .filter(order => order.clientId) // Filter out orders without clientId
+          .map(order => order.clientId.toString())
+      )]
+      
+      // If no client IDs found, return orders as is
+      if (clientIds.length === 0) {
+        return allOrders;
+      }
+      
+      // Fetch all relevant user data at once
+      const users = await this.userModel.find({ 
+        _id: { $in: clientIds.map(id => new Types.ObjectId(id)) } 
+      })
+      
+      // Create a map of user ID to user name
+      const userMap = users.reduce((map, user) => {
+        map[user._id.toString()] = user.name || "عميل غير معروف"
+        return map
+      }, {})
+      
+      // Add customer names to each order
+      const ordersWithCustomerNames = allOrders.map(order => {
+        const clientId = order.clientId ? order.clientId.toString() : null;
+        return {
+          ...order.toObject(),  // Convert mongoose document to plain object
+          customerDisplayName: clientId ? (userMap[clientId] || "عميل غير معروف") : "عميل غير معروف"
+        }
+      })
+      
+      return ordersWithCustomerNames
+    } catch (e) {
       console.log(e)
       throw new BadRequestException("حاول مرة خرى")
     }

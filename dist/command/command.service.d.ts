@@ -3,9 +3,11 @@ import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
+import { UserDocument } from '../user/entities/user.schema';
 export declare class CommandService {
     private commandModel;
-    constructor(commandModel: Model<CommandDocument>);
+    private userModel;
+    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>);
     create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"حاول مرة خرى" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
@@ -16,7 +18,34 @@ export declare class CommandService {
         _id: unknown;
     }> & {
         __v: number;
-    })[]>;
+    })[] | {
+        customerDisplayName: any;
+        companyId: string;
+        clientId: string;
+        situation: string;
+        status: string;
+        advancedAmount: number;
+        city: string;
+        price: number;
+        images: [{
+            type: String;
+        }];
+        deliveryDate: Date;
+        pickupDate: Date;
+        qrCode: string;
+        _id: unknown;
+        $locals: Record<string, unknown>;
+        $op: "save" | "validate" | "remove" | null;
+        $where: Record<string, unknown>;
+        baseModelName?: string;
+        collection: mongoose.Collection;
+        db: mongoose.Connection;
+        errors?: mongoose.Error.ValidationError;
+        id?: any;
+        isNew: boolean;
+        schema: mongoose.Schema;
+        __v: number;
+    }[]>;
     findOne(id: string, infoUser: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {

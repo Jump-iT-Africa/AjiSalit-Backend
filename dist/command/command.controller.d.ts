@@ -14,7 +14,34 @@ export declare class CommandController {
         _id: unknown;
     }> & {
         __v: number;
-    })[]>;
+    })[] | {
+        customerDisplayName: any;
+        companyId: string;
+        clientId: string;
+        situation: string;
+        status: string;
+        advancedAmount: number;
+        city: string;
+        price: number;
+        images: [{
+            type: String;
+        }];
+        deliveryDate: Date;
+        pickupDate: Date;
+        qrCode: string;
+        _id: unknown;
+        $locals: Record<string, unknown>;
+        $op: "save" | "validate" | "remove" | null;
+        $where: Record<string, unknown>;
+        baseModelName?: string;
+        collection: import("mongoose").Collection;
+        db: import("mongoose").Connection;
+        errors?: import("mongoose").Error.ValidationError;
+        id?: any;
+        isNew: boolean;
+        schema: import("mongoose").Schema;
+        __v: number;
+    }[]>;
     findOne(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
