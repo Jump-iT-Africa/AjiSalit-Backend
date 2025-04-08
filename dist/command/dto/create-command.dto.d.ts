@@ -10,4 +10,6 @@ export declare class CreateCommandDto {
     pickupDate: string;
     images?: string[];
     qrCode: string;
+    isFinished: boolean;
+    isPickUp: boolean;
 }

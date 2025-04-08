@@ -39,6 +39,12 @@ export class Command {
 
   @Prop({required:true, unique:true})
   qrCode: string;
+
+  @Prop({required:true, default:false})
+  isFinished: false;
+
+  @Prop({required:true, default:false})
+  isPickUp: false;
 }
 
 export const CommandSchema = SchemaFactory.createForClass(Command);

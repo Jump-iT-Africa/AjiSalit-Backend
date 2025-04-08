@@ -59,6 +59,14 @@ __decorate([
     (0, mongoose_1.Prop)({ required: true, unique: true }),
     __metadata("design:type", String)
 ], Command.prototype, "qrCode", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, default: false }),
+    __metadata("design:type", Boolean)
+], Command.prototype, "isFinished", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, default: false }),
+    __metadata("design:type", Boolean)
+], Command.prototype, "isPickUp", void 0);
 exports.Command = Command = __decorate([
     (0, mongoose_1.Schema)()
 ], Command);

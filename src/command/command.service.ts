@@ -5,22 +5,24 @@ import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
-import { User, UserDocument } from '../user/entities/user.schema'; // Import your User schema
+import { User, UserDocument } from '../user/entities/user.schema';
 import { ValidationOrder } from "../services/validationOrder"
 
 @Injectable()
 export class CommandService {
   constructor(
     @InjectModel(Command.name) private commandModel: Model<CommandDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>, // Inject User model
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) { }
   
   async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
     try {
       const existingOrder = await this.commandModel.findOne({qrCode : createCommandDto.qrCode}).exec();
+
       if(existingOrder){
         throw new ConflictException("هاد الكود مستعمل")
       }
+
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
       let resultValidation = ValidationOrder(newOrder)
@@ -28,11 +30,13 @@ export class CommandService {
       if (resultValidation !== "valide") {
         throw new UnprocessableEntityException(resultValidation);
       }
+
       let savingOrder = newOrder.save()
       if(!savingOrder){
         return "حاول مرة خرى"
       }
-      return newOrder
+
+      return savingOrder
     } catch (e) {
       if (e instanceof UnprocessableEntityException) {
         throw e;

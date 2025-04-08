@@ -41,7 +41,7 @@ let CommandService = class CommandService {
             if (!savingOrder) {
                 return "حاول مرة خرى";
             }
-            return newOrder;
+            return savingOrder;
         }
         catch (e) {
             if (e instanceof common_1.UnprocessableEntityException) {
