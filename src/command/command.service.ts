@@ -84,42 +84,56 @@ export class CommandService {
         return "ماكين حتا طلب"
       }
       
-      // Get all unique client IDs from orders
       const clientIds = [...new Set(
         allOrders
-          .filter(order => order.clientId) // Filter out orders without clientId
+          .filter(order => order.clientId) 
           .map(order => order.clientId.toString())
       )]
+
+      const companyId = [...new Set(
+        allOrders
+          .filter(order => order.companyId) 
+          .map(order => order.companyId.toString())
+      )]
       
-      // If no client IDs found, return orders as is
-      if (clientIds.length === 0) {
+      if (clientIds.length === 0 || companyId.length === 0) {
         return allOrders;
       }
       
-      // Fetch all relevant user data at once
       const users = await this.userModel.find({ 
         _id: { $in: clientIds.map(id => new Types.ObjectId(id)) } 
       })
+
+
+      const companies = await this.userModel.find({ 
+        _id: { $in: companyId.map(id => new Types.ObjectId(id)) } 
+      })
       
-      // Create a map of user ID to user data (name and field)
       const userMap = users.reduce((map, user) => {
         map[user._id.toString()] = {
           name: user.name || "عميل غير معروف",
-          field: user.field || "مجال غير معروف"
+        }
+        return map
+      }, {});
+
+      const companyMap = companies.reduce((map, company) => {
+        map[company._id.toString()] = {
+          field: company.field || "مجال غير معروف"
         }
         return map
       }, {});
   
-      // Use the userMap to add customer info to orders
       const ordersWithCustomerNames = allOrders.map(order => {
         const clientId = order.clientId ? order.clientId.toString() : null;
         const plainOrder = order.toObject();
         const userData = clientId ? userMap[clientId] : null;
-  
+        const companyId = order.companyId ? order.companyId.toString() : null;
+        const companyData = companyId ? companyMap[companyId] : null;
+
         return {
           ...plainOrder,
           customerDisplayName: userData?.name || "عميل غير معروف",
-          customerField: userData?.field || "مجال غير معروف"
+          customerField: companyData?.field || "مجال غير معروف"
         };
       });
       

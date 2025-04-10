@@ -89,16 +89,27 @@ let CommandService = class CommandService {
             const clientIds = [...new Set(allOrders
                     .filter(order => order.clientId)
                     .map(order => order.clientId.toString()))];
-            if (clientIds.length === 0) {
+            const companyId = [...new Set(allOrders
+                    .filter(order => order.companyId)
+                    .map(order => order.companyId.toString()))];
+            if (clientIds.length === 0 || companyId.length === 0) {
                 return allOrders;
             }
             const users = await this.userModel.find({
                 _id: { $in: clientIds.map(id => new mongoose_2.Types.ObjectId(id)) }
             });
+            const companies = await this.userModel.find({
+                _id: { $in: companyId.map(id => new mongoose_2.Types.ObjectId(id)) }
+            });
             const userMap = users.reduce((map, user) => {
                 map[user._id.toString()] = {
                     name: user.name || "عميل غير معروف",
-                    field: user.field || "مجال غير معروف"
+                };
+                return map;
+            }, {});
+            const companyMap = companies.reduce((map, company) => {
+                map[company._id.toString()] = {
+                    field: company.field || "مجال غير معروف"
                 };
                 return map;
             }, {});
@@ -106,10 +117,12 @@ let CommandService = class CommandService {
                 const clientId = order.clientId ? order.clientId.toString() : null;
                 const plainOrder = order.toObject();
                 const userData = clientId ? userMap[clientId] : null;
+                const companyId = order.companyId ? order.companyId.toString() : null;
+                const companyData = companyId ? companyMap[companyId] : null;
                 return {
                     ...plainOrder,
                     customerDisplayName: userData?.name || "عميل غير معروف",
-                    customerField: userData?.field || "مجال غير معروف"
+                    customerField: companyData?.field || "مجال غير معروف"
                 };
             });
             return ordersWithCustomerNames;

@@ -93,5 +93,4 @@ export class CreateCommandDto {
     @IsBoolean()
     @IsOptional()
     isPickUp:boolean
-
 }
