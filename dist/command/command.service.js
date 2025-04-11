@@ -134,15 +134,15 @@ let CommandService = class CommandService {
     }
     async findOne(id, infoUser) {
         try {
-            let query = {};
+            let query = { _id: id };
             if (infoUser.role == "client") {
-                query = { clientId: infoUser.id };
+                query.clientId = infoUser.id;
             }
             else if (infoUser.role == "company") {
-                query = { companyId: infoUser.id };
+                query.companyId = infoUser.id;
             }
             console.log(query);
-            let order = await this.commandModel.findOne({ ...query }).exec();
+            let order = await this.commandModel.findOne(query).exec();
             if (!order) {
                 throw new common_1.NotFoundException("ماكين حتا طلب");
             }

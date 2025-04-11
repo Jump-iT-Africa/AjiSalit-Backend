@@ -144,30 +144,33 @@ export class CommandService {
     }
   }
 
-  async findOne(id : string, infoUser) {
-    try{
-        let query = {}
-        if(infoUser.role == "client"){
-          query = {clientId:infoUser.id}
-        }else if (infoUser.role == "company"){
-          query = {companyId:infoUser.id}
-        }
-        console.log(query);
-        
-        let order = await this.commandModel.findOne({...query}).exec()
-        if(!order){
-          throw new NotFoundException("ماكين حتا طلب")
-        }
-        return order
+  async findOne(id: string, infoUser) {
+    try {
+      // Define the query with proper typing
+      let query: any = { _id: id };
       
-    }catch(e){
+      if (infoUser.role == "client") {
+        query.clientId = infoUser.id;
+      } else if (infoUser.role == "company") {
+        query.companyId = infoUser.id;
+      }
+      
+      console.log(query);
+      
+      let order = await this.commandModel.findOne(query).exec();
+      if (!order) {
+        throw new NotFoundException("ماكين حتا طلب");
+      }
+      
+      return order;
+    } catch (e) {
       if (e.name === 'CastError') {
         throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
       }
-      if(e instanceof NotFoundException){
+      if (e instanceof NotFoundException) {
         throw e;
       }
-      throw new BadRequestException("حاول مرة خرى")
+      throw new BadRequestException("حاول مرة خرى");
     }
   }
 
