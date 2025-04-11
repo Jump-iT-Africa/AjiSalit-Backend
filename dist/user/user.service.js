@@ -111,13 +111,13 @@ let UserService = class UserService {
                 ice: User.ice,
                 role: User.role,
             }, secretKey, { expiresIn: '30d' });
-            let userinfo = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, User, {
+            let user = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, User, {
                 excludeExtraneousValues: true,
                 enableImplicitConversion: true
             });
             return {
                 message: 'Login successful',
-                userinfo,
+                user,
                 token,
             };
         }
@@ -234,6 +234,7 @@ let UserService = class UserService {
         try {
             const dtoInstance = (0, class_transformer_1.plainToInstance)(VerifyPhoneNumber_dto_1.VerifyNumberDto, verifyNumberDto);
             const errors = await (0, class_validator_1.validate)(dtoInstance);
+            const isExist = false;
             if (errors.length > 0) {
                 const validationErrors = errors.map(err => Object.values(err.constraints)).join(', ');
                 throw new common_1.BadRequestException(`Validation failed: ${validationErrors}`);
@@ -243,12 +244,16 @@ let UserService = class UserService {
             if (user) {
                 return {
                     statusCode: 409,
+                    isExist,
+                    UserName: user.name,
+                    role: user.role,
                     message: 'Phone number already exists',
                 };
             }
             else {
                 return {
                     statusCode: 200,
+                    isExist: true,
                     message: 'Phone number is valid',
                 };
             }

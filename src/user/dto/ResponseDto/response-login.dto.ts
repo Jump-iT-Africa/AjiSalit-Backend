@@ -2,7 +2,7 @@ import { Expose } from "class-transformer";
 export class ResponseLoginDto{
 
     @Expose()
-    _id:string
+    id:string
     @Expose()
     phoneNumber:string
     @Expose()
@@ -17,4 +17,11 @@ export class ResponseLoginDto{
     ice:number
     @Expose()
     name:string
+    @Expose()
+    ownRef:string
+    @Expose()
+    refBy:string
+    @Expose()
+    city:string
 }
+

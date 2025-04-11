@@ -36,8 +36,17 @@ export declare class UserController {
     findOne(id: string, req: any): Promise<import("./dto/ResponseDto/response-company.dto").ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
     deleteAccount(id: string, req: any): Promise<string>;
     updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any): Promise<import("./entities/user.schema").User>;
-    verifyPhone(verifyNumberDto: VerifyNumberDto, req: any): Promise<{
+    verifyPhone(verifyNumberDto: VerifyNumberDto): Promise<{
         statusCode: number;
+        isExist: boolean;
+        UserName: string;
+        role: string;
         message: string;
+    } | {
+        statusCode: number;
+        isExist: boolean;
+        message: string;
+        UserName?: undefined;
+        role?: undefined;
     }>;
 }

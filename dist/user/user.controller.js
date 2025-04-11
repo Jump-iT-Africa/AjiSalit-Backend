@@ -91,23 +91,12 @@ let UserController = class UserController {
             throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }
-    async verifyPhone(verifyNumberDto, req) {
+    async verifyPhone(verifyNumberDto) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
-            let infoUser = (0, verifyJwt_1.validateJwt)(token);
-            if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
-            }
             return this.userService.VerifyNumber(verifyNumberDto.phoneNumber, verifyNumberDto);
         }
         catch (e) {
             console.log(e);
-            if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
-            if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
-            }
-            throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }
 };
@@ -435,9 +424,8 @@ __decorate([
         },
     }),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [VerifyPhoneNumber_dto_1.VerifyNumberDto, Object]),
+    __metadata("design:paramtypes", [VerifyPhoneNumber_dto_1.VerifyNumberDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "verifyPhone", null);
 exports.UserController = UserController = __decorate([

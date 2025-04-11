@@ -46,6 +46,15 @@ export declare class UserService {
     updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User>;
     VerifyNumber(phoneNumber: string, verifyNumberDto: VerifyNumberDto): Promise<{
         statusCode: number;
+        isExist: boolean;
+        UserName: string;
+        role: string;
         message: string;
+    } | {
+        statusCode: number;
+        isExist: boolean;
+        message: string;
+        UserName?: undefined;
+        role?: undefined;
     }>;
 }

@@ -390,24 +390,11 @@ export class UserController {
       },
     },
   })
-  async verifyPhone(@Body() verifyNumberDto: VerifyNumberDto, @Req() req) {
+  async verifyPhone(@Body() verifyNumberDto: VerifyNumberDto) {
     try {
-      let token = req.headers['authorization'].split(" ")[1];
-      let infoUser = validateJwt(token);
-      
-      if (!infoUser) {
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
-      }
-      
       return this.userService.VerifyNumber(verifyNumberDto.phoneNumber, verifyNumberDto);
     } catch (e) {
         console.log(e);
-        if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-          throw new UnauthorizedException("حاول تسجل مرة أخرى")
-        if (e instanceof ForbiddenException) {
-          throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
-        }
-        throw new BadRequestException("حاول مرة خرى")
       }
     } 
   }

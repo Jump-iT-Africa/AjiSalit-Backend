@@ -158,18 +158,19 @@ export class UserService {
           field:User.field,
           ice:User.ice,
           role: User.role,
+          
         },
         secretKey,
         { expiresIn: '30d' }
       );
-      let userinfo =  plainToClass(ResponseLoginDto,User, {
+      let user =  plainToClass(ResponseLoginDto,User, {
         excludeExtraneousValues:true,
         enableImplicitConversion:true
       }) 
 
       return {
         message: 'Login successful',
-        userinfo,
+        user,
         token,
       };
     } catch (error) {
@@ -319,7 +320,8 @@ export class UserService {
     try {
       const dtoInstance = plainToInstance(VerifyNumberDto, verifyNumberDto);
       const errors = await validate(dtoInstance);
-  
+      const isExist = false;
+
       if (errors.length > 0) {
         const validationErrors = errors.map(err => Object.values(err.constraints)).join(', ');
         throw new BadRequestException(`Validation failed: ${validationErrors}`);
@@ -331,11 +333,15 @@ export class UserService {
       if (user) {
         return {
           statusCode: 409,
+          isExist,
+          UserName:user.name,
+          role: user.role,
           message: 'Phone number already exists',
         };
       } else {
         return {
           statusCode: 200,
+          isExist:true,
           message: 'Phone number is valid',
         };
       }

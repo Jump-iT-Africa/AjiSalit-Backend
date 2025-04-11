@@ -19,8 +19,8 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: '+212697042868', required: true }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
-    (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format (e.g., +212697042868)',
+    (0, class_validator_1.Matches)(/^\+212\s?0?\d{9}$/, {
+        message: 'رقم الهاتف غير صالح، خاصو يكون على شكل +212 0697042868 أو +2120697042868',
     }),
     __metadata("design:type", String)
 ], VerifyNumberDto.prototype, "phoneNumber", void 0);
