@@ -2,6 +2,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
+import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
@@ -35,5 +36,8 @@ export declare class UserController {
     findOne(id: string, req: any): Promise<import("./dto/ResponseDto/response-company.dto").ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
     deleteAccount(id: string, req: any): Promise<string>;
     updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any): Promise<import("./entities/user.schema").User>;
-    x: any;
+    verifyPhone(verifyNumberDto: VerifyNumberDto, req: any): Promise<{
+        statusCode: number;
+        message: string;
+    }>;
 }

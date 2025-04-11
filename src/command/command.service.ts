@@ -146,7 +146,6 @@ export class CommandService {
 
   async findOne(id: string, infoUser) {
     try {
-      // Define the query with proper typing
       let query: any = { _id: id };
       
       if (infoUser.role == "client") {

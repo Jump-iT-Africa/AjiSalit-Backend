@@ -10,7 +10,7 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { RoleValidationPipe } from './pipes/RoleValidationPipe'
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, refs, ApiExtraModels,ApiBearerAuth } from '@nestjs/swagger';
 import { log } from 'console';
-
+import {VerifyNumberDto} from "./dto/Logindto/VerifyPhoneNumber.dto"
 
 ApiTags('User')
 @Controller('user')
@@ -335,16 +335,79 @@ export class UserController {
     
     return this.userService.updateUserInfo(id, updateUserDto);
   } catch (e) {
-    console.log(e);
-    if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-      throw new UnauthorizedException("حاول تسجل مرة أخرى")
-    if (e instanceof ForbiddenException) {
-      throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+      console.log(e);
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
+        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+      if (e instanceof ForbiddenException) {
+        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+      }
+      throw new BadRequestException("حاول مرة خرى")
     }
-    throw new BadRequestException("حاول مرة خرى")
-  }
   }
 
-
-x
-}
+  @Post("verifyNumber")
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Phone number is valid',
+    schema: {
+      example: {
+        statusCode: 200,
+        message: 'Phone number is valid',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request - Invalid data provided',
+    schema: {
+      example: {
+        message: 'Validation failed: Phone number must be in international format (e.g., +212697042868)',
+        error: 'Bad Request',
+        statusCode: 400,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or expired token',
+    schema: {
+      example: {
+        message: 'حاول تسجل مرة أخرى',
+        error: 'Unauthorized',
+        statusCode: 401,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: ' Invalid User',
+    schema: {
+      example: {
+        message: 'المستخدم غير موجود',
+        error: 'Not Found',
+        statusCode: 404,
+      },
+    },
+  })
+  async verifyPhone(@Body() verifyNumberDto: VerifyNumberDto, @Req() req) {
+    try {
+      let token = req.headers['authorization'].split(" ")[1];
+      let infoUser = validateJwt(token);
+      
+      if (!infoUser) {
+        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+      }
+      
+      return this.userService.VerifyNumber(verifyNumberDto.phoneNumber, verifyNumberDto);
+    } catch (e) {
+        console.log(e);
+        if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
+          throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        if (e instanceof ForbiddenException) {
+          throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+        }
+        throw new BadRequestException("حاول مرة خرى")
+      }
+    } 
+  }

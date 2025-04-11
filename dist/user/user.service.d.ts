@@ -6,6 +6,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResoponseCompanyDto } from "./dto/ResponseDto/response-company.dto";
 import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
+import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
 export declare class UserService {
     private userModel;
     constructor(userModel: Model<UserDocument>);
@@ -43,4 +44,8 @@ export declare class UserService {
     update(id: string, updateDto: UpdateUserDto | UpdateCompanyDto): string;
     deleteAccount(id: string, userId: any): Promise<string>;
     updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User>;
+    VerifyNumber(phoneNumber: string, verifyNumberDto: VerifyNumberDto): Promise<{
+        statusCode: number;
+        message: string;
+    }>;
 }

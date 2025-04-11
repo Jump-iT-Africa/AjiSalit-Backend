@@ -26,6 +26,8 @@ const response_company_dto_1 = require("./dto/ResponseDto/response-company.dto")
 const response_user_dto_1 = require("./dto/ResponseDto/response-user.dto");
 const response_login_dto_1 = require("./dto/ResponseDto/response-login.dto");
 const crypto = require("crypto");
+const class_validator_1 = require("class-validator");
+const VerifyPhoneNumber_dto_1 = require("./dto/Logindto/VerifyPhoneNumber.dto");
 const secretKey = process.env.JWT_SECRET;
 let UserService = class UserService {
     constructor(userModel) {
@@ -226,6 +228,38 @@ let UserService = class UserService {
         catch (error) {
             console.error("Error updating user profile:", error);
             throw new common_1.BadRequestException('تعذر تحديث الملف الشخصي');
+        }
+    }
+    async VerifyNumber(phoneNumber, verifyNumberDto) {
+        try {
+            const dtoInstance = (0, class_transformer_1.plainToInstance)(VerifyPhoneNumber_dto_1.VerifyNumberDto, verifyNumberDto);
+            const errors = await (0, class_validator_1.validate)(dtoInstance);
+            if (errors.length > 0) {
+                const validationErrors = errors.map(err => Object.values(err.constraints)).join(', ');
+                throw new common_1.BadRequestException(`Validation failed: ${validationErrors}`);
+            }
+            const user = await this.userModel.findOne({ phoneNumber }).exec();
+            console.log(user);
+            if (user) {
+                return {
+                    statusCode: 409,
+                    message: 'Phone number already exists',
+                };
+            }
+            else {
+                return {
+                    statusCode: 200,
+                    message: 'Phone number is valid',
+                };
+            }
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.BadRequestException({
+                statusCode: 400,
+                message: 'There was an unexpected error',
+                error: error.message || error,
+            });
         }
     }
 };

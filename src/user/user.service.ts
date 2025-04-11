@@ -12,12 +12,15 @@ import * as bcrypt from 'bcrypt';
 // import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { plainToClass} from 'class-transformer';
+import { plainToClass, plainToInstance} from 'class-transformer';
 import {ResoponseCompanyDto} from "./dto/ResponseDto/response-company.dto"
 import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
 import {ResponseLoginDto} from './dto/ResponseDto/response-login.dto'
 import * as crypto from 'crypto';
 import { log } from 'console';
+import { validate } from 'class-validator';
+import {VerifyNumberDto} from "./dto/Logindto/VerifyPhoneNumber.dto"
+
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -196,7 +199,6 @@ export class UserService {
   }
 
 
-
   findAll() {
     return `This action returns all users`;
   }
@@ -237,7 +239,7 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-async deleteAccount(id: string, userId) {
+  async deleteAccount(id: string, userId) {
     try{
         let account = await this.userModel.findById(id);
         if(!account){
@@ -257,8 +259,6 @@ async deleteAccount(id: string, userId) {
       throw new BadRequestException("حاول مرة خرى")
     }
   }
-
-
 
 
   async updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User> {
@@ -314,6 +314,43 @@ async deleteAccount(id: string, userId) {
       throw new BadRequestException('تعذر تحديث الملف الشخصي');
     }
   }
+
+  async VerifyNumber(phoneNumber: string, verifyNumberDto: VerifyNumberDto) {
+    try {
+      const dtoInstance = plainToInstance(VerifyNumberDto, verifyNumberDto);
+      const errors = await validate(dtoInstance);
+  
+      if (errors.length > 0) {
+        const validationErrors = errors.map(err => Object.values(err.constraints)).join(', ');
+        throw new BadRequestException(`Validation failed: ${validationErrors}`);
+      }
+  
+      const user = await this.userModel.findOne({ phoneNumber }).exec();
+      console.log(user);
+  
+      if (user) {
+        return {
+          statusCode: 409,
+          message: 'Phone number already exists',
+        };
+      } else {
+        return {
+          statusCode: 200,
+          message: 'Phone number is valid',
+        };
+      }
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'There was an unexpected error',
+        error: error.message || error,
+      });
+    }
+  }
+
+
+
 
 }
 
