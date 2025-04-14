@@ -22,6 +22,24 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "name", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Test test', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "Fname", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'jest jest', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "Lname", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Alee', required: false }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "companyName", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ example: '+212600000000', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

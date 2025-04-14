@@ -7,6 +7,22 @@ export class UpdateUserDto {
     @IsOptional()  
     name?: string;
 
+
+    @ApiProperty({ example: 'Test test', required: false })
+    @IsString()
+    @IsOptional()  
+    Fname?: string;
+
+    @ApiProperty({ example: 'jest jest', required: false })
+    @IsString()
+    @IsOptional()  
+    Lname?: string;
+    
+    @ApiProperty({ example: 'Alee', required: false })
+    @IsString()
+    @IsOptional()  
+    companyName?: string;
+
     @ApiProperty({ example: '+212600000000', required: false })
     @IsString()
     @IsOptional()

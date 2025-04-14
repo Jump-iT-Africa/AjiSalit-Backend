@@ -1,7 +1,9 @@
 import { Document, Types } from 'mongoose';
 export type UserDocument = User & Document;
 export declare class User {
-    name: string;
+    Fname: string;
+    Lname: string;
+    companyName: string;
     role: string;
     phoneNumber: string;
     password?: string;

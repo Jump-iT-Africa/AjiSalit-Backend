@@ -18,7 +18,6 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const mongoose_3 = require("mongoose");
 const command_schema_1 = require("./entities/command.schema");
-const user_schema_1 = require("../user/entities/user.schema");
 const validationOrder_1 = require("../services/validationOrder");
 let CommandService = class CommandService {
     constructor(commandModel, userModel) {
@@ -103,7 +102,7 @@ let CommandService = class CommandService {
             });
             const userMap = users.reduce((map, user) => {
                 map[user._id.toString()] = {
-                    name: user.name || "عميل غير معروف",
+                    name: user.Fname || "عميل غير معروف",
                 };
                 return map;
             }, {});
@@ -246,7 +245,7 @@ exports.CommandService = CommandService;
 exports.CommandService = CommandService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
-    __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __param(1, (0, mongoose_1.InjectModel)('User')),
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model])
 ], CommandService);

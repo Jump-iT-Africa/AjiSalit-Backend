@@ -28,8 +28,7 @@ const secretKey = process.env.JWT_SECRET;
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    // private twilioService: TwilioService,
+    @InjectModel('User') private userModel: Model<UserDocument>,
   ) { }
 
 
@@ -37,7 +36,7 @@ export class UserService {
 
   async register(createUserDto: CreateUserDto) {
     try {
-      const { name, phoneNumber, role, password, city, field, ice, ownRef, refBy, listRefs } = createUserDto;
+      const { Lname,Fname,companyName ,phoneNumber, role, password, city, field, ice, ownRef, refBy, listRefs } = createUserDto;
       const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
 
       if (existingUser) {
@@ -51,7 +50,9 @@ export class UserService {
       const GeneratedRefCode = this.generateReferralCode();
       
       const newUser = new this.userModel({
-        name,
+        Fname,
+        Lname,
+        companyName,
         phoneNumber,
         role,
         password: hashedPassword,
@@ -79,7 +80,9 @@ export class UserService {
   
       const payload = {
         id: savedUser._id,
-        name: savedUser.name,
+        Fname: savedUser.Fname,
+        Lname: savedUser.Lname,
+        companyName: savedUser.companyName,
         phoneNumber: savedUser.phoneNumber,
         role: savedUser.role,
         city: savedUser.city,
@@ -153,7 +156,7 @@ export class UserService {
         {
           id: User._id,
           phoneNumber: User.phoneNumber,
-          username: User.name,
+          username: User.Fname,
           city:User.city,
           field:User.field,
           ice:User.ice,
@@ -334,7 +337,7 @@ export class UserService {
         return {
           statusCode: 409,
           isExist,
-          UserName:user.name,
+          UserName:user.Fname,
           role: user.role,
           message: 'Phone number already exists',
         };

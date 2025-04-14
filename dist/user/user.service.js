@@ -16,7 +16,6 @@ exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-const user_schema_1 = require("./entities/user.schema");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -35,7 +34,7 @@ let UserService = class UserService {
     }
     async register(createUserDto) {
         try {
-            const { name, phoneNumber, role, password, city, field, ice, ownRef, refBy, listRefs } = createUserDto;
+            const { Lname, Fname, companyName, phoneNumber, role, password, city, field, ice, ownRef, refBy, listRefs } = createUserDto;
             const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
             if (existingUser) {
                 return {
@@ -46,7 +45,9 @@ let UserService = class UserService {
             const hashedPassword = await bcrypt.hash(password, saltRounds);
             const GeneratedRefCode = this.generateReferralCode();
             const newUser = new this.userModel({
-                name,
+                Fname,
+                Lname,
+                companyName,
                 phoneNumber,
                 role,
                 password: hashedPassword,
@@ -66,7 +67,9 @@ let UserService = class UserService {
             }
             const payload = {
                 id: savedUser._id,
-                name: savedUser.name,
+                Fname: savedUser.Fname,
+                Lname: savedUser.Lname,
+                companyName: savedUser.companyName,
                 phoneNumber: savedUser.phoneNumber,
                 role: savedUser.role,
                 city: savedUser.city,
@@ -105,7 +108,7 @@ let UserService = class UserService {
             const token = jwt.sign({
                 id: User._id,
                 phoneNumber: User.phoneNumber,
-                username: User.name,
+                username: User.Fname,
                 city: User.city,
                 field: User.field,
                 ice: User.ice,
@@ -245,7 +248,7 @@ let UserService = class UserService {
                 return {
                     statusCode: 409,
                     isExist,
-                    UserName: user.name,
+                    UserName: user.Fname,
                     role: user.role,
                     message: 'Phone number already exists',
                 };
@@ -271,7 +274,7 @@ let UserService = class UserService {
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __param(0, (0, mongoose_1.InjectModel)('User')),
     __metadata("design:paramtypes", [mongoose_2.Model])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

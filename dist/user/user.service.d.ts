@@ -18,7 +18,9 @@ export declare class UserService {
     } | {
         user: {
             id: unknown;
-            name: string;
+            Fname: string;
+            Lname: string;
+            companyName: string;
             phoneNumber: string;
             role: string;
             city: string;

@@ -8,7 +8,7 @@ import { User, UserSchema } from 'src/user/entities/user.schema';
 @Module({
   imports: [MongooseModule.forFeature([
     {name: Command.name, schema: CommandSchema},
-    { name: User.name, schema: UserSchema }])],
+    { name: 'User', schema: UserSchema }])],
   controllers: [CommandController],
   providers: [CommandService],
 })

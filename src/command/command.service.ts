@@ -12,7 +12,7 @@ import { ValidationOrder } from "../services/validationOrder"
 export class CommandService {
   constructor(
     @InjectModel(Command.name) private commandModel: Model<CommandDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel('User') private userModel: Model<UserDocument>,
   ) { }
   
   async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
@@ -111,7 +111,7 @@ export class CommandService {
       
       const userMap = users.reduce((map, user) => {
         map[user._id.toString()] = {
-          name: user.name || "عميل غير معروف",
+          name: user.Fname || "عميل غير معروف",
         }
         return map
       }, {});
