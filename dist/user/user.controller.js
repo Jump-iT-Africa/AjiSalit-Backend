@@ -34,10 +34,10 @@ let UserController = class UserController {
     }
     findOne(id, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.userService.findOne(id);
         }
@@ -51,54 +51,54 @@ let UserController = class UserController {
     }
     deleteAccount(id, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.userService.deleteAccount(id, infoUser.id);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     updateSocketId(id, socketId, req) {
-        let token = req.headers['authorization'].split(" ")[1];
+        let token = req.headers['authorization']?.split(" ")[1];
         let infoUser = (0, verifyJwt_1.validateJwt)(token);
         if (!infoUser) {
-            throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+            throw new common_1.UnauthorizedException("Try to login again");
         }
         if (id !== infoUser.id) {
-            throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+            throw new common_1.ForbiddenException("You are not allowed to update this oder");
         }
         return this.userService.updateSocketId(id, socketId);
     }
     updateUserProfile(id, updateUserDto, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             if (id !== infoUser.id) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
             return this.userService.updateUserInfo(id, updateUserDto);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
 };
@@ -308,7 +308,7 @@ __decorate([
         description: 'Unauthorized error: the user should login again using his phone number and password to continue filling his informations',
         schema: {
             example: {
-                "message": "حاول تسجل مرة أخرى",
+                "message": "Try to login again",
                 "error": "Unauthorized",
                 "statusCode": 401
             }
@@ -351,7 +351,7 @@ __decorate([
         description: "Unauthorized - Invalid or expired token",
         schema: {
             example: {
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: "Unauthorized",
                 statusCode: 401
             }
@@ -362,7 +362,7 @@ __decorate([
         description: "Forbidden - User doesn't have permission to update this profile",
         schema: {
             example: {
-                message: "ممسموحش لك تبدل هاد طلب",
+                message: "You are not allowed to update this oder",
                 error: "Forbidden",
                 statusCode: 403
             }

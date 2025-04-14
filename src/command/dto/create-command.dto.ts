@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray} from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray, Matches, IsNumber} from "class-validator";
 import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -13,18 +13,20 @@ export class CreateCommandDto {
     userId?:Types.ObjectId
 
     @ApiProperty({
-        example: '50000',
+        example: 8000,
         required: true
     })
-    @IsNotEmpty({message:"دخل تمن ديال هاد الخدمة"})
+    @IsNotEmpty({message:"kindly add the price of this service"})
+    @IsNumber({},{message:"The price has to be a valid number "})
     price:number
 
     @ApiProperty({
         example: "تسبيق",
         required: true
     })
-    @IsNotEmpty({message:"لازم دخل الحالة "})
+    @IsNotEmpty({message:"you must add the situation"})
     @IsEnum(["خالص", "غير خالص","تسبيق" ])
+    @Matches(/^(خالص|غير خالص|تسبيق)$/, { message: "The situation must be one of the following: خالص, غير خالص, تسبيق" })
     situation:string
 
     @ApiProperty({
@@ -33,41 +35,45 @@ export class CreateCommandDto {
     })
     @IsOptional()
     @IsString()
+    @Matches(/^(في طور الانجاز|قيد الانتظار|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, قيد الانتظار, جاهزة للتسليم, تم تسليم" })
     @IsEnum(["في طور الانجاز","قيد الانتظار", "جاهزة للتسليم", "تم تسليم"])
     status:string
 
     @ApiProperty({
-        example: 2000,
+        example: 200,
         required: false
     })    
 
     @IsOptional()
+    @IsNumber({},{message:"The Advanced Amount has to be a valid number "})
     advancedAmount:number
 
     @ApiProperty({
         example: "rabat",
         required: true
     })   
-    @IsNotEmpty({message:"دخل المدينة"})
-    @IsString({message:"دخل  إسم المدينة صحيح"})
+    @IsNotEmpty({message:"The city Name can not be empty, please enter your city name"})
+    @Matches(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" })
+    @IsString()
     city:string
 
     @ApiProperty({
         example: "2025-10-26",
         required: true
     })
-    @IsDateString({},{message:"تاريخ خاص اكون بحال YYYY-MM-DD"})
-    @IsNotEmpty({message: "دخل تاريخ التسليم"})
+    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
+    @IsNotEmpty({message: "The delivery Date is required"})
+    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
     deliveryDate:string
-
 
     @ApiProperty({
         example: "2025-10-28",
         required: true
     })
+    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
+    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
+    @IsOptional()
     pickupDate:string
-
-
 
     @ApiProperty({
         example: ['image1.jpg', 'image2.jpg'],

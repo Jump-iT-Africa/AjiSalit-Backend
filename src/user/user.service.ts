@@ -267,11 +267,11 @@ async deleteAccount(id: string, userId) {
         return "تم مسح الحساب بنجاح"
     }catch(e){
       if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError)
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       if(e instanceof ForbiddenException){
-        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+        throw new ForbiddenException("You are not allowed to update this oder")
       }
-      throw new BadRequestException("حاول مرة خرى")
+      throw new BadRequestException("Try again")
     }
   }
 

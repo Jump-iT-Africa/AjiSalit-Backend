@@ -28,10 +28,11 @@ __decorate([
 ], CreateCommandDto.prototype, "userId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: '50000',
+        example: 8000,
         required: true
     }),
-    (0, class_validator_1.IsNotEmpty)({ message: "دخل تمن ديال هاد الخدمة" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "kindly add the price of this service" }),
+    (0, class_validator_1.IsNumber)({}, { message: "The price has to be a valid number " }),
     __metadata("design:type", Number)
 ], CreateCommandDto.prototype, "price", void 0);
 __decorate([
@@ -39,8 +40,9 @@ __decorate([
         example: "تسبيق",
         required: true
     }),
-    (0, class_validator_1.IsNotEmpty)({ message: "لازم دخل الحالة " }),
+    (0, class_validator_1.IsNotEmpty)({ message: "you must add the situation" }),
     (0, class_validator_1.IsEnum)(["خالص", "غير خالص", "تسبيق"]),
+    (0, class_validator_1.Matches)(/^(خالص|غير خالص|تسبيق)$/, { message: "The situation must be one of the following: خالص, غير خالص, تسبيق" }),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "situation", void 0);
 __decorate([
@@ -50,15 +52,17 @@ __decorate([
     }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^(في طور الانجاز|قيد الانتظار|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, قيد الانتظار, جاهزة للتسليم, تم تسليم" }),
     (0, class_validator_1.IsEnum)(["في طور الانجاز", "قيد الانتظار", "جاهزة للتسليم", "تم تسليم"]),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: 2000,
+        example: 200,
         required: false
     }),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)({}, { message: "The Advanced Amount has to be a valid number " }),
     __metadata("design:type", Number)
 ], CreateCommandDto.prototype, "advancedAmount", void 0);
 __decorate([
@@ -66,8 +70,9 @@ __decorate([
         example: "rabat",
         required: true
     }),
-    (0, class_validator_1.IsNotEmpty)({ message: "دخل المدينة" }),
-    (0, class_validator_1.IsString)({ message: "دخل  إسم المدينة صحيح" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "The city Name can not be empty, please enter your city name" }),
+    (0, class_validator_1.Matches)(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" }),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "city", void 0);
 __decorate([
@@ -75,8 +80,9 @@ __decorate([
         example: "2025-10-26",
         required: true
     }),
-    (0, class_validator_1.IsDateString)({}, { message: "تاريخ خاص اكون بحال YYYY-MM-DD" }),
-    (0, class_validator_1.IsNotEmpty)({ message: "دخل تاريخ التسليم" }),
+    (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "The delivery Date is required" }),
+    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" }),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "deliveryDate", void 0);
 __decorate([
@@ -84,6 +90,9 @@ __decorate([
         example: "2025-10-28",
         required: true
     }),
+    (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
+    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" }),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "pickupDate", void 0);
 __decorate([

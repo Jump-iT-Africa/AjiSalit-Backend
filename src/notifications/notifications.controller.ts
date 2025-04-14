@@ -27,7 +27,7 @@ export class NotificationsController {
     schema: {
       example: {
         statusCode: 401,
-        message: "حاول تسجل مرة أخرى",
+        message: "Try to login again",
         error: 'Unauthorized error',
       },
     },
@@ -47,18 +47,18 @@ export class NotificationsController {
   @Post(':recevierId')
   createNotification(@Param("recevierId") recevierId: string, @Body() createNotificationDto: CreateNotificationDto, @Req() req) {
     try {
-      let token = req.headers['authorization'].split(" ")[1];
+      let token = req.headers['authorization']?.split(" ")[1];
       let infoUser = validateJwt(token);
       if (!infoUser) {
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       }
       return this.notificationsService.createNewNotification(recevierId, infoUser.id, createNotificationDto);
 
     } catch (e) {
-      console.log(e)
+      // console.log(e)
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
-      throw new BadRequestException("حاول مرة خرى")
+        throw e
+      throw new BadRequestException("Try again")
     }
   }
 
@@ -73,11 +73,11 @@ export class NotificationsController {
     try {
       let token = req.headers.authorization;
       if (!token) {
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       }
       let infoUser = validateJwt(token);
       if (!infoUser) {
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       }
       return this.notificationsService.notificationCompleteOrder(orderId, infoUser, receiverId)
     } catch (e) {
@@ -100,8 +100,4 @@ export class NotificationsController {
     return this.notificationsService.update(+id, updateNotificationDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationsService.remove(+id);
-  }
 }

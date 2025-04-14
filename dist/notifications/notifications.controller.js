@@ -27,29 +27,29 @@ let NotificationsController = class NotificationsController {
     }
     createNotification(recevierId, createNotificationDto, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.notificationsService.createNewNotification(recevierId, infoUser.id, createNotificationDto);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
-            throw new common_1.BadRequestException("حاول مرة خرى");
+                throw new common_1.UnauthorizedException("Try to login again");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     notifyOrderCompleted(orderId, receiverId, req) {
         try {
             let token = req.headers.authorization;
             if (!token) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.notificationsService.notificationCompleteOrder(orderId, infoUser, receiverId);
         }
@@ -89,7 +89,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: 'Unauthorized error',
             },
         },
