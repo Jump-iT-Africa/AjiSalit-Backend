@@ -9,7 +9,7 @@ import { OtpModule } from '../services/otp.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema }
+      { name: 'User', schema: UserSchema }
     ]),
     OtpModule,
     // TwilioModule

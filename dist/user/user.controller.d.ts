@@ -14,7 +14,9 @@ export declare class UserController {
     } | {
         user: {
             id: unknown;
-            name: any;
+            Fname: string;
+            Lname: string;
+            companyName: string;
             phoneNumber: string;
             role: string;
             city: string;

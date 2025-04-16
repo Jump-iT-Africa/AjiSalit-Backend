@@ -3,19 +3,23 @@ import { IsNotEmpty, IsString, Matches, IsEnum, IsOptional,IsArray, IsNumber,IsB
 
 export class UpdateUserDto {
 
-    @ApiProperty({ example: 'Test test', required: false })
-    @IsOptional()  
-    @IsString()
-    Lname?: string;
 
-    @IsOptional()
-    @IsString()
-    companyName?: string
+
 
     @ApiProperty({ example: 'Test test', required: false })
-    @IsOptional()  
     @IsString()
+    @IsOptional()  
     Fname?: string;
+
+    @ApiProperty({ example: 'jest jest', required: false })
+    @IsString()
+    @IsOptional()  
+    Lname?: string;
+    
+    @ApiProperty({ example: 'Alee', required: false })
+    @IsString()
+    @IsOptional()  
+    companyName?: string;
 
     @ApiProperty({ example: '+212600000000', required: false })
     @IsString()

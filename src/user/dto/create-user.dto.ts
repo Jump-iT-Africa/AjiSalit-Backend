@@ -6,7 +6,16 @@ export class CreateUserDto {
     @IsString()
     @Matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your name must be valid name" })
     @IsNotEmpty()
-    name: string;
+    Fname: string;
+
+    @ApiProperty({ example: 'BEN', required: true })
+    @IsString()
+    @IsNotEmpty()
+    Lname: string;
+
+    @ApiProperty({ example: 'Aji Salit', required: false })
+    @IsOptional()
+    companyName: string;
 
     @ApiProperty({ example: '+212697042868', required: true })
     @IsPhoneNumber()

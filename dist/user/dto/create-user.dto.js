@@ -21,7 +21,18 @@ __decorate([
     (0, class_validator_1.Matches)(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your name must be valid name" }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "name", void 0);
+], CreateUserDto.prototype, "Fname", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'BEN', required: true }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "Lname", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Aji Salit', required: false }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "companyName", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: '+212697042868', required: true }),
     (0, class_validator_1.IsPhoneNumber)(),

@@ -8,6 +8,7 @@ import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 export declare class CommandService {
     private commandModel;
     private userModel;
+<<<<<<< HEAD
     private readonly notificationsGateway;
     constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>, notificationsGateway: NotificationsGateway);
     create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
@@ -17,10 +18,20 @@ export declare class CommandService {
     }) | "try again">;
     scanedUserId(qrcode: string, userId: string, username: string): Promise<string>;
     findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+=======
+    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>);
+    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"حاول مرة خرى" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | "ماكين حتا طلب" | {
+    })>;
+    scanedUserId(qrcode: string, userId: string): Promise<string>;
+    findAll(userId: string, role: string): Promise<"ماكين حتا طلب" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+>>>>>>> 22e144926f55b639f1f2a3e21cc2caedda49eb90
+        _id: unknown;
+    }> & {
+        __v: number;
+    })[] | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;

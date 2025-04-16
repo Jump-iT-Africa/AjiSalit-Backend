@@ -25,7 +25,6 @@ describe('UserService', () => {
   };
 
   beforeEach(async () => {
-    // Create mock model class
     class MockUserModel {
       constructor(private data: any) {
         Object.assign(this, data);
@@ -39,19 +38,17 @@ describe('UserService', () => {
       providers: [
         UserService,
         {
-          provide: getModelToken(User.name),
+          provide: getModelToken(User.Fname),
           useValue: MockUserModel
         },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
-    userModel = module.get<Model<UserDocument>>(getModelToken(User.name));
+    userModel = module.get<Model<UserDocument>>(getModelToken(User.Fname));
 
-    // Mock SMS sending
     jest.spyOn(service as any, 'sendSMS').mockImplementation(() => Promise.resolve());
     
-    // Mock environment variables
     process.env.JWT_SECRET = 'test-secret-key';
   });
 

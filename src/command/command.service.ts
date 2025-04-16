@@ -121,7 +121,7 @@ export class CommandService {
       
       const userMap = users.reduce((map, user) => {
         map[user._id.toString()] = {
-          name: user.name || "عميل غير معروف",
+          name: user.Fname || "عميل غير معروف",
         }
         return map
       }, {});

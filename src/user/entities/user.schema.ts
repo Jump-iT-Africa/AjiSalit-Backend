@@ -11,7 +11,7 @@ export class User {
   @Prop({ required: true, default:null })
   Lname: string;
 
-  @Prop({ required: true, default:null })
+  @Prop({ required: false, default:null })
   companyName: string;
 
   @Prop({required: true, type: String})

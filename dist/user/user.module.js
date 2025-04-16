@@ -20,7 +20,7 @@ exports.UserModule = UserModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([
-                { name: user_schema_1.User.name, schema: user_schema_1.UserSchema }
+                { name: 'User', schema: user_schema_1.UserSchema }
             ]),
             otp_module_1.OtpModule,
         ],
