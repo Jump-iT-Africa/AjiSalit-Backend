@@ -19,6 +19,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const user_service_1 = require("../user/user.service");
 const command_service_1 = require("../command/command.service");
+const axios_1 = require("axios");
 let NotificationsService = class NotificationsService {
     constructor(notificationModel, userService, commandServide) {
         this.notificationModel = notificationModel;
@@ -61,6 +62,28 @@ let NotificationsService = class NotificationsService {
                 throw new common_1.UnprocessableEntityException("the reciever id should not be empty");
             }
             throw new common_1.BadRequestException("ops smth went wrong");
+        }
+    }
+    async sendPushNotification(to, title, body, data = {}) {
+        try {
+            const message = {
+                to,
+                sound: 'default',
+                title,
+                body,
+                data,
+            };
+            const response = await axios_1.default.post('https://exp.host/--/api/v2/push/send', message, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log('Expo response:', response.data);
+            return response.data;
+        }
+        catch (error) {
+            console.error('Error sending push notification:', error);
+            throw error;
         }
     }
     async notificationCompleteOrder(orderId, senderInfo, recevierId) {

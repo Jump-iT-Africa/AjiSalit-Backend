@@ -12,12 +12,15 @@ import * as bcrypt from 'bcrypt';
 // import { SignInToAppDto } from './dto/Logindto/signInToApp.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { plainToClass} from 'class-transformer';
+import { plainToClass, plainToInstance} from 'class-transformer';
 import {ResoponseCompanyDto} from "./dto/ResponseDto/response-company.dto"
 import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
 import {ResponseLoginDto} from './dto/ResponseDto/response-login.dto'
 import * as crypto from 'crypto';
 import { log } from 'console';
+import { validate } from 'class-validator';
+import {VerifyNumberDto} from "./dto/Logindto/VerifyPhoneNumber.dto"
+
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -35,8 +38,8 @@ export class UserService {
   async register(createUserDto: CreateUserDto) {
     try {
       const { name, phoneNumber, role, password, city, field, ice, ownRef, refBy, listRefs } = createUserDto;
-  
       const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
+
       if (existingUser) {
         return {
           message: "This number is already used, try to login or use another one"
@@ -86,7 +89,7 @@ export class UserService {
         listRefs: savedUser.listRefs
       };
   
-      const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
+      const token = jwt.sign(payload, secretKey, { expiresIn: '30d' });
   
       return {
         user: payload,
@@ -155,18 +158,19 @@ export class UserService {
           field:User.field,
           ice:User.ice,
           role: User.role,
+          
         },
         secretKey,
-        { expiresIn: '1d' }
+        { expiresIn: '30d' }
       );
-      let userinfo =  plainToClass(ResponseLoginDto,User, {
+      let user =  plainToClass(ResponseLoginDto,User, {
         excludeExtraneousValues:true,
         enableImplicitConversion:true
       }) 
 
       return {
         message: 'Login successful',
-        userinfo,
+        user,
         token,
       };
     } catch (error) {
@@ -194,7 +198,6 @@ export class UserService {
     }
 
   }
-
 
 
   findAll() {
@@ -254,7 +257,7 @@ export class UserService {
     }
   }
 
-async deleteAccount(id: string, userId) {
+  async deleteAccount(id: string, userId) {
     try{
         let account = await this.userModel.findById(id);
         if(!account){
@@ -276,10 +279,9 @@ async deleteAccount(id: string, userId) {
   }
 
 
-
-
   async updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
+      console.log("teeeeeeeeest")
       const toUpdate = await this.userModel.findById(id);
   
       if (!toUpdate) {
@@ -322,7 +324,6 @@ async deleteAccount(id: string, userId) {
         }
       }
   
-     
       Object.assign(toUpdate, updateUserDto);
       await toUpdate.save();
   
@@ -333,11 +334,47 @@ async deleteAccount(id: string, userId) {
     }
   }
 
+  async VerifyNumber(phoneNumber: string, verifyNumberDto: VerifyNumberDto) {
+    try {
+      const dtoInstance = plainToInstance(VerifyNumberDto, verifyNumberDto);
+      const errors = await validate(dtoInstance);
+      const isExist = false;
+
+      if (errors.length > 0) {
+        const validationErrors = errors.map(err => Object.values(err.constraints)).join(', ');
+        throw new BadRequestException(`Validation failed: ${validationErrors}`);
+      }
+  
+      const user = await this.userModel.findOne({ phoneNumber }).exec();
+      console.log(user);
+  
+      if (user) {
+        return {
+          statusCode: 409,
+          isExist,
+          UserName:user.name,
+          role: user.role,
+          message: 'Phone number already exists',
+        };
+      } else {
+        return {
+          statusCode: 200,
+          isExist:true,
+          message: 'Phone number is valid',
+        };
+      }
+    } catch (error) {
+      console.error(error);
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'There was an unexpected error',
+        error: error.message || error,
+      });
+    }
+  }
 
 
 
-  
-  
-  
+
 }
 

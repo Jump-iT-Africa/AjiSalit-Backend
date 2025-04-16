@@ -18,18 +18,20 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const mongoose_3 = require("mongoose");
 const command_schema_1 = require("./entities/command.schema");
+const user_schema_1 = require("../user/entities/user.schema");
 const validationOrder_1 = require("../services/validationOrder");
 const notifications_gateway_1 = require("../notifications/notifications.gateway");
 let CommandService = class CommandService {
-    constructor(commandModel, notificationsGateway) {
+    constructor(commandModel, userModel, notificationsGateway) {
         this.commandModel = commandModel;
+        this.userModel = userModel;
         this.notificationsGateway = notificationsGateway;
     }
     async create(createCommandDto, authentificatedId) {
         try {
             const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
             if (existingOrder) {
-                throw new common_1.ConflictException("this QRCode is used");
+                throw new common_1.ConflictException("هاد الكود مستعمل");
             }
             createCommandDto.companyId = new mongoose_2.Types.ObjectId(authentificatedId);
             let newOrder = new this.commandModel(createCommandDto);
@@ -41,7 +43,7 @@ let CommandService = class CommandService {
             if (!savingOrder) {
                 return "try again";
             }
-            return newOrder;
+            return savingOrder;
         }
         catch (e) {
             if (e instanceof common_1.UnprocessableEntityException) {
@@ -53,7 +55,7 @@ let CommandService = class CommandService {
             throw new common_1.BadRequestException(e.message);
         }
     }
-    async scanedUserId(qrcode, userId) {
+    async scanedUserId(qrcode, userId, username) {
         try {
             const updateCommad = await this.commandModel.findOne({ qrCode: qrcode }, { new: true });
             if (!updateCommad)
@@ -62,6 +64,9 @@ let CommandService = class CommandService {
                 throw new common_1.ConflictException("The qrCode is already scanned");
             }
             const updatedCommand = await this.commandModel.findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true }).exec();
+            let companyData = await this.userModel.findById(updateCommad.companyId);
+            if (companyData?.expoPushToken) {
+            }
             return "Congratulation the qrCode has been scanned successfully";
         }
         catch (e) {
@@ -88,25 +93,65 @@ let CommandService = class CommandService {
             }
             const allOrders = await this.commandModel.find(query);
             if (allOrders.length == 0) {
-                return "No order found";
+                return "ماكين حتا طلب";
             }
-            return allOrders;
+            const clientIds = [...new Set(allOrders
+                    .filter(order => order.clientId)
+                    .map(order => order.clientId.toString()))];
+            const companyId = [...new Set(allOrders
+                    .filter(order => order.companyId)
+                    .map(order => order.companyId.toString()))];
+            if (clientIds.length === 0 || companyId.length === 0) {
+                return allOrders;
+            }
+            const users = await this.userModel.find({
+                _id: { $in: clientIds.map(id => new mongoose_2.Types.ObjectId(id)) }
+            });
+            const companies = await this.userModel.find({
+                _id: { $in: companyId.map(id => new mongoose_2.Types.ObjectId(id)) }
+            });
+            const userMap = users.reduce((map, user) => {
+                map[user._id.toString()] = {
+                    name: user.name || "عميل غير معروف",
+                };
+                return map;
+            }, {});
+            const companyMap = companies.reduce((map, company) => {
+                map[company._id.toString()] = {
+                    field: company.field || "مجال غير معروف"
+                };
+                return map;
+            }, {});
+            const ordersWithCustomerNames = allOrders.map(order => {
+                const clientId = order.clientId ? order.clientId.toString() : null;
+                const plainOrder = order.toObject();
+                const userData = clientId ? userMap[clientId] : null;
+                const companyId = order.companyId ? order.companyId.toString() : null;
+                const companyData = companyId ? companyMap[companyId] : null;
+                return {
+                    ...plainOrder,
+                    customerDisplayName: userData?.name || "عميل غير معروف",
+                    customerField: companyData?.field || "مجال غير معروف"
+                };
+            });
+            return ordersWithCustomerNames;
         }
         catch (e) {
             console.log(e);
-            throw new common_1.BadRequestException("Try again");
+            throw new common_1.BadRequestException("حاول مرة خرى");
         }
     }
     async findOne(id, infoUser) {
         try {
-            let query = {};
+            let query = { _id: id };
             if (infoUser.role == "client") {
-                query = { clientId: infoUser.id };
+                query.clientId = infoUser.id;
             }
             else if (infoUser.role == "company") {
-                query = { companyId: infoUser.id };
+                query.companyId = infoUser.id;
             }
-            let order = await this.commandModel.findOne({ _id: id, ...query }).exec();
+            console.log(query);
+            let order = await this.commandModel.findOne(query).exec();
             if (!order) {
                 throw new common_1.NotFoundException("ماكين حتا طلب");
             }
@@ -116,8 +161,8 @@ let CommandService = class CommandService {
             if (e.name === 'CastError') {
                 throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
             }
-            if (common_1.NotFoundException) {
-                throw new common_1.NotFoundException("ماكين حتا طلب");
+            if (e instanceof common_1.NotFoundException) {
+                throw e;
             }
             throw new common_1.BadRequestException("Try again");
         }
@@ -173,7 +218,7 @@ let CommandService = class CommandService {
             }
             else {
                 const response = this.notificationsGateway.handleStatusNotification(orderId, result.clientId.toString(), userId);
-                console.log("+++++++++ dddd", response);
+                console.log("+++++++++ ", response);
             }
             return result;
         }
@@ -231,8 +276,10 @@ exports.CommandService = CommandService;
 exports.CommandService = CommandService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
-    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_gateway_1.NotificationsGateway))),
+    __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_gateway_1.NotificationsGateway))),
     __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
         notifications_gateway_1.NotificationsGateway])
 ], CommandService);
 //# sourceMappingURL=command.service.js.map

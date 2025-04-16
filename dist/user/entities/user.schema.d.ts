@@ -1,7 +1,9 @@
 import { Document, Types } from 'mongoose';
 export type UserDocument = User & Document;
 export declare class User {
-    name: string;
+    Fname: string;
+    Lname: string;
+    companyName: string;
     role: string;
     phoneNumber: string;
     password?: string;
@@ -12,6 +14,7 @@ export declare class User {
     refBy?: string;
     listRefs?: string[];
     socketId?: string;
+    expoPushToken?: string;
 }
 export declare const UserSchema: import("mongoose").Schema<User, import("mongoose").Model<User, any, any, any, Document<unknown, any, User> & User & {
     _id: Types.ObjectId;

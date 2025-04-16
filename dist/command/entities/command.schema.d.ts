@@ -8,10 +8,14 @@ export declare class Command {
     advancedAmount: number;
     city: string;
     price: number;
-    images?: string[];
+    images: [{
+        type: String;
+    }];
     deliveryDate: Date;
     pickupDate: Date;
     qrCode: string;
+    isFinished: false;
+    isPickUp: false;
 }
 export declare const CommandSchema: mongoose.Schema<Command, mongoose.Model<Command, any, any, any, mongoose.Document<unknown, any, Command> & Command & {
     _id: mongoose.Types.ObjectId;

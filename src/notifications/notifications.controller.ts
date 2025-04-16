@@ -11,6 +11,19 @@ import ResponseFcmDto from 'src/fcm/Dtos/response-fmc.dto';
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) { }
 
+
+  @Post('/send')
+  sendNotification(
+    @Body() body: { expoPushToken: string; title: string; message: string; data?: any },
+  ) {
+    return this.notificationsService.sendPushNotification(
+      body.expoPushToken,
+      body.title,
+      body.message,
+      body.data,
+    );
+  }
+
   @ApiOperation({ summary: "Create notification destinited to the reciever" })
   @ApiBearerAuth()
   @ApiBody({
@@ -63,7 +76,6 @@ export class NotificationsController {
   }
 
 
-
   @ApiOperation({summary: "Notify a specific user about the changing in the status of his order"})
   @ApiBearerAuth()
   
@@ -85,6 +97,7 @@ export class NotificationsController {
       throw new BadRequestException("Ops smth went wrong")
     }
   }
+
   @Get()
   findAll() {
     return this.notificationsService.findAll();

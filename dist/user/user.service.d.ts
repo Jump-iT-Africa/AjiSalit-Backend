@@ -5,6 +5,7 @@ import { LoginUserDto } from './dto/Logindto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResoponseCompanyDto } from "./dto/ResponseDto/response-company.dto";
 import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
+import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
 export declare class UserService {
     private userModel;
     constructor(userModel: Model<UserDocument>);
@@ -16,7 +17,7 @@ export declare class UserService {
     } | {
         user: {
             id: unknown;
-            name: string;
+            name: any;
             phoneNumber: string;
             role: string;
             city: string;
@@ -42,4 +43,17 @@ export declare class UserService {
     updateSocketId(userId: string, socketUserId: string): Promise<string>;
     deleteAccount(id: string, userId: any): Promise<string>;
     updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User>;
+    VerifyNumber(phoneNumber: string, verifyNumberDto: VerifyNumberDto): Promise<{
+        statusCode: number;
+        isExist: boolean;
+        UserName: any;
+        role: string;
+        message: string;
+    } | {
+        statusCode: number;
+        isExist: boolean;
+        message: string;
+        UserName?: undefined;
+        role?: undefined;
+    }>;
 }

@@ -58,7 +58,7 @@ let CommandController = class CommandController {
             if (infoUser.role !== "client" && infoUser.role !== "admin") {
                 throw new common_1.ForbiddenException("You can't scan this qrCode unless you have the client role");
             }
-            return this.commandService.scanedUserId(qrcode, infoUser.id);
+            return this.commandService.scanedUserId(qrcode, infoUser.id, infoUser.username);
         }
         catch (e) {
             if (e instanceof common_1.ForbiddenException) {

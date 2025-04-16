@@ -5,6 +5,7 @@ import { Document } from 'mongoose';
 
 export type CommandDocument = Command & mongoose.Document;
 @Schema()
+
 export class Command {
   @Prop({type: mongoose.Schema.Types.ObjectId, ref:'User'})
   companyId: string;
@@ -21,14 +22,14 @@ export class Command {
   @Prop({ required: false, default:null})
   advancedAmount:number;
 
-  @Prop({required: true})
+  @Prop({required: false})
   city:string;
 
   @Prop({ required: true })
   price: number; 
 
   @Prop({ required: false})
-  images?: string[];
+  images: [{ type: String }]
 
   @Prop({ required: true })
   deliveryDate: Date;
@@ -38,6 +39,12 @@ export class Command {
 
   @Prop({required:true, unique:true})
   qrCode: string;
+
+  @Prop({required:true, default:false})
+  isFinished: false;
+
+  @Prop({required:true, default:false})
+  isPickUp: false;
 }
 
 export const CommandSchema = SchemaFactory.createForClass(Command);

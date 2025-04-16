@@ -6,7 +6,13 @@ export type UserDocument = User & Document;
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: true, default:null })
-  name: string;
+  Fname: string;
+
+  @Prop({ required: true, default:null })
+  Lname: string;
+
+  @Prop({ required: true, default:null })
+  companyName: string;
 
   @Prop({required: true, type: String})
   role: string;
@@ -26,7 +32,6 @@ export class User {
   @Prop({required:false, default:null})
   ice?:number
 
-
   @Prop({ required: false, unique: true })
   ownRef: string;
 
@@ -38,9 +43,13 @@ export class User {
   
   @Prop({required:false})
   socketId?: string;
+
+  @Prop({required:false})
+  expoPushToken?: string;
   
 
 
+ 
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

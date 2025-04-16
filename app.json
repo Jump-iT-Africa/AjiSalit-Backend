@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "c7a7d86d-eaee-4ae9-b83f-80c994dfe970"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.samawi.ajisalit",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
+}

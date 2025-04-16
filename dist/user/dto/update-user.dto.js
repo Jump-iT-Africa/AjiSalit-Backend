@@ -17,10 +17,21 @@ class UpdateUserDto {
 exports.UpdateUserDto = UpdateUserDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'Test test', required: false }),
-    (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], UpdateUserDto.prototype, "name", void 0);
+], UpdateUserDto.prototype, "Lname", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "companyName", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Test test', required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "Fname", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: '+212600000000', required: false }),
     (0, class_validator_1.IsString)(),
@@ -79,4 +90,9 @@ __decorate([
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
 ], UpdateUserDto.prototype, "listRefs", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateUserDto.prototype, "expoPushToken", void 0);
 //# sourceMappingURL=update-user.dto.js.map

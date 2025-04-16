@@ -25,6 +25,9 @@ let NotificationsController = class NotificationsController {
     constructor(notificationsService) {
         this.notificationsService = notificationsService;
     }
+    sendNotification(body) {
+        return this.notificationsService.sendPushNotification(body.expoPushToken, body.title, body.message, body.data);
+    }
     createNotification(recevierId, createNotificationDto, req) {
         try {
             let token = req.headers['authorization']?.split(" ")[1];
@@ -35,9 +38,8 @@ let NotificationsController = class NotificationsController {
             return this.notificationsService.createNewNotification(recevierId, infoUser.id, createNotificationDto);
         }
         catch (e) {
-            console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("Try to login again");
+                throw e;
             throw new common_1.BadRequestException("Try again");
         }
     }
@@ -67,11 +69,15 @@ let NotificationsController = class NotificationsController {
     update(id, updateNotificationDto) {
         return this.notificationsService.update(+id, updateNotificationDto);
     }
-    remove(id) {
-        return this.notificationsService.remove(+id);
-    }
 };
 exports.NotificationsController = NotificationsController;
+__decorate([
+    (0, common_1.Post)('/send'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], NotificationsController.prototype, "sendNotification", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: "Create notification destinited to the reciever" }),
     (0, swagger_1.ApiBearerAuth)(),
@@ -145,13 +151,6 @@ __decorate([
     __metadata("design:paramtypes", [String, update_notification_dto_1.UpdateNotificationDto]),
     __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], NotificationsController.prototype, "remove", null);
 exports.NotificationsController = NotificationsController = __decorate([
     (0, common_1.Controller)('notifications'),
     __metadata("design:paramtypes", [notifications_service_1.NotificationsService])

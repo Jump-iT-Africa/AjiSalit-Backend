@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, Matches, IsOptional, IsArray, IsEnum, IsPhoneNumber } from "class-validator";
+import { IsNotEmpty, IsString, Matches, IsOptional, IsArray, IsEnum, IsPhoneNumber, IsBoolean } from "class-validator";
 
 export class CreateUserDto {
     @ApiProperty({ example: 'OSM', required: true })
@@ -63,4 +63,8 @@ export class CreateUserDto {
     @IsArray()
     @IsString({ each: true })
     listRefs: string[];
+
+    @IsOptional()
+    @IsString()
+    expoPushToken: string;
 }

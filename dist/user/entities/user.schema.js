@@ -17,7 +17,15 @@ exports.User = User;
 __decorate([
     (0, mongoose_1.Prop)({ required: true, default: null }),
     __metadata("design:type", String)
-], User.prototype, "name", void 0);
+], User.prototype, "Fname", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, default: null }),
+    __metadata("design:type", String)
+], User.prototype, "Lname", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, default: null }),
+    __metadata("design:type", String)
+], User.prototype, "companyName", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true, type: String }),
     __metadata("design:type", String)
@@ -58,6 +66,10 @@ __decorate([
     (0, mongoose_1.Prop)({ required: false }),
     __metadata("design:type", String)
 ], User.prototype, "socketId", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false }),
+    __metadata("design:type", String)
+], User.prototype, "expoPushToken", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);

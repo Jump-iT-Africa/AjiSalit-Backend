@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray, Matches, IsNumber} from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray, Matches, IsNumber, IsBoolean} from "class-validator";
 import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -93,6 +93,11 @@ export class CreateCommandDto {
     @IsNotEmpty()
     qrCode:string
 
+    @IsBoolean()
+    @IsOptional()
+    isFinished:boolean
 
-
+    @IsBoolean()
+    @IsOptional()
+    isPickUp:boolean
 }

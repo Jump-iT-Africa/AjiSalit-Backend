@@ -4,34 +4,41 @@ import { Model, Types } from "mongoose"
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
-import { Command, CommandDocument, } from './entities/command.schema';
-import { ValidationOrder } from "../services/validationOrder"
+import { Command, CommandDocument } from './entities/command.schema';
+import {  User, UserDocument } from '../user/entities/user.schema';
+import { ValidationOrder  } from "../services/validationOrder"
 import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 
 @Injectable()
 export class CommandService {
   constructor(
     @InjectModel(Command.name) private commandModel: Model<CommandDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject(forwardRef(() => NotificationsGateway))
     private readonly notificationsGateway: NotificationsGateway
   ) {}
+  
   async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
     try {
-      const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
-      if (existingOrder) {
-        throw new ConflictException("this QRCode is used")
+      const existingOrder = await this.commandModel.findOne({qrCode : createCommandDto.qrCode}).exec();
+
+      if(existingOrder){
+        throw new ConflictException("هاد الكود مستعمل")
       }
+
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
       let resultValidation = ValidationOrder(newOrder)
       if (resultValidation !== "valide") {
         throw new UnprocessableEntityException(resultValidation);
       }
+
       let savingOrder = newOrder.save()
       if (!savingOrder) {
         return "try again"
       }
-      return newOrder
+
+      return savingOrder
     } catch (e) {
       if (e instanceof UnprocessableEntityException) {
         throw e;
@@ -42,7 +49,7 @@ export class CommandService {
     }
   }
 
-  async scanedUserId(qrcode: string, userId: string) {
+  async scanedUserId(qrcode: string, userId:string, username:string) {
     try {
       const updateCommad = await this.commandModel.findOne({qrCode:qrcode}, {new:true})
       if (!updateCommad)
@@ -51,6 +58,10 @@ export class CommandService {
         throw new ConflictException("The qrCode is already scanned")
       }
       const updatedCommand = await this.commandModel.findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true }).exec();
+      let companyData = await this.userModel.findById(updateCommad.companyId)
+      if(companyData?.expoPushToken){
+        
+      }
       return "Congratulation the qrCode has been scanned successfully";
     } catch (e) {
       // console.log(e)
@@ -75,39 +86,98 @@ export class CommandService {
         query = { clientId: userId }
       } else if (role == "company") {
         query = { companyId: userId }
-
       }
+      
       const allOrders = await this.commandModel.find(query)
+      
       if (allOrders.length == 0) {
-        return"No order found"
+        return "ماكين حتا طلب"
       }
-      return allOrders
+      
+      const clientIds = [...new Set(
+        allOrders
+          .filter(order => order.clientId) 
+          .map(order => order.clientId.toString())
+      )]
+
+      const companyId = [...new Set(
+        allOrders
+          .filter(order => order.companyId) 
+          .map(order => order.companyId.toString())
+      )]
+      
+      if (clientIds.length === 0 || companyId.length === 0) {
+        return allOrders;
+      }
+      
+      const users = await this.userModel.find({ 
+        _id: { $in: clientIds.map(id => new Types.ObjectId(id)) } 
+      })
+
+
+      const companies = await this.userModel.find({ 
+        _id: { $in: companyId.map(id => new Types.ObjectId(id)) } 
+      })
+      
+      const userMap = users.reduce((map, user) => {
+        map[user._id.toString()] = {
+          name: user.name || "عميل غير معروف",
+        }
+        return map
+      }, {});
+
+      const companyMap = companies.reduce((map, company) => {
+        map[company._id.toString()] = {
+          field: company.field || "مجال غير معروف"
+        }
+        return map
+      }, {});
+  
+      const ordersWithCustomerNames = allOrders.map(order => {
+        const clientId = order.clientId ? order.clientId.toString() : null;
+        const plainOrder = order.toObject();
+        const userData = clientId ? userMap[clientId] : null;
+        const companyId = order.companyId ? order.companyId.toString() : null;
+        const companyData = companyId ? companyMap[companyId] : null;
+
+        return {
+          ...plainOrder,
+          customerDisplayName: userData?.name || "عميل غير معروف",
+          customerField: companyData?.field || "مجال غير معروف"
+        };
+      });
+      
+      return ordersWithCustomerNames;
     } catch (e) {
-      console.log(e)
-      throw new BadRequestException("Try again")
+      console.log(e);
+      throw new BadRequestException("حاول مرة خرى");
     }
   }
 
   async findOne(id: string, infoUser) {
     try {
-      let query = {}
+      let query: any = { _id: id };
+      
       if (infoUser.role == "client") {
-        query = { clientId: infoUser.id }
+        query.clientId = infoUser.id;
       } else if (infoUser.role == "company") {
-        query = { companyId: infoUser.id }
+        query.companyId = infoUser.id;
       }
-      let order = await this.commandModel.findOne({ _id: id, ...query }).exec()
+      
+      console.log(query);
+      
+      let order = await this.commandModel.findOne(query).exec();
       if (!order) {
-        throw new NotFoundException("ماكين حتا طلب")
+        throw new NotFoundException("ماكين حتا طلب");
       }
-      return order
-
+      
+      return order;
     } catch (e) {
       if (e.name === 'CastError') {
         throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
       }
-      if (NotFoundException) {
-        throw new NotFoundException("ماكين حتا طلب")
+      if  (e instanceof NotFoundException)  {
+        throw e;
       }
       throw new BadRequestException("Try again")
     }
@@ -175,7 +245,7 @@ export class CommandService {
             result.clientId.toString(),
             userId
           )
-          console.log("+++++++++ dddd", response)
+          console.log("+++++++++ ", response)
       }
       return result 
     }catch(e){
@@ -210,9 +280,6 @@ export class CommandService {
       throw new BadRequestException("Try again")
     }
   }
-
-
-
   async getCommandByQrCode(qrCode: string): Promise<Command> {
     try {
       const command = await this.commandModel.findOne({ qrCode })
@@ -224,13 +291,12 @@ export class CommandService {
       if (!command) {
         throw new NotFoundException("The order is not found");
       }
-
       return command;
 
     } catch (e) {
       console.log(e);
       throw new BadRequestException("Try again")
-
     }
-  }
 }
+}
+

@@ -17,7 +17,7 @@ exports.ResponseLoginDto = ResponseLoginDto;
 __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
-], ResponseLoginDto.prototype, "_id", void 0);
+], ResponseLoginDto.prototype, "id", void 0);
 __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
@@ -46,4 +46,16 @@ __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
 ], ResponseLoginDto.prototype, "name", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
+], ResponseLoginDto.prototype, "ownRef", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
+], ResponseLoginDto.prototype, "refBy", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
+], ResponseLoginDto.prototype, "city", void 0);
 //# sourceMappingURL=response-login.dto.js.map

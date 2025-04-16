@@ -4,6 +4,12 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 export declare class NotificationsController {
     private readonly notificationsService;
     constructor(notificationsService: NotificationsService);
+    sendNotification(body: {
+        expoPushToken: string;
+        title: string;
+        message: string;
+        data?: any;
+    }): Promise<any>;
     createNotification(recevierId: string, createNotificationDto: CreateNotificationDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/notification.schema").NotificationDocument> & import("./entities/notification.schema").Notification & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
@@ -17,5 +23,4 @@ export declare class NotificationsController {
     findAll(): string;
     findOne(id: string): string;
     update(id: string, updateNotificationDto: UpdateNotificationDto): string;
-    remove(id: string): string;
 }

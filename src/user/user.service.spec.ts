@@ -65,6 +65,10 @@ describe('UserService', () => {
       phoneNumber: '+212697042868',
       password: 'testPassword',
       role: 'client',
+      city: "ait ourir",
+      field: "Masbana",
+      ice: "12345678910123",
+      refBy: "E1381FB0"
     };
 
     it('should successfully register a new user', async () => {
@@ -114,77 +118,7 @@ describe('UserService', () => {
     });
   });
 
-  describe('verifyOTP', () => {
-    const mockUser = {
-      ...mockSavedUser,
-      save: jest.fn().mockResolvedValue(true)
-    };
-
-    it('should successfully verify valid OTP', async () => {
-      jest.spyOn(userModel, 'findOne').mockReturnValue({
-        exec: jest.fn().mockResolvedValue({
-          ...mockUser,
-          otpExpiry: new Date(Date.now() + 10 * 60 * 1000)
-        })
-      } as any);
-
-      const result = await service.verifyOTP('+212697042868', '123456');
-      
-      expect(result).toEqual({ 
-        message: 'تم أتحقق بنجاح' 
-      });
-      expect(mockUser.save).toHaveBeenCalled();
-    });
-
-    it('should throw BadRequestException for الرمز غلط', async () => {
-      jest.spyOn(userModel, 'findOne').mockReturnValue({
-        exec: jest.fn().mockResolvedValue({
-          ...mockUser,
-          otpExpiry: new Date(Date.now() + 10 * 60 * 1000)
-        })
-      } as any);
-
-      await expect(service.verifyOTP('+212697042868', 'wrong-otp'))
-        .rejects
-        .toThrow(BadRequestException);
-      await expect(service.verifyOTP('+212697042868', 'wrong-otp'))
-        .rejects
-        .toThrow('الرمز غلط');
-    });
-
-    it('should throw BadRequestException for expired OTP', async () => {
-      const mockExpiredUser = {
-        ...mockUser,
-        otp: '123456',
-        otpExpiry: new Date(Date.now() - 1000),  // Expired time
-        save: jest.fn().mockResolvedValue(true)
-      };
-  
-      jest.spyOn(userModel, 'findOne').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockExpiredUser)
-      } as any);
-  
-      await expect(service.verifyOTP('+212697042868', '123456'))
-        .rejects
-        .toThrow(BadRequestException);
-      await expect(service.verifyOTP('+212697042868', '123456'))
-        .rejects
-        .toThrow('هاد رمز نتهات صلحية تاعو'); // Updated expected message
-    });
-
-    it('should throw BadRequestException if user not found', async () => {
-      jest.spyOn(userModel, 'findOne').mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null)
-      } as any);
-
-      await expect(service.verifyOTP('+212697042868', '123456'))
-        .rejects
-        .toThrow(BadRequestException);
-      await expect(service.verifyOTP('+212697042868', '123456'))
-        .rejects
-        .toThrow('User not found');
-    });
-  });
+ 
 
   describe('login', () => {
     const loginDto = {

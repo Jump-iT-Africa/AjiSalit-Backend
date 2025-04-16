@@ -4,9 +4,12 @@ import { CommandController } from './command.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Command, CommandSchema } from './entities/command.schema';
 import { NotificationsModule } from 'src/notifications/notifications.module';
+import { User, UserSchema } from 'src/user/entities/user.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{name: Command.name, schema: CommandSchema}]),forwardRef(() => NotificationsModule)],
+  imports: [MongooseModule.forFeature([
+    {name: Command.name, schema: CommandSchema},
+    { name: User.name, schema: UserSchema }]),forwardRef(() => NotificationsModule)],
   controllers: [CommandController],
   providers: [CommandService],
   exports:[CommandService]

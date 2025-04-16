@@ -15,6 +15,7 @@ export declare class NotificationsService {
     }> & {
         __v: number;
     }>;
+    sendPushNotification(to: string, title: string, body: string, data?: any): Promise<any>;
     notificationCompleteOrder(orderId: any, senderInfo: any, recevierId: any): Promise<(mongoose.Document<unknown, {}, NotificationDocument> & Notification & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {

@@ -1,5 +1,5 @@
 export declare class ResponseLoginDto {
-    _id: string;
+    id: string;
     phoneNumber: string;
     role: string;
     isVerified: boolean;
@@ -7,4 +7,7 @@ export declare class ResponseLoginDto {
     field: string;
     ice: number;
     name: string;
+    ownRef: string;
+    refBy: string;
+    city: string;
 }

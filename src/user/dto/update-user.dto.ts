@@ -1,11 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, Matches, IsEnum, IsOptional,IsArray, IsNumber } from "class-validator";
+import { IsNotEmpty, IsString, Matches, IsEnum, IsOptional,IsArray, IsNumber,IsBoolean } from "class-validator";
 
 export class UpdateUserDto {
+
     @ApiProperty({ example: 'Test test', required: false })
-    @IsString()
     @IsOptional()  
-    name?: string;
+    @IsString()
+    Lname?: string;
+
+    @IsOptional()
+    @IsString()
+    companyName?: string
+
+    @ApiProperty({ example: 'Test test', required: false })
+    @IsOptional()  
+    @IsString()
+    Fname?: string;
 
     @ApiProperty({ example: '+212600000000', required: false })
     @IsString()
@@ -55,4 +65,10 @@ export class UpdateUserDto {
     @IsArray()
     @IsString({ each: true })  
     listRefs?: string[];
+
+    @IsOptional()
+    @IsString()
+    expoPushToken: string;
+
+   
 }

@@ -9,22 +9,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginUserDto = void 0;
+exports.VerifyNumberDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
-class LoginUserDto {
+class VerifyNumberDto {
 }
-exports.LoginUserDto = LoginUserDto;
+exports.VerifyNumberDto = VerifyNumberDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: '+212697042868', required: true }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.Matches)(/^\+212\s?0?\d{9}$/, {
+        message: 'رقم الهاتف غير صالح، خاصو يكون على شكل +212 0697042868 أو +2120697042868',
+    }),
     __metadata("design:type", String)
-], LoginUserDto.prototype, "phoneNumber", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ example: '123456', required: true }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], LoginUserDto.prototype, "password", void 0);
-//# sourceMappingURL=login-user.dto.js.map
+], VerifyNumberDto.prototype, "phoneNumber", void 0);
+//# sourceMappingURL=VerifyPhoneNumber.dto.js.map

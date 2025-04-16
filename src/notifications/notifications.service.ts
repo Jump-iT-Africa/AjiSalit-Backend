@@ -12,6 +12,7 @@ import { UserService } from 'src/user/user.service';
 import { CommandService } from 'src/command/command.service';
 import { Types } from 'twilio/lib/rest/content/v1/content';
 import { Console } from 'console';
+import axios from 'axios';
 
 @Injectable()
 export class NotificationsService {
@@ -63,6 +64,30 @@ export class NotificationsService {
       } 
       throw new BadRequestException("ops smth went wrong")
 
+    }
+  }
+
+  async sendPushNotification(to: string, title: string, body: string, data: any = {}) {
+    try {
+      const message = {
+        to,
+        sound: 'default',
+        title,
+        body,
+        data,
+      };
+
+      const response = await axios.post('https://exp.host/--/api/v2/push/send', message, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Expo response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error sending push notification:', error);
+      throw error;
     }
   }
 

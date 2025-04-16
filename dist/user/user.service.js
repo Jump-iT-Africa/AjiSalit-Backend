@@ -26,6 +26,8 @@ const response_company_dto_1 = require("./dto/ResponseDto/response-company.dto")
 const response_user_dto_1 = require("./dto/ResponseDto/response-user.dto");
 const response_login_dto_1 = require("./dto/ResponseDto/response-login.dto");
 const crypto = require("crypto");
+const class_validator_1 = require("class-validator");
+const VerifyPhoneNumber_dto_1 = require("./dto/Logindto/VerifyPhoneNumber.dto");
 const secretKey = process.env.JWT_SECRET;
 let UserService = class UserService {
     constructor(userModel) {
@@ -73,7 +75,7 @@ let UserService = class UserService {
                 ownRef: savedUser.ownRef,
                 listRefs: savedUser.listRefs
             };
-            const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
+            const token = jwt.sign(payload, secretKey, { expiresIn: '30d' });
             return {
                 user: payload,
                 token,
@@ -108,14 +110,14 @@ let UserService = class UserService {
                 field: User.field,
                 ice: User.ice,
                 role: User.role,
-            }, secretKey, { expiresIn: '1d' });
-            let userinfo = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, User, {
+            }, secretKey, { expiresIn: '30d' });
+            let user = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, User, {
                 excludeExtraneousValues: true,
                 enableImplicitConversion: true
             });
             return {
                 message: 'Login successful',
-                userinfo,
+                user,
                 token,
             };
         }
@@ -215,6 +217,7 @@ let UserService = class UserService {
     }
     async updateUserInfo(id, updateUserDto) {
         try {
+            console.log("teeeeeeeeest");
             const toUpdate = await this.userModel.findById(id);
             if (!toUpdate) {
                 throw new common_1.NotFoundException('المستخدم غير موجود');
@@ -242,6 +245,43 @@ let UserService = class UserService {
         catch (error) {
             console.error("Error updating user profile:", error);
             throw new common_1.BadRequestException('تعذر تحديث الملف الشخصي');
+        }
+    }
+    async VerifyNumber(phoneNumber, verifyNumberDto) {
+        try {
+            const dtoInstance = (0, class_transformer_1.plainToInstance)(VerifyPhoneNumber_dto_1.VerifyNumberDto, verifyNumberDto);
+            const errors = await (0, class_validator_1.validate)(dtoInstance);
+            const isExist = false;
+            if (errors.length > 0) {
+                const validationErrors = errors.map(err => Object.values(err.constraints)).join(', ');
+                throw new common_1.BadRequestException(`Validation failed: ${validationErrors}`);
+            }
+            const user = await this.userModel.findOne({ phoneNumber }).exec();
+            console.log(user);
+            if (user) {
+                return {
+                    statusCode: 409,
+                    isExist,
+                    UserName: user.name,
+                    role: user.role,
+                    message: 'Phone number already exists',
+                };
+            }
+            else {
+                return {
+                    statusCode: 200,
+                    isExist: true,
+                    message: 'Phone number is valid',
+                };
+            }
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.BadRequestException({
+                statusCode: 400,
+                message: 'There was an unexpected error',
+                error: error.message || error,
+            });
         }
     }
 };
