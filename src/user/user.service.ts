@@ -156,7 +156,8 @@ export class UserService {
         {
           id: User._id,
           phoneNumber: User.phoneNumber,
-          username: User.Fname,
+          Fname: User.Fname,
+          Lname: User.Lname,
           city:User.city,
           field:User.field,
           ice:User.ice,

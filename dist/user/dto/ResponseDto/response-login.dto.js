@@ -25,6 +25,22 @@ __decorate([
 __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
+], ResponseLoginDto.prototype, "Fname", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
+], ResponseLoginDto.prototype, "Lname", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
+], ResponseLoginDto.prototype, "companyName", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", Array)
+], ResponseLoginDto.prototype, "listRefs", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
 ], ResponseLoginDto.prototype, "role", void 0);
 __decorate([
     (0, class_transformer_1.Expose)(),
