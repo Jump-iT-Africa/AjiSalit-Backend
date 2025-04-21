@@ -41,7 +41,7 @@ export declare class UserController {
     verifyPhone(verifyNumberDto: VerifyNumberDto): Promise<{
         statusCode: number;
         isExist: boolean;
-        UserName: any;
+        UserName: string;
         role: string;
         message: string;
     } | {

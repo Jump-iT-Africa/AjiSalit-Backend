@@ -8,6 +8,8 @@ import { Command, CommandDocument } from './entities/command.schema';
 import {  User, UserDocument } from '../user/entities/user.schema';
 import { ValidationOrder  } from "../services/validationOrder"
 import { NotificationsGateway } from 'src/notifications/notifications.gateway';
+import { NotificationsService } from 'src/notifications/notifications.service';
+
 
 @Injectable()
 export class CommandService {
@@ -15,7 +17,8 @@ export class CommandService {
     @InjectModel(Command.name) private commandModel: Model<CommandDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject(forwardRef(() => NotificationsGateway))
-    private readonly notificationsGateway: NotificationsGateway
+    private readonly notificationsGateway: NotificationsGateway,
+    private notificationsService: NotificationsService
   ) {}
   
   async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
@@ -51,16 +54,20 @@ export class CommandService {
 
   async scanedUserId(qrcode: string, userId:string, username:string) {
     try {
-      const updateCommad = await this.commandModel.findOne({qrCode:qrcode}, {new:true})
+      const updateCommad = await this.commandModel.findOne({qrCode:qrcode})
+      let companyData = await this.userModel.findById(updateCommad.companyId)
       if (!updateCommad)
         throw new NotFoundException("The order not found")
+      console.log("client idddd", updateCommad.clientId, updateCommad)
+
       if(updateCommad.clientId !== null){
         throw new ConflictException("The qrCode is already scanned")
       }
       const updatedCommand = await this.commandModel.findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true }).exec();
-      let companyData = await this.userModel.findById(updateCommad.companyId)
-      if(companyData?.expoPushToken){
-        
+      if(companyData.expoPushToken){
+        let message = `Your qrCode has been was scanned successfully by ${username}`
+        let notificationSender = await this.notificationsService.sendPushNotification(companyData.expoPushToken, "AjiSalit", message)
+        console.log("ohhhhh la laa",notificationSender);
       }
       return "Congratulation the qrCode has been scanned successfully";
     } catch (e) {
@@ -196,14 +203,22 @@ export class CommandService {
       if (!command) {
         throw new NotFoundException("طلب ديالك مكاينش");
       }
-      console.log("authenticated ID:", authentificatedId);
-      console.log("command company ID:", command.companyId.toString());
+      // console.log("authenticated ID:", authentificatedId);
+      // console.log("command company ID:", command.companyId.toString());
 
       if (command.companyId.toString() !== authentificatedId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
 
       const updatedCommand = await this.commandModel.findByIdAndUpdate( id, updateCommandDto,{ new: true, runValidators: true }).exec();
+      if(updateCommandDto.status == "جاهزة للتسليم" && updatedCommand){
+        console.log("Ops we are here ")
+        let clientInfo = await this.userModel.findById(updatedCommand.clientId).exec();
+        if(clientInfo.expoPushToken){
+          let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
+          console.log("Here's my notification sender: ", notificationSender)
+        }
+      }
       console.log("Updated command:", updatedCommand);
       return updatedCommand;
     } catch (e) {
@@ -236,7 +251,7 @@ export class CommandService {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
       let result = await this.commandModel.findByIdAndUpdate(orderId, data,{new:true,runValidators:true}).exec()
-      console.log("++++++++++++", result)
+      // console.log("++++++++++++", result)
       if(!result){
         throw new BadRequestException("smth bad happend")
       }else{
@@ -245,7 +260,7 @@ export class CommandService {
             result.clientId.toString(),
             userId
           )
-          console.log("+++++++++ ", response)
+          console.log(" Response is", response)
       }
       return result 
     }catch(e){

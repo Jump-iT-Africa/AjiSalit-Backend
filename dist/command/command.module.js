@@ -21,13 +21,8 @@ exports.CommandModule = CommandModule = __decorate([
     (0, common_1.Module)({
         imports: [mongoose_1.MongooseModule.forFeature([
                 { name: command_schema_1.Command.name, schema: command_schema_1.CommandSchema },
-<<<<<<< HEAD
                 { name: user_schema_1.User.name, schema: user_schema_1.UserSchema }
             ]), (0, common_1.forwardRef)(() => notifications_module_1.NotificationsModule)],
-=======
-                { name: 'User', schema: user_schema_1.UserSchema }
-            ])],
->>>>>>> 22e144926f55b639f1f2a3e21cc2caedda49eb90
         controllers: [command_controller_1.CommandController],
         providers: [command_service_1.CommandService],
         exports: [command_service_1.CommandService]

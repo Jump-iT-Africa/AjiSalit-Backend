@@ -23,11 +23,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "Lname", void 0);
 __decorate([
-<<<<<<< HEAD
-    (0, mongoose_1.Prop)({ required: true, default: null }),
-=======
     (0, mongoose_1.Prop)({ required: false, default: null }),
->>>>>>> 22e144926f55b639f1f2a3e21cc2caedda49eb90
     __metadata("design:type", String)
 ], User.prototype, "companyName", void 0);
 __decorate([

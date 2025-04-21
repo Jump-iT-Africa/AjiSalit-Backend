@@ -48,7 +48,7 @@ export declare class UserService {
     VerifyNumber(phoneNumber: string, verifyNumberDto: VerifyNumberDto): Promise<{
         statusCode: number;
         isExist: boolean;
-        UserName: any;
+        UserName: string;
         role: string;
         message: string;
     } | {

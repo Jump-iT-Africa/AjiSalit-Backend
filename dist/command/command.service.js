@@ -18,13 +18,16 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const mongoose_3 = require("mongoose");
 const command_schema_1 = require("./entities/command.schema");
+const user_schema_1 = require("../user/entities/user.schema");
 const validationOrder_1 = require("../services/validationOrder");
 const notifications_gateway_1 = require("../notifications/notifications.gateway");
+const notifications_service_1 = require("../notifications/notifications.service");
 let CommandService = class CommandService {
-    constructor(commandModel, userModel, notificationsGateway) {
+    constructor(commandModel, userModel, notificationsGateway, notificationsService) {
         this.commandModel = commandModel;
         this.userModel = userModel;
         this.notificationsGateway = notificationsGateway;
+        this.notificationsService = notificationsService;
     }
     async create(createCommandDto, authentificatedId) {
         try {
@@ -56,15 +59,19 @@ let CommandService = class CommandService {
     }
     async scanedUserId(qrcode, userId, username) {
         try {
-            const updateCommad = await this.commandModel.findOne({ qrCode: qrcode }, { new: true });
+            const updateCommad = await this.commandModel.findOne({ qrCode: qrcode });
+            let companyData = await this.userModel.findById(updateCommad.companyId);
             if (!updateCommad)
                 throw new common_1.NotFoundException("The order not found");
+            console.log("client idddd", updateCommad.clientId, updateCommad);
             if (updateCommad.clientId !== null) {
                 throw new common_1.ConflictException("The qrCode is already scanned");
             }
             const updatedCommand = await this.commandModel.findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true }).exec();
-            let companyData = await this.userModel.findById(updateCommad.companyId);
-            if (companyData?.expoPushToken) {
+            if (companyData.expoPushToken) {
+                let message = `Your qrCode has been was scanned successfully by ${username}`;
+                let notificationSender = await this.notificationsService.sendPushNotification(companyData.expoPushToken, "AjiSalit", message);
+                console.log("ohhhhh la laa", notificationSender);
             }
             return "Congratulation the qrCode has been scanned successfully";
         }
@@ -176,12 +183,18 @@ let CommandService = class CommandService {
             if (!command) {
                 throw new common_1.NotFoundException("طلب ديالك مكاينش");
             }
-            console.log("authenticated ID:", authentificatedId);
-            console.log("command company ID:", command.companyId.toString());
             if (command.companyId.toString() !== authentificatedId) {
                 throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
             const updatedCommand = await this.commandModel.findByIdAndUpdate(id, updateCommandDto, { new: true, runValidators: true }).exec();
+            if (updateCommandDto.status == "جاهزة للتسليم" && updatedCommand) {
+                console.log("Ops we are here ");
+                let clientInfo = await this.userModel.findById(updatedCommand.clientId).exec();
+                if (clientInfo.expoPushToken) {
+                    let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`);
+                    console.log("Here's my notification sender: ", notificationSender);
+                }
+            }
             console.log("Updated command:", updatedCommand);
             return updatedCommand;
         }
@@ -211,13 +224,12 @@ let CommandService = class CommandService {
                 throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
             let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true, runValidators: true }).exec();
-            console.log("++++++++++++", result);
             if (!result) {
                 throw new common_1.BadRequestException("smth bad happend");
             }
             else {
                 const response = this.notificationsGateway.handleStatusNotification(orderId, result.clientId.toString(), userId);
-                console.log("+++++++++ ", response);
+                console.log(" Response is", response);
             }
             return result;
         }
@@ -275,14 +287,11 @@ exports.CommandService = CommandService;
 exports.CommandService = CommandService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
-<<<<<<< HEAD
     __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
     __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_gateway_1.NotificationsGateway))),
-=======
-    __param(1, (0, mongoose_1.InjectModel)('User')),
->>>>>>> 22e144926f55b639f1f2a3e21cc2caedda49eb90
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model,
-        notifications_gateway_1.NotificationsGateway])
+        notifications_gateway_1.NotificationsGateway,
+        notifications_service_1.NotificationsService])
 ], CommandService);
 //# sourceMappingURL=command.service.js.map
