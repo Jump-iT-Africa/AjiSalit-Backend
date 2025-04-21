@@ -23,6 +23,7 @@ export declare class CommandService {
     }> & {
         __v: number;
     })[] | "ماكين حتا طلب" | {
+    })[] | "ماكين حتا طلب" | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;

@@ -6,6 +6,14 @@ export class ResponseLoginDto{
     @Expose()
     phoneNumber:string
     @Expose()
+    Fname:string
+    @Expose()
+    Lname:string
+    @Expose()
+    companyName: string
+    @Expose()
+    listRefs:[]
+    @Expose()
     role:string
     @Expose()
     isVerified:boolean

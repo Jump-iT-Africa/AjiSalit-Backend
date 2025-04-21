@@ -11,9 +11,11 @@ export declare class CommandController {
     }) | "try again">;
     scanedUserId(qrcode: string, req: any): Promise<string>;
     findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
+    })[] | "ماكين حتا طلب" | {
     })[] | "ماكين حتا طلب" | {
         customerDisplayName: any;
         customerField: any;
