@@ -21,6 +21,8 @@ const verifyJwt_1 = require("../services/verifyJwt");
 const swagger_1 = require("@nestjs/swagger");
 const response_command_dto_1 = require("./dto/response-command.dto");
 const jsonwebtoken_1 = require("jsonwebtoken");
+const update_status_command_dto_1 = require("./dto/update-status-command.dto");
+const update_pickup_date_command_dto_1 = require("./dto/update-pickup-date-command.dto");
 let CommandController = class CommandController {
     constructor(commandService) {
         this.commandService = commandService;
@@ -173,17 +175,46 @@ let CommandController = class CommandController {
             throw new common_1.BadRequestException("Try again");
         }
     }
-    async updateStatusToDone(orderId, status, req) {
+    async updateStatusToDone(orderId, updatestatusDTo, req) {
         try {
             let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("Try to login again");
             }
-            return await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, status);
+            let result = await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, updatestatusDTo);
+            if (!result) {
+                throw new common_1.NotFoundException("Ops this command is not found");
+            }
+            return result;
         }
         catch (e) {
-            console.log(e);
+            console.log("there's a problem oooo", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnauthorizedException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
+        }
+    }
+    async updatepickUpDateToDone(orderId, updatepickUpDateDTo, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.commandService.updateOrderToDonepickUpDate(infoUser.id, orderId, updatepickUpDateDTo);
+            if (!result) {
+                throw new common_1.NotFoundException("Ops this command is not found");
+            }
+            return result;
+        }
+        catch (e) {
+            console.log("there's a problem oooo", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnprocessableEntityException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
         }
     }
 };
@@ -636,14 +667,28 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CommandController.prototype, "scanQrCode", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: "The company owner can change his order's status to Done and the client will get a notification related to this" }),
+    (0, swagger_1.ApiBody)({
+        type: update_status_command_dto_1.UpdateStatusCommandDto,
+    }),
     (0, common_1.Patch)("status/:orderId"),
     __param(0, (0, common_1.Param)("orderId")),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:paramtypes", [String, update_status_command_dto_1.UpdateStatusCommandDto, Object]),
     __metadata("design:returntype", Promise)
 ], CommandController.prototype, "updateStatusToDone", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "The company owner can change his order's pickup date and once he done so the user will get a notification related to this" }),
+    (0, common_1.Patch)("pickup/:orderId"),
+    __param(0, (0, common_1.Param)("orderId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_pickup_date_command_dto_1.UpdatepickUpDateCommandDto, Object]),
+    __metadata("design:returntype", Promise)
+], CommandController.prototype, "updatepickUpDateToDone", null);
 exports.CommandController = CommandController = __decorate([
     (0, swagger_1.ApiTags)('Orders '),
     (0, common_1.Controller)('order'),

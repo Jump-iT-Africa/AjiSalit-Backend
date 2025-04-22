@@ -12,18 +12,17 @@ export declare class CommandService {
     private readonly notificationsGateway;
     private notificationsService;
     constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>, notificationsGateway: NotificationsGateway, notificationsService: NotificationsService);
-    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"try again" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    }) | "try again">;
+    })>;
     scanedUserId(qrcode: string, userId: string, username: string): Promise<string>;
-    findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    findAll(userId: string, role: string): Promise<"ماكين حتا طلب" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | "ماكين حتا طلب" | {
-    })[] | "ماكين حتا طلب" | {
+    })[] | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;
@@ -65,6 +64,11 @@ export declare class CommandService {
         __v: number;
     }>;
     updateOrderToDoneStatus(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
+    updateOrderToDonepickUpDate(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;

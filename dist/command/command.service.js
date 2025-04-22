@@ -22,6 +22,7 @@ const user_schema_1 = require("../user/entities/user.schema");
 const validationOrder_1 = require("../services/validationOrder");
 const notifications_gateway_1 = require("../notifications/notifications.gateway");
 const notifications_service_1 = require("../notifications/notifications.service");
+const validationPickUpdate_1 = require("../services/validationPickUpdate");
 let CommandService = class CommandService {
     constructor(commandModel, userModel, notificationsGateway, notificationsService) {
         this.commandModel = commandModel;
@@ -218,23 +219,58 @@ let CommandService = class CommandService {
             const command = await this.commandModel.findById(orderId).exec();
             console.log(orderId, command);
             if (!command) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw new common_1.NotFoundException("The command not found");
             }
             if (command.companyId.toString() !== userId) {
                 throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
             let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true, runValidators: true }).exec();
             if (!result) {
-                throw new common_1.BadRequestException("smth bad happend");
+                throw new common_1.BadRequestException("Ops try to update it again");
             }
-            else {
-                const response = this.notificationsGateway.handleStatusNotification(orderId, result.clientId.toString(), userId);
-                console.log(" Response is", response);
+            let clientInfo = await this.userModel.findById(command.clientId).exec();
+            if (clientInfo.expoPushToken && result) {
+                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`);
+                console.log("Here's my notification sender: ", notificationSender);
             }
             return result;
         }
         catch (e) {
-            console.log(e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
+        }
+    }
+    async updateOrderToDonepickUpDate(userId, orderId, data) {
+        try {
+            const command = await this.commandModel.findById(orderId).exec();
+            if (!command) {
+                throw new common_1.NotFoundException("The command not found");
+            }
+            if (command.companyId.toString() !== userId) {
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
+            }
+            let validateDate = (0, validationPickUpdate_1.validationPickUpdate)(data);
+            if (validateDate !== "valid") {
+                throw new common_1.UnprocessableEntityException(validateDate);
+            }
+            let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true, runValidators: true }).exec();
+            if (!result) {
+                throw new common_1.BadRequestException("Ops try to update it again");
+            }
+            let clientInfo = await this.userModel.findById(command.clientId).exec();
+            if (clientInfo.expoPushToken && result) {
+                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`);
+                console.log("Here's my notification sender: ", notificationSender);
+            }
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnprocessableEntityException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
         }
     }
     async deleteOrder(id, userId) {

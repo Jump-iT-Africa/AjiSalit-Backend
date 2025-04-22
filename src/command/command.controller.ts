@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException, Put, ConflictException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException, Put, ConflictException, UnprocessableEntityException } from '@nestjs/common';
 import { CommandService } from './command.service';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
@@ -6,6 +6,8 @@ import { validateJwt } from "../services/verifyJwt"
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import ResponseDto from "./dto/response-command.dto"
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { UpdateStatusCommandDto } from './dto/update-status-command.dto';
+import { UpdatepickUpDateCommandDto } from './dto/update-pickup-date-command.dto';
 
 @ApiTags('Orders ')
 @Controller('order')
@@ -588,9 +590,14 @@ export class CommandController {
     }
   }
 
+  @ApiOperation({ summary: "The company owner can change his order's status to Done and the client will get a notification related to this" })
+  @ApiBody({
+    type: UpdateStatusCommandDto,
+  })
 
+  
   @Patch("status/:orderId")
-  async updateStatusToDone(@Param("orderId") orderId: string, @Body() status: string, @Req() req) {
+  async updateStatusToDone(@Param("orderId") orderId: string, @Body() updatestatusDTo: UpdateStatusCommandDto, @Req() req) {
     try {
       let token = req.headers['authorization']?.split(" ")[1]
       let infoUser = validateJwt(token);
@@ -598,9 +605,43 @@ export class CommandController {
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again")
       }
-      return await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, status)
+      let result = await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, updatestatusDTo)
+      if(!result){
+        throw new NotFoundException("Ops this command is not found")
+      }
+      return result
     } catch (e) {
-      console.log(e)
+      console.log("there's a problem oooo", e)
+      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnauthorizedException){
+        throw e
+      }
+      throw new BadRequestException("Ops Something went wrong")
+    }
+  }
+
+
+  @ApiOperation({ summary: "The company owner can change his order's pickup date and once he done so the user will get a notification related to this" })
+
+  @Patch("pickup/:orderId")
+  async updatepickUpDateToDone(@Param("orderId") orderId: string, @Body() updatepickUpDateDTo: UpdatepickUpDateCommandDto, @Req() req) {
+    try {
+      let token = req.headers['authorization']?.split(" ")[1]
+      let infoUser = validateJwt(token);
+
+      if (!infoUser) {
+        throw new UnauthorizedException("Try to login again")
+      }
+      let result = await this.commandService.updateOrderToDonepickUpDate(infoUser.id, orderId, updatepickUpDateDTo)
+      if(!result){
+        throw new NotFoundException("Ops this command is not found")
+      }
+      return result
+    } catch (e) {
+      console.log("there's a problem oooo", e)
+      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException){
+        throw e
+      }
+      throw new BadRequestException("Ops Something went wrong")
     }
   }
 }

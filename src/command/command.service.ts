@@ -9,6 +9,7 @@ import {  User, UserDocument } from '../user/entities/user.schema';
 import { ValidationOrder  } from "../services/validationOrder"
 import { NotificationsGateway } from 'src/notifications/notifications.gateway';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { validationPickUpdate } from 'src/services/validationPickUpdate';
 
 
 @Injectable()
@@ -244,29 +245,67 @@ export class CommandService {
       console.log(orderId, command);
 
       if (!command) {
-        throw new NotFoundException("طلب ديالك مكاينش");
+        throw new NotFoundException("The command not found");
       }
-
       if (command.companyId.toString() !== userId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
+
       let result = await this.commandModel.findByIdAndUpdate(orderId, data,{new:true,runValidators:true}).exec()
-      // console.log("++++++++++++", result)
+
       if(!result){
-        throw new BadRequestException("smth bad happend")
-      }else{
-          const response = this.notificationsGateway.handleStatusNotification(
-            orderId,
-            result.clientId.toString(),
-            userId
-          )
-          console.log(" Response is", response)
+        throw new BadRequestException("Ops try to update it again")
+      }
+      let clientInfo = await this.userModel.findById(command.clientId).exec();
+      if(clientInfo.expoPushToken && result){
+        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
+        console.log("Here's my notification sender: ", notificationSender)
       }
       return result 
     }catch(e){
-      console.log(e)
+      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException){
+        throw e
+      }
+      throw new BadRequestException("Ops Something went wrong")
     }
   }
+
+
+  async updateOrderToDonepickUpDate(userId, orderId, data){
+    try{
+      const command = await this.commandModel.findById(orderId).exec();
+      if (!command) {
+        throw new NotFoundException("The command not found");
+      }
+      if (command.companyId.toString() !== userId) {
+        throw new ForbiddenException("You are not allowed to update this oder");
+      }
+      let validateDate = validationPickUpdate(data);
+      if(validateDate !== "valid"){
+        throw new UnprocessableEntityException(validateDate)
+      }
+
+      let result = await this.commandModel.findByIdAndUpdate(orderId, data,{new:true,runValidators:true}).exec()
+      if(!result){
+        throw new BadRequestException("Ops try to update it again")
+      }
+      let clientInfo = await this.userModel.findById(command.clientId).exec();
+      if(clientInfo.expoPushToken && result){
+        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit",`سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`)
+        console.log("Here's my notification sender: ", notificationSender)
+      }
+    
+      return result 
+    }catch(e){
+      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException){
+        throw e
+      }
+      throw new BadRequestException("Ops Something went wrong")
+    }
+  }
+
+
+
   async deleteOrder(id: string, userId) {
     try {
       let order = await this.commandModel.findById(id);
