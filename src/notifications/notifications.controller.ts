@@ -2,10 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UnauthorizedExc
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { validateJwt } from 'src/services/verifyJwt';
+import { validateJwt } from '../services/verifyJwt';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import ResponseFcmDto from 'src/fcm/Dtos/response-fmc.dto';
+import ResponseFcmDto from '../fcm/Dtos/response-fmc.dto';
 import { sendNotificationDto } from './dto/send-notification.dto';
 
 @Controller('notifications')
