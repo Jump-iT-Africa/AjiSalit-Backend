@@ -37,7 +37,6 @@ __decorate([
 ], CreateUserDto.prototype, "companyName", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: '+212697042868', required: true }),
-    (0, class_validator_1.IsPhoneNumber)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
