@@ -28,7 +28,7 @@ export class NotificationsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'The company change the pick up date successfully',
+    description: 'The notification was send successfully, The response comes from expo Push Notification Tool',
     schema: {
       example: {
         "data": {
@@ -38,6 +38,8 @@ export class NotificationsController {
     }
     },
   })
+  @ApiBearerAuth()
+
   @Post('/send')
   sendNotification(
     @Body() body: { expoPushToken: string; title: string; message: string; data?: any },
@@ -82,6 +84,8 @@ export class NotificationsController {
       },
     },
   })
+  @ApiBearerAuth()
+
 
   @Post(':recevierId')
   createNotification(@Param("recevierId") recevierId: string, @Body() createNotificationDto: CreateNotificationDto, @Req() req) {
