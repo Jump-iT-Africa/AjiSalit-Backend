@@ -28,17 +28,13 @@ __decorate([
     __metadata("design:type", String)
 ], Command.prototype, "situation", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: "قيد الانتظار", enum: ["قيد الانتظار", "جاهزة للتسليم", "تم تسليم"] }),
+    (0, mongoose_1.Prop)({ required: true, default: "في طور الانجاز", enum: ["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"] }),
     __metadata("design:type", String)
 ], Command.prototype, "status", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: null }),
     __metadata("design:type", Number)
 ], Command.prototype, "advancedAmount", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: false }),
-    __metadata("design:type", String)
-], Command.prototype, "city", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", Number)

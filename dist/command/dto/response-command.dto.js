@@ -48,14 +48,6 @@ __decorate([
 ], ResponseDto.prototype, "advancedAmount", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: 'rabat',
-        description: 'city related to the service',
-        required: true,
-    }),
-    __metadata("design:type", String)
-], ResponseDto.prototype, "city", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
         example: '2025-10-26',
         description: 'Delivery date of the service',
         required: true,

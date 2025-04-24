@@ -5,7 +5,6 @@ export default class ResponseDto {
     situation: string;
     status: string;
     advancedAmount?: number;
-    city: string;
     deliveryDate: string;
     pickupDate: string;
     images?: string[];
