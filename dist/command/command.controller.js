@@ -191,10 +191,10 @@ let CommandController = class CommandController {
         }
         catch (e) {
             console.log("there's a problem oooo", e);
-            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnauthorizedException) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.UnauthorizedException) {
                 throw e;
             }
-            throw new common_1.BadRequestException("Ops Something went wrong");
+            throw new common_1.BadRequestException("Ops Something went wrong", e);
         }
     }
     async updatepickUpDate(orderId, updatepickUpDateDTo, req) {
@@ -743,12 +743,12 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: "The company owner can change his order's pickup date and once he done so the user will get a notification related to this" }),
     (0, swagger_1.ApiBody)({
-        type: update_status_command_dto_1.UpdateStatusCommandDto,
+        type: update_pickup_date_command_dto_1.UpdatepickUpDateCommandDto,
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'The company change the pick up date successfully',
-        type: reponse_update_status_command_dto_1.responseStatusDTO,
+        type: update_pickup_date_command_dto_1.UpdatepickUpDateCommandDto,
     }),
     (0, swagger_1.ApiResponse)({
         status: 401,

@@ -8,8 +8,8 @@ export class UpdateStatusCommandDto {
         required: true
     })
     @IsString()
-    @Matches(/^(في طور الانجاز|قيد الانتظار|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, قيد الانتظار, جاهزة للتسليم, تم تسليم" })
-    @IsEnum(["في طور الانجاز","قيد الانتظار", "جاهزة للتسليم", "تم تسليم"])
+    @Matches(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, جاهزة للتسليم, تم تسليم" })
+    @IsEnum(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"])
     status:string
 
 }
