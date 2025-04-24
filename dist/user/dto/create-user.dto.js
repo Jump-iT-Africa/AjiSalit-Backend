@@ -18,7 +18,6 @@ exports.CreateUserDto = CreateUserDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'OSM', required: true }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your first name must be valid name" }),
     (0, class_validator_1.MinLength)(3, { message: 'The first name must be at least 3 characters long' }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
@@ -26,14 +25,12 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'BEN', required: true }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your last name must be valid name" }),
     (0, class_validator_1.MinLength)(3, { message: 'The last name must be at least 3 characters long' }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "Lname", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'Aji Salit', required: false }),
-    (0, class_validator_1.Matches)(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your company must be valid company name with alphabets" }),
     (0, class_validator_1.MinLength)(3, { message: 'The last name must be at least 3 characters long' }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -61,13 +58,11 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'marrakech', required: true }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "city", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'pressing', required: true }),
-    (0, class_validator_1.Matches)(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Field must be a valid field" }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
