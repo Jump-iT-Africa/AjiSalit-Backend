@@ -243,8 +243,6 @@ export class CommandService {
   async updateOrderToDoneStatus(userId, orderId, data){
     try{
       const command = await this.commandModel.findById(orderId).exec();
-      console.log(orderId, command);
-
       if (!command) {
         throw new NotFoundException("The command not found");
       }
@@ -252,13 +250,10 @@ export class CommandService {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
 
-      let result = await this.commandModel.findByIdAndUpdate(orderId, data,{new:true,runValidators:true}).exec()
-
-      if(!result){
-        throw new BadRequestException("Ops try to update it again")
-      }
+      let result = await this.commandModel.findByIdAndUpdate(orderId, data,{new:true}).exec()
       let clientInfo = await this.userModel.findById(command.clientId).exec();
-      if(clientInfo.expoPushToken && result){
+      // console.log(clientInfo)
+      if(clientInfo && clientInfo.expoPushToken && result){
         let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
         console.log("Here's my notification sender: ", notificationSender)
       }
@@ -291,13 +286,14 @@ export class CommandService {
         throw new BadRequestException("Ops try to update it again")
       }
       let clientInfo = await this.userModel.findById(command.clientId).exec();
-      if(clientInfo.expoPushToken && result){
+      if(clientInfo && clientInfo.expoPushToken && result){
         let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit",`سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`)
         console.log("Here's my notification sender: ", notificationSender)
       }
     
       return result 
     }catch(e){
+      console.log("opsss", e)
       if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException){
         throw e
       }

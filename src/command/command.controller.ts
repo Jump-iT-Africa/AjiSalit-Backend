@@ -676,10 +676,10 @@ export class CommandController {
       return result
     } catch (e) {
       console.log("there's a problem oooo", e)
-      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnauthorizedException){
+      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof UnauthorizedException){
         throw e
       }
-      throw new BadRequestException("Ops Something went wrong")
+      throw new BadRequestException("Ops Something went wrong", e)
     }
   }
 

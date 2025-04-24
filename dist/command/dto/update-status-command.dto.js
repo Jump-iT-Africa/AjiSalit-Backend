@@ -21,8 +21,8 @@ __decorate([
         required: true
     }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^(في طور الانجاز|قيد الانتظار|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, قيد الانتظار, جاهزة للتسليم, تم تسليم" }),
-    (0, class_validator_1.IsEnum)(["في طور الانجاز", "قيد الانتظار", "جاهزة للتسليم", "تم تسليم"]),
+    (0, class_validator_1.Matches)(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, جاهزة للتسليم, تم تسليم" }),
+    (0, class_validator_1.IsEnum)(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"]),
     __metadata("design:type", String)
 ], UpdateStatusCommandDto.prototype, "status", void 0);
 //# sourceMappingURL=update-status-command.dto.js.map

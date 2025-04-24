@@ -191,10 +191,10 @@ let CommandController = class CommandController {
         }
         catch (e) {
             console.log("there's a problem oooo", e);
-            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnauthorizedException) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.UnauthorizedException) {
                 throw e;
             }
-            throw new common_1.BadRequestException("Ops Something went wrong");
+            throw new common_1.BadRequestException("Ops Something went wrong", e);
         }
     }
     async updatepickUpDate(orderId, updatepickUpDateDTo, req) {
