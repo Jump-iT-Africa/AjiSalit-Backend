@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-
-export default class ResponseFcmDto {
-
+export class ResponseNotificationZwbSocket{
 
     @ApiProperty({
         example: "67d94bd7567f4c7c7a207c51",
@@ -49,5 +47,7 @@ export default class ResponseFcmDto {
         example:0,
       })
       __v:number
+
+
 
 }
