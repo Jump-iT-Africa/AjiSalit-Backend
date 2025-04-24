@@ -35,10 +35,10 @@ let UserController = class UserController {
     }
     findOne(id, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.userService.findOne(id);
         }
@@ -47,37 +47,37 @@ let UserController = class UserController {
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError) {
                 throw new common_1.UnauthorizedException("حاول تسجل ف الحساب ديالك مرة أخرى");
             }
-            throw new common_1.BadRequestException("حاول مرة أخرى");
+            throw new common_1.BadRequestException("try again");
         }
     }
     deleteAccount(id, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.userService.deleteAccount(id, infoUser.id);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     updateUserProfile(id, updateUserDto, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             if (id !== infoUser.id) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
             return this.userService.updateUserInfo(id, updateUserDto);
         }
@@ -86,9 +86,9 @@ let UserController = class UserController {
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You aren't authorized to perform this task تبدل هاد طلب");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Please try again");
         }
     }
     async verifyPhone(verifyNumberDto) {
@@ -119,7 +119,7 @@ __decorate([
                 examples: {
                     'Using an existing number ': {
                         value: {
-                            "message": "هاد الرقم مستعمل من قبل جرب رقم أخر",
+                            "message": "This number is already used, try to login or use another one",
                             "error": "Bad Request",
                             "statusCode": 400
                         }
@@ -147,7 +147,7 @@ __decorate([
         type: login_user_dto_1.LoginUserDto,
     }),
     (0, swagger_1.ApiResponse)({
-        status: 200,
+        status: 201,
         description: "The user logged in to his account successfully",
         content: {
             'application/json': {
@@ -258,7 +258,7 @@ __decorate([
         description: 'Bad error : something breaks down',
         schema: {
             example: {
-                "message": "حاول مرة أخرى",
+                "message": "try again",
                 "error": "Bad Request Exception",
                 "statusCode": 400
             }
@@ -269,7 +269,7 @@ __decorate([
         description: 'Not found exception : the info of user not found',
         schema: {
             example: {
-                "message": "حساب مكاينش، حاول مرة أخرى",
+                "message": "The account not found",
                 "error": "Not found",
                 "statusCode": 404
             }
@@ -288,14 +288,14 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: "The user or the company owner deletes his account successfully",
-        example: "تم مسح الحساب بنجاح"
+        example: "The account was deleted successfully"
     }),
     (0, swagger_1.ApiResponse)({
         status: 400,
         description: 'Bad error : something breaks down',
         schema: {
             example: {
-                "message": "حاول مرة أخرى",
+                "message": "try again",
                 "error": "Bad Request Exception",
                 "statusCode": 400
             }
@@ -306,7 +306,7 @@ __decorate([
         description: 'Unauthorized error: the user should login again using his phone number and password to continue filling his informations',
         schema: {
             example: {
-                "message": "حاول تسجل مرة أخرى",
+                "message": "Try to login again",
                 "error": "Unauthorized",
                 "statusCode": 401
             }
@@ -340,7 +340,7 @@ __decorate([
         description: "Unauthorized - Invalid or expired token",
         schema: {
             example: {
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: "Unauthorized",
                 statusCode: 401
             }
@@ -351,7 +351,7 @@ __decorate([
         description: "Forbidden - User doesn't have permission to update this profile",
         schema: {
             example: {
-                message: "ممسموحش لك تبدل هاد طلب",
+                message: "You are not allowed to update this oder",
                 error: "Forbidden",
                 statusCode: 403
             }
@@ -417,7 +417,7 @@ __decorate([
         description: ' Invalid User',
         schema: {
             example: {
-                message: 'المستخدم غير موجود',
+                message: "the user not found ",
                 error: 'Not Found',
                 statusCode: 404,
             },

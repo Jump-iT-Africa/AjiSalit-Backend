@@ -4,21 +4,25 @@ import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
 import { UserDocument } from '../user/entities/user.schema';
+import { NotificationsGateway } from 'src/notifications/notifications.gateway';
+import { NotificationsService } from 'src/notifications/notifications.service';
 export declare class CommandService {
     private commandModel;
     private userModel;
-    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>);
-    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    private readonly notificationsGateway;
+    private notificationsService;
+    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>, notificationsGateway: NotificationsGateway, notificationsService: NotificationsService);
+    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"try again" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    }) | "حاول مرة خرى">;
-    scanedUserId(qrcode: string, userId: string): Promise<string>;
+    })>;
+    scanedUserId(qrcode: string, userId: string, username: string): Promise<string>;
     findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | "ماكين حتا طلب" | {
+    })[] | "No order found" | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;
@@ -55,6 +59,16 @@ export declare class CommandService {
         __v: number;
     }>;
     update(authentificatedId: any, id: any, updateCommandDto: UpdateCommandDto): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
+    updateOrderToDoneStatus(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
+    updateOrderpickUpDate(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;

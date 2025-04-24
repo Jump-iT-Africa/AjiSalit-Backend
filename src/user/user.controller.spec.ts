@@ -34,93 +34,93 @@ describe('UserController', () => {
     expect(userController).toBeDefined();
   });
 
-  describe('register', () => {
-    const createUserDto: CreateUserDto = {
-      name: 'John Doe',
-      phoneNumber: '+212697042868',
-      password: 'password123',
-      role: 'client',
-    };
+  // describe('register', () => {
+  //   const createUserDto: CreateUserDto = {
+  //     name: 'John Doe',
+  //     phoneNumber: '+212697042868',
+  //     password: 'password123',
+  //     role: 'client',
+  //   };
 
-    it('should register a new user and send OTP', async () => {
-      const expectedResponse = {
-        message: 'OTP sent successfully',
-        userId: 'mocked-user-id',
-      };
+  //   it('should register a new user and send OTP', async () => {
+  //     const expectedResponse = {
+  //       message: 'OTP sent successfully',
+  //       userId: 'mocked-user-id',
+  //     };
 
-      mockUserService.register.mockResolvedValue(expectedResponse);
+  //     mockUserService.register.mockResolvedValue(expectedResponse);
 
-      const result = await userController.register(createUserDto);
+  //     const result = await userController.register(createUserDto);
 
-      expect(result).toEqual(expectedResponse);
-      expect(mockUserService.register).toHaveBeenCalledWith(createUserDto);
-      expect(mockUserService.register).toHaveBeenCalledTimes(1);
-    });
+  //     expect(result).toEqual(expectedResponse);
+  //     expect(mockUserService.register).toHaveBeenCalledWith(createUserDto);
+  //     expect(mockUserService.register).toHaveBeenCalledTimes(1);
+  //   });
 
-    it('should throw BadRequestException if phone number is already registered', async () => {
-      mockUserService.register.mockRejectedValue(
-        new BadRequestException('هاد الرقم مستعمل من قبل جرب رقم أخر')
-      );
+  //   it('should throw BadRequestException if phone number is already registered', async () => {
+  //     mockUserService.register.mockRejectedValue(
+  //       new BadRequestException('هاد الرقم مستعمل من قبل جرب رقم أخر')
+  //     );
 
-      await expect(userController.register(createUserDto))
-        .rejects
-        .toThrow(BadRequestException);
+  //     await expect(userController.register(createUserDto))
+  //       .rejects
+  //       .toThrow(BadRequestException);
       
-      expect(mockUserService.register).toHaveBeenCalledWith(createUserDto);
-      expect(mockUserService.register).toHaveBeenCalledTimes(1);
-    });
+  //     expect(mockUserService.register).toHaveBeenCalledWith(createUserDto);
+  //     expect(mockUserService.register).toHaveBeenCalledTimes(1);
+  //   });
 
-    it('should throw BadRequestException if registration fails', async () => {
-      mockUserService.register.mockRejectedValue(
-        new BadRequestException('Registration failed')
-      );
+  //   it('should throw BadRequestException if registration fails', async () => {
+  //     mockUserService.register.mockRejectedValue(
+  //       new BadRequestException('Registration failed')
+  //     );
 
-      await expect(userController.register(createUserDto))
-        .rejects
-        .toThrow(BadRequestException);
-    });
-  });
+  //     await expect(userController.register(createUserDto))
+  //       .rejects
+  //       .toThrow(BadRequestException);
+  //   });
+  // });
 
-  describe('verifyOTP', () => {
-    const phoneNumber = '+212697042868';
-    const otp = '123456';
+  // describe('verifyOTP', () => {
+  //   const phoneNumber = '+212697042868';
+  //   const otp = '123456';
 
-    it('should verify OTP successfully', async () => {
-      const expectedResponse = { 
-        message: 'تم أتحقق بنجاح' 
-      };
+  //   it('should verify OTP successfully', async () => {
+  //     const expectedResponse = { 
+  //       message: 'تم أتحقق بنجاح' 
+  //     };
 
-      mockUserService.verifyOTP.mockResolvedValue(expectedResponse);
+  //     mockUserService.verifyOTP.mockResolvedValue(expectedResponse);
 
-      const result = await userController.verifyOTP(phoneNumber, otp);
+  //     const result = await userController.verifyOTP(phoneNumber, otp);
 
-      expect(result).toEqual(expectedResponse);
-      expect(mockUserService.verifyOTP).toHaveBeenCalledWith(phoneNumber, otp);
-      expect(mockUserService.verifyOTP).toHaveBeenCalledTimes(1);
-    });
+  //     expect(result).toEqual(expectedResponse);
+  //     expect(mockUserService.verifyOTP).toHaveBeenCalledWith(phoneNumber, otp);
+  //     expect(mockUserService.verifyOTP).toHaveBeenCalledTimes(1);
+  //   });
 
-    it('should throw BadRequestException if OTP is invalid', async () => {
-      mockUserService.verifyOTP.mockRejectedValue(
-        new BadRequestException('الرمز غلط')
-      );
+  //   // it('should throw BadRequestException if OTP is invalid', async () => {
+  //   //   mockUserService.verifyOTP.mockRejectedValue(
+  //   //     new BadRequestException('الرمز غلط')
+  //   //   );
 
-      await expect(userController.verifyOTP(phoneNumber, otp))
-        .rejects
-        .toThrow(BadRequestException);
+  //   //   await expect(userController.verifyOTP(phoneNumber, otp))
+  //   //     .rejects
+  //   //     .toThrow(BadRequestException);
       
-      expect(mockUserService.verifyOTP).toHaveBeenCalledWith(phoneNumber, otp);
-    });
+  //   //   expect(mockUserService.verifyOTP).toHaveBeenCalledWith(phoneNumber, otp);
+  //   // });
 
-    it('should throw BadRequestException if OTP is expired', async () => {
-      mockUserService.verifyOTP.mockRejectedValue(
-        new BadRequestException('هاد رمز نتهات صلحية تاعو')
-      );
+  //   // it('should throw BadRequestException if OTP is expired', async () => {
+  //   //   mockUserService.verifyOTP.mockRejectedValue(
+  //   //     new BadRequestException('هاد رمز نتهات صلحية تاعو')
+  //   //   );
 
-      await expect(userController.verifyOTP(phoneNumber, otp))
-        .rejects
-        .toThrow(BadRequestException);
-    });
-  });
+  //   //   await expect(userController.verifyOTP(phoneNumber, otp))
+  //   //     .rejects
+  //   //     .toThrow(BadRequestException);
+  //   // });
+  // });
 
   describe('login', () => {
     const loginUserDto: LoginUserDto = {

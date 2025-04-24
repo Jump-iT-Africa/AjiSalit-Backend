@@ -9,7 +9,7 @@ export class UpdateCompanyDto extends UpdateUserDto {
         required: true
     })
     @IsString()
-    @IsNotEmpty({ message: "دخل العنوان و المدينة ديالك" })
+    @IsNotEmpty({ message: "Enter your address" })
     fullAddress: string
 
     @ApiProperty({
@@ -17,7 +17,7 @@ export class UpdateCompanyDto extends UpdateUserDto {
         required: true
     })
     @IsString()
-    @IsNotEmpty({ message: "دخل المجال ديالك" })
+    @IsNotEmpty({ message: "Please enter your field" })
     field: string
 
     @ApiProperty({
@@ -25,6 +25,6 @@ export class UpdateCompanyDto extends UpdateUserDto {
         required: true
     })
     @IsString()
-    @IsNotEmpty({ message: "خصك دخل رقم البطاقة الضريبية أو رقم ICE" })
+    @IsNotEmpty({ message: "ICE number is required" })
     ice: string
 }

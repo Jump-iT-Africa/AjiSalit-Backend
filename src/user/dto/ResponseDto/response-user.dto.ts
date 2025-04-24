@@ -6,4 +6,6 @@ export class ResponseUserDto{
     phoneNumber:string
     @Expose()
     role:string
+    @Expose()
+    socketId?:string
 }
