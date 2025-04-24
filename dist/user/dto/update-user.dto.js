@@ -37,9 +37,6 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: '+212600000000', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format (e.g., +212697042868)'
-    }),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "phoneNumber", void 0);
 __decorate([
