@@ -23,7 +23,6 @@ export class CreateUserDto {
     companyName: string;
 
     @ApiProperty({ example: '+212697042868', required: true })
-    @IsPhoneNumber()
     @IsString()
     @IsNotEmpty()
     phoneNumber: string;
