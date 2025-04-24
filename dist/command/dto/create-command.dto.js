@@ -72,7 +72,6 @@ __decorate([
     }),
     (0, class_validator_1.IsNotEmpty)({ message: "The city Name can not be empty, please enter your city name" }),
     (0, class_validator_1.MinLength)(3, { message: 'The city must be at least 3 characters long' }),
-    (0, class_validator_1.Matches)(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "city", void 0);
