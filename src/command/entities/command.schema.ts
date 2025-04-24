@@ -22,9 +22,6 @@ export class Command {
   @Prop({ required: false, default:null})
   advancedAmount:number;
 
-  @Prop({required: false})
-  city:string;
-
   @Prop({ required: true })
   price: number; 
 

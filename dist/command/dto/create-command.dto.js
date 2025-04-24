@@ -67,16 +67,6 @@ __decorate([
 ], CreateCommandDto.prototype, "advancedAmount", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: "rabat",
-        required: true
-    }),
-    (0, class_validator_1.IsNotEmpty)({ message: "The city Name can not be empty, please enter your city name" }),
-    (0, class_validator_1.MinLength)(3, { message: 'The city must be at least 3 characters long' }),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateCommandDto.prototype, "city", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
         example: "2025-10-26",
         required: true
     }),

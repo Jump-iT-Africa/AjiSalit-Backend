@@ -6,7 +6,6 @@ export declare class Command {
     situation: string;
     status: string;
     advancedAmount: number;
-    city: string;
     price: number;
     images: [{
         type: String;

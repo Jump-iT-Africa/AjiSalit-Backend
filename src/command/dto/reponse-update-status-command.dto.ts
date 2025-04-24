@@ -32,11 +32,7 @@ export class responseStatusDTO{
         description: 'adavncedAmount'
       })
     advancedAmount: number
-    @ApiProperty({
-        example:   "Rabat",
-        description: 'city name'
-      })
-    city: string
+
     @ApiProperty({
         example:   90000,
         description: "price"

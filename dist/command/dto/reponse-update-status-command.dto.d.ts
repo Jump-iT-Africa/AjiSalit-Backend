@@ -6,7 +6,6 @@ export declare class responseStatusDTO {
     situation: string;
     status: string;
     advancedAmount: number;
-    city: string;
     price: number;
     images?: string[];
     deliveryDate: string;

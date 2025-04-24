@@ -48,15 +48,6 @@ export class CreateCommandDto {
     @IsNumber({},{message:"The Advanced Amount has to be a valid number "})
     advancedAmount:number
 
-    @ApiProperty({
-        example: "rabat",
-        required: true
-    })   
-    @IsNotEmpty({message:"The city Name can not be empty, please enter your city name"})
-    @MinLength(3, { message: 'The city must be at least 3 characters long' })
-    // @Matches(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" })
-    @IsString()
-    city:string
 
     @ApiProperty({
         example: "2025-10-26",

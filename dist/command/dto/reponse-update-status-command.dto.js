@@ -59,13 +59,6 @@ __decorate([
 ], responseStatusDTO.prototype, "advancedAmount", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: "Rabat",
-        description: 'city name'
-    }),
-    __metadata("design:type", String)
-], responseStatusDTO.prototype, "city", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
         example: 90000,
         description: "price"
     }),

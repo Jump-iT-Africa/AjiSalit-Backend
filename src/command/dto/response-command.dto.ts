@@ -34,12 +34,6 @@ export default class ResponseDto {
   })
   advancedAmount?: number;
 
-  @ApiProperty({
-    example: 'rabat',
-    description: 'city related to the service',
-    required: true,
-  })
-  city: string;
 
   @ApiProperty({
     example: '2025-10-26',
