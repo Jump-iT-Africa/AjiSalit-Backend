@@ -38,6 +38,8 @@ export class NotificationsController {
     }
     },
   })
+  @ApiBearerAuth()
+
   @Post('/send')
   sendNotification(
     @Body() body: { expoPushToken: string; title: string; message: string; data?: any },
@@ -82,6 +84,8 @@ export class NotificationsController {
       },
     },
   })
+  @ApiBearerAuth()
+
 
   @Post(':recevierId')
   createNotification(@Param("recevierId") recevierId: string, @Body() createNotificationDto: CreateNotificationDto, @Req() req) {

@@ -99,6 +99,7 @@ __decorate([
             }
         },
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)('/send'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -138,6 +139,7 @@ __decorate([
             },
         },
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)(':recevierId'),
     __param(0, (0, common_1.Param)("recevierId")),
     __param(1, (0, common_1.Body)()),
