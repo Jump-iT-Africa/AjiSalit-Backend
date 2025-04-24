@@ -5,7 +5,6 @@ import { CommandModule } from './command/command.module';
 import { UserModule } from './user/user.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { NotificationsGateway } from './notifications/notifications.gateway';
-import { FcmModule } from './fcm/fcm.module';
 
 
 @Module({
@@ -17,7 +16,6 @@ import { FcmModule } from './fcm/fcm.module';
     CommandModule,
     UserModule,
     NotificationsModule,
-    FcmModule,    
   ],
   providers:[
     NotificationsGateway

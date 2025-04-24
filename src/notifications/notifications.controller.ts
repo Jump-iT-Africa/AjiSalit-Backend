@@ -5,8 +5,8 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { validateJwt } from '../services/verifyJwt';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import ResponseFcmDto from '../fcm/Dtos/response-fmc.dto';
 import { sendNotificationDto } from './dto/send-notification.dto';
+import { ResponseNotificationZwbSocket } from './dto/response-websocket-notification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -28,7 +28,7 @@ export class NotificationsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'The company change the pick up date successfully',
+    description: 'The notification was send successfully, The response comes from expo Push Notification Tool',
     schema: {
       example: {
         "data": {
@@ -38,6 +38,8 @@ export class NotificationsController {
     }
     },
   })
+  @ApiBearerAuth()
+
   @Post('/send')
   sendNotification(
     @Body() body: { expoPushToken: string; title: string; message: string; data?: any },
@@ -58,7 +60,7 @@ export class NotificationsController {
   @ApiResponse({
     status: 200,
     description: "the notification was created successfully, rather it's for broadcasting or notify a specific user",
-    type : ResponseFcmDto
+    type : ResponseNotificationZwbSocket
   })
   @ApiResponse({
     status: 401,
@@ -82,6 +84,8 @@ export class NotificationsController {
       },
     },
   })
+  @ApiBearerAuth()
+
 
   @Post(':recevierId')
   createNotification(@Param("recevierId") recevierId: string, @Body() createNotificationDto: CreateNotificationDto, @Req() req) {

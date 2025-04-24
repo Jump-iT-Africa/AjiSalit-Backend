@@ -19,22 +19,6 @@ let FcmService = class FcmService {
     constructor(firebaseApp) {
         this.firebaseApp = firebaseApp;
     }
-    async sendNotificationToDevice(deviceToken) {
-        const message = {
-            data: {
-                message: 'Hello, this is a test notification!',
-            },
-            token: deviceToken,
-        };
-        try {
-            const response = await this.firebaseApp.messaging().send(message);
-            return { success: true, messageId: response };
-        }
-        catch (error) {
-            console.error('Error sending notification:', error);
-            return { success: false, error: error.message };
-        }
-    }
 };
 exports.FcmService = FcmService;
 exports.FcmService = FcmService = __decorate([
