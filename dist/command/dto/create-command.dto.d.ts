@@ -6,6 +6,7 @@ export declare class CreateCommandDto {
     situation: string;
     status: string;
     advancedAmount: number;
+    city: string;
     deliveryDate: string;
     pickupDate: string;
     images?: string[];

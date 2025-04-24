@@ -5,4 +5,5 @@ export declare class ResoponseCompanyDto {
     field: string;
     ice: number;
     role: string;
+    socketId?: string;
 }

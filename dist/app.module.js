@@ -14,6 +14,7 @@ const command_module_1 = require("./command/command.module");
 const user_module_1 = require("./user/user.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const notifications_gateway_1 = require("./notifications/notifications.gateway");
+const fcm_module_1 = require("./fcm/fcm.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -28,8 +29,11 @@ exports.AppModule = AppModule = __decorate([
             command_module_1.CommandModule,
             user_module_1.UserModule,
             notifications_module_1.NotificationsModule,
-            notifications_gateway_1.NotificationsGateway
+            fcm_module_1.FcmModule,
         ],
+        providers: [
+            notifications_gateway_1.NotificationsGateway
+        ]
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

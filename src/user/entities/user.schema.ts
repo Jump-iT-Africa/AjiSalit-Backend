@@ -40,6 +40,14 @@ export class User {
 
   @Prop({ type: [String], required: false, default: [] })
   listRefs?: string[];
+  
+  @Prop({required:false})
+  socketId?: string;
+
+  @Prop({required:false})
+  expoPushToken?: string;
+  
+
 
  
 }

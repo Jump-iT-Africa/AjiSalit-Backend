@@ -5,6 +5,7 @@ import { CommandModule } from './command/command.module';
 import { UserModule } from './user/user.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { NotificationsGateway } from './notifications/notifications.gateway';
+import { FcmModule } from './fcm/fcm.module';
 
 
 @Module({
@@ -16,9 +17,12 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
     CommandModule,
     UserModule,
     NotificationsModule,
-    NotificationsGateway
-    
+    FcmModule,    
   ],
+  providers:[
+    NotificationsGateway
+
+  ]
 
 })
 export class AppModule {}

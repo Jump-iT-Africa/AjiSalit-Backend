@@ -18,6 +18,7 @@ exports.CreateUserDto = CreateUserDto;
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'OSM', required: true }),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your name must be valid name" }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "Fname", void 0);
@@ -34,6 +35,10 @@ __decorate([
 ], CreateUserDto.prototype, "companyName", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: '+212697042868', required: true }),
+    (0, class_validator_1.IsPhoneNumber)(),
+    (0, class_validator_1.Matches)(/^\+[1-9]\d{1,14}$/, {
+        message: 'Phone number must be in international format (e.g., +212697042868)'
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
@@ -54,11 +59,13 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'marrakech', required: true }),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "city", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'pressing', required: true }),
+    (0, class_validator_1.Matches)(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Field must be a valid field" }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -67,7 +74,7 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: '12345678910123', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.Matches)(/^\d{14}$/, { message: 'ICE خاص اكن فيه 14 لرقم' }),
+    (0, class_validator_1.Matches)(/^\d{14}$/, { message: "the ICE must contains 14 numbers" }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "ice", void 0);
 __decorate([
@@ -86,4 +93,9 @@ __decorate([
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
 ], CreateUserDto.prototype, "listRefs", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "expoPushToken", void 0);
 //# sourceMappingURL=create-user.dto.js.map

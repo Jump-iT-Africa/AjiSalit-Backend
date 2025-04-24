@@ -1,15 +1,101 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UnauthorizedException, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { validateJwt } from 'src/services/verifyJwt';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import ResponseFcmDto from 'src/fcm/Dtos/response-fmc.dto';
 
 @Controller('notifications')
 export class NotificationsController {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(private readonly notificationsService: NotificationsService) { }
 
-  @Post()
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationsService.create(createNotificationDto);
+  @Post('/send')
+  sendNotification(
+    @Body() body: { expoPushToken: string; title: string; message: string; data?: any },
+  ) {
+    return this.notificationsService.sendPushNotification(
+      body.expoPushToken,
+      body.title,
+      body.message,
+      body.data,
+    );
+  }
+
+
+  @ApiOperation({ summary: "Create notification destinited to the reciever" })
+  @ApiBearerAuth()
+  @ApiBody({
+    type: CreateNotificationDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "the notification was created successfully, rather it's for broadcasting or notify a specific user",
+    type : ResponseFcmDto
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized error: the user is not logged in ',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: "Try to login again",
+        error: 'Unauthorized error',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: "the reciever is not found",
+    schema: {
+      example: {
+        statusCode: 404,
+        message: "the reciever is not found",
+        error: 'Not Found error',
+      },
+    },
+  })
+
+  @Post(':recevierId')
+  createNotification(@Param("recevierId") recevierId: string, @Body() createNotificationDto: CreateNotificationDto, @Req() req) {
+    try {
+      let token = req.headers['authorization']?.split(" ")[1];
+      let infoUser = validateJwt(token);
+      if (!infoUser) {
+        throw new UnauthorizedException("Try to login again")
+      }
+      return this.notificationsService.createNewNotification(recevierId, infoUser.id, createNotificationDto);
+
+    } catch (e) {
+      // console.log(e)
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
+        throw e
+      throw new BadRequestException("Try again")
+    }
+  }
+
+
+  @ApiOperation({summary: "Notify a specific user about the changing in the status of his order"})
+  @ApiBearerAuth()
+  
+
+  @Get(':orderId/:recieverId')
+  notifyOrderCompleted(@Param("orderId") orderId: string, @Param("recieverId") receiverId: string, @Req() req) {
+    try {
+      let token = req.headers.authorization;
+      if (!token) {
+        throw new UnauthorizedException("Try to login again")
+      }
+      let infoUser = validateJwt(token);
+      if (!infoUser) {
+        throw new UnauthorizedException("Try to login again")
+      }
+      return this.notificationsService.notificationCompleteOrder(orderId, infoUser, receiverId)
+    } catch (e) {
+      console.log(e)
+      throw new BadRequestException("Ops smth went wrong")
+    }
   }
 
   @Get()
@@ -27,8 +113,4 @@ export class NotificationsController {
     return this.notificationsService.update(+id, updateNotificationDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notificationsService.remove(+id);
-  }
 }

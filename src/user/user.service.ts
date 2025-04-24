@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import { User, UserDocument } from './entities/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
@@ -41,7 +41,7 @@ export class UserService {
 
       if (existingUser) {
         return {
-          message: 'هاد الرقم مستعمل من قبل جرب رقم أخر'
+          message: "This number is already used, try to login or use another one"
         }
       }
   
@@ -208,13 +208,13 @@ export class UserService {
     return `This action returns all users`;
   }
 
-  async findOne(id: string) {
+  async findOne(userid:string | ObjectId) {
     try{
-      let result = await this.userModel.findById(id).exec()
+      let result = await this.userModel.findById({_id:userid}).exec()
+
       if(!result){
         throw new NotFoundException("حساب مكاينش، حاول مرة أخرى")
       }
-      // console.log(result)
       if(result.role == "company"){
         let data = plainToClass(ResoponseCompanyDto,result, {
           excludeExtraneousValues:true,
@@ -240,8 +240,25 @@ export class UserService {
     }
   }
 
-  update(id: string, updateDto: UpdateUserDto | UpdateCompanyDto) {
-    return `This action updates a #${id} user`;
+ async updateSocketId(userId: string, socketUserId:string) {
+    try{
+      let result = await this.userModel.findById(userId).exec()
+      if (!result) {
+        throw new NotFoundException("حاول دخل رقم ديالك مرة أخرى")
+      }
+      // console.log(authentificatedId, "user ",result._id)
+      if(userId !== result._id.toString()){
+          throw new ForbiddenException("ممسموحش لك")
+      }
+      let updateDto = {
+        socketId: socketUserId
+      }
+      const updateAuthentificator = await this.userModel.findByIdAndUpdate(userId, updateDto, {new:true}).exec()
+      return "updated successfully"
+
+    }catch(e){
+      console.log('ops')
+    }
   }
 
   async deleteAccount(id: string, userId) {
@@ -257,17 +274,18 @@ export class UserService {
         return "تم مسح الحساب بنجاح"
     }catch(e){
       if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError)
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       if(e instanceof ForbiddenException){
-        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+        throw new ForbiddenException("You are not allowed to update this oder")
       }
-      throw new BadRequestException("حاول مرة خرى")
+      throw new BadRequestException("Try again")
     }
   }
 
 
   async updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
+      console.log("teeeeeeeeest")
       const toUpdate = await this.userModel.findById(id);
   
       if (!toUpdate) {

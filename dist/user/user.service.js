@@ -38,7 +38,7 @@ let UserService = class UserService {
             const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
             if (existingUser) {
                 return {
-                    message: 'هاد الرقم مستعمل من قبل جرب رقم أخر'
+                    message: "This number is already used, try to login or use another one"
                 };
             }
             const saltRounds = 10;
@@ -150,9 +150,9 @@ let UserService = class UserService {
     findAll() {
         return `This action returns all users`;
     }
-    async findOne(id) {
+    async findOne(userid) {
         try {
-            let result = await this.userModel.findById(id).exec();
+            let result = await this.userModel.findById({ _id: userid }).exec();
             if (!result) {
                 throw new common_1.NotFoundException("حساب مكاينش، حاول مرة أخرى");
             }
@@ -179,8 +179,24 @@ let UserService = class UserService {
             throw new common_1.BadRequestException("حاول مرة أخرى");
         }
     }
-    update(id, updateDto) {
-        return `This action updates a #${id} user`;
+    async updateSocketId(userId, socketUserId) {
+        try {
+            let result = await this.userModel.findById(userId).exec();
+            if (!result) {
+                throw new common_1.NotFoundException("حاول دخل رقم ديالك مرة أخرى");
+            }
+            if (userId !== result._id.toString()) {
+                throw new common_1.ForbiddenException("ممسموحش لك");
+            }
+            let updateDto = {
+                socketId: socketUserId
+            };
+            const updateAuthentificator = await this.userModel.findByIdAndUpdate(userId, updateDto, { new: true }).exec();
+            return "updated successfully";
+        }
+        catch (e) {
+            console.log('ops');
+        }
     }
     async deleteAccount(id, userId) {
         try {
@@ -196,15 +212,16 @@ let UserService = class UserService {
         }
         catch (e) {
             if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     async updateUserInfo(id, updateUserDto) {
         try {
+            console.log("teeeeeeeeest");
             const toUpdate = await this.userModel.findById(id);
             if (!toUpdate) {
                 throw new common_1.NotFoundException('المستخدم غير موجود');

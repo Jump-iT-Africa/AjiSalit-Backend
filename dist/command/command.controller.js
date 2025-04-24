@@ -21,6 +21,8 @@ const verifyJwt_1 = require("../services/verifyJwt");
 const swagger_1 = require("@nestjs/swagger");
 const response_command_dto_1 = require("./dto/response-command.dto");
 const jsonwebtoken_1 = require("jsonwebtoken");
+const update_status_command_dto_1 = require("./dto/update-status-command.dto");
+const update_pickup_date_command_dto_1 = require("./dto/update-pickup-date-command.dto");
 let CommandController = class CommandController {
     constructor(commandService) {
         this.commandService = commandService;
@@ -31,140 +33,188 @@ let CommandController = class CommandController {
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             console.log(infoUser.role);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             if (infoUser.role !== "company") {
-                throw new common_1.ForbiddenException("ممسموحش لك تزيد طلب");
+                throw new common_1.ForbiddenException("you are not allowed to add an Order, you have to have company role to do so");
             }
             const authentificatedId = infoUser.id;
             return this.commandService.create(createCommandDto, authentificatedId);
         }
         catch (e) {
             if (e instanceof jsonwebtoken_1.JsonWebTokenError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تزيد طلب");
+                throw new common_1.ForbiddenException("you are not allowed to add an Order, you have to have company role to do so");
             }
             throw new common_1.BadRequestException('Ops smth went wrong', e);
         }
     }
     scanedUserId(qrcode, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
-            if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+            if (!infoUser || !token) {
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             if (infoUser.role !== "client" && infoUser.role !== "admin") {
-                throw new common_1.ForbiddenException("ممسموحش لك مسح QR هاد الخاصية غير المستعملين العاديين");
+                throw new common_1.ForbiddenException("You can't scan this qrCode unless you have the client role");
             }
-            return this.commandService.scanedUserId(qrcode, infoUser.id);
+            return this.commandService.scanedUserId(qrcode, infoUser.id, infoUser.username);
         }
         catch (e) {
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك مسح QR هاد الخاصية غير المستعملين العاديين");
+                throw new common_1.ForbiddenException("You can't scan this qrCode unless you have the client role");
             }
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
+            if (e instanceof common_1.UnauthorizedException) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            if (e instanceof common_1.ConflictException) {
+                throw new common_1.ConflictException("The qrCode is already scanned");
+            }
             throw new common_1.BadRequestException("ops smth went wrong");
         }
     }
     findAll(req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
-            console.log(infoUser);
-            if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+            if (!infoUser || !token) {
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.commandService.findAll(infoUser.id, infoUser.role);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
-            throw new common_1.BadRequestException("حاول مرة خرى");
+                throw new common_1.UnauthorizedException("Try to login again");
+            if (e instanceof common_1.UnauthorizedException) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            throw new common_1.BadRequestException("Try again");
         }
     }
     findOne(id, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             console.log(infoUser);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.commandService.findOne(id, infoUser);
         }
         catch (e) {
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
-            throw new common_1.BadRequestException("حاول مرة خرى");
+                throw new common_1.UnauthorizedException("Try to login again");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     update(id, updateCommandDto, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             if (infoUser.role !== "company") {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
             return this.commandService.update(infoUser.id, id, updateCommandDto);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     remove(id, req) {
         try {
-            let token = req.headers['authorization'].split(" ")[1];
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             if (infoUser.role !== "company") {
-                throw new common_1.ForbiddenException("ممسموحش لك تمسح هاد طلب");
+                throw new common_1.ForbiddenException("You can't delete this order");
             }
             return this.commandService.deleteOrder(id, infoUser.id);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     async scanQrCode(qrCode, req) {
         try {
-            console.log(`controller`);
-            let token = req.headers['authorization'].split(" ")[1];
-            console.log(token);
+            let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             return this.commandService.getCommandByQrCode(qrCode);
         }
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
+        }
+    }
+    async updateStatusToDone(orderId, updatestatusDTo, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, updatestatusDTo);
+            if (!result) {
+                throw new common_1.NotFoundException("Ops this command is not found");
+            }
+            return result;
+        }
+        catch (e) {
+            console.log("there's a problem oooo", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnauthorizedException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
+        }
+    }
+    async updatepickUpDateToDone(orderId, updatepickUpDateDTo, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.commandService.updateOrderToDonepickUpDate(infoUser.id, orderId, updatepickUpDateDTo);
+            if (!result) {
+                throw new common_1.NotFoundException("Ops this command is not found");
+            }
+            return result;
+        }
+        catch (e) {
+            console.log("there's a problem oooo", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnprocessableEntityException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
         }
     }
 };
@@ -174,7 +224,7 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: "Give the company the ability to add new order" }),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiResponse)({
-        status: 200,
+        status: 201,
         description: 'the response returns the details of the Order ',
         type: response_command_dto_1.default,
     }),
@@ -184,7 +234,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: 'Unauthorized error',
             },
         },
@@ -198,21 +248,21 @@ __decorate([
                     "Using advanced amount in paid or not paid cases": {
                         value: {
                             statusCode: 422,
-                            message: "تأكد من الحالة، مبلغ ديال تسبيق كيتستعمل غير فحالة التسبيق",
+                            message: "Ops you have to choose the situation of partially paid to be able to add advanced amount",
                             error: 'Unprocessable Entity',
                         }
                     },
                     "Invalid date": {
                         value: {
                             statusCode: 422,
-                            message: "تاريخ ماشي صحيح تأكد مرة أخرى",
+                            message: "The delivery Date is not valid, you can't deliver in the past",
                             error: 'Unprocessable Entity',
                         }
                     },
                     "The Advanced amout is bigger than Price": {
                         value: {
                             statusCode: 422,
-                            message: "مبلغ التسبيق خاص اكون صغر من المبلغ الاجمالي، تأكد مرة أخرى",
+                            message: "The advanced amount of The order suppose to be less than the total price",
                             error: 'Unprocessable Entity',
                         }
                     },
@@ -226,7 +276,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 409,
-                message: "هاد الكود مستعمل",
+                message: "this QRCode is used",
                 error: 'Conflict error',
             },
         },
@@ -244,7 +294,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 403,
-                message: "ممسموحش لك تزيد طلب",
+                message: "you are not allowed to add an Order, you have to have company role to do so",
                 error: 'forbidden error',
             },
         },
@@ -262,7 +312,7 @@ __decorate([
         status: 200,
         description: "the qr code is scanned successfully and the clientid is updated",
         type: "Hgdthhhej00",
-        example: "مبروك تم مسح رمز بنجاح"
+        example: "Congratulation the qrCode has been scanned successfully"
     }),
     (0, swagger_1.ApiResponse)({
         status: 403,
@@ -270,7 +320,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 403,
-                message: "ممسموحش لك مسح QR هاد الخاصية غير المستعملين العاديين",
+                message: "You can't scan this qrCode unless you have the client role",
                 error: 'forbidden error',
             },
         },
@@ -281,7 +331,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: 'Unauthorized error',
             },
         },
@@ -292,7 +342,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 404,
-                message: "طلب مكاينش تأكد من رمز مرة أخرى",
+                message: "The order is not found",
                 error: 'Not found error'
             },
         },
@@ -302,6 +352,13 @@ __decorate([
         description: 'Bad Request: new exception',
         schema: {
             example: "Ops smth went wrong",
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 409,
+        description: 'Conflict Exexeption: the qrCode is already scanned',
+        schema: {
+            example: "The qrCode is already scanned",
         },
     }),
     (0, swagger_1.ApiBearerAuth)(),
@@ -321,7 +378,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: 'Unauthorized error',
             },
         },
@@ -330,7 +387,7 @@ __decorate([
         status: 400,
         description: 'Bad Request: new exception',
         schema: {
-            example: "حاول مرة خرى",
+            example: "Try again",
         },
     }),
     (0, swagger_1.ApiResponse)({
@@ -374,7 +431,7 @@ __decorate([
                         ]
                     },
                     "there's no order": {
-                        value: "ماكين حتا طلب",
+                        value: "No order found",
                     },
                 },
             },
@@ -401,13 +458,13 @@ __decorate([
                 examples: {
                     "The id of an order is not valid mongodbId": {
                         value: {
-                            "message": "رقم ديال طلب خطء حاول مرة أخرى",
+                            "message": "The order Is is not valid, try with a valid order Id",
                             "error": "Bad Request",
                             "statusCode": 400
                         },
                     },
                     "Something happend that can crash the app": {
-                        value: "حاول مرة خرى"
+                        value: "Try again"
                     },
                 },
             },
@@ -418,7 +475,7 @@ __decorate([
         description: 'Not found exception: the order is not found',
         schema: {
             example: {
-                "message": "ماكين حتا طلب",
+                "message": "No order found",
                 "error": "Not Found",
                 "statusCode": 404
             }
@@ -430,7 +487,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: 'Unauthorized error',
             },
         },
@@ -461,13 +518,13 @@ __decorate([
                 examples: {
                     "The id of an order is not valid mongodbId": {
                         value: {
-                            "message": "رقم ديال طلب خطء حاول مرة أخرى",
+                            "message": "The order Is is not valid, try with a valid order Id",
                             "error": "Bad Request",
                             "statusCode": 400
                         },
                     },
                     "Something happend that can crash the app": {
-                        value: "حاول مرة خرى"
+                        value: "Try again"
                     },
                 },
             },
@@ -479,7 +536,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: 'Unauthorized error',
             },
         },
@@ -490,7 +547,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 403,
-                message: "ممسموحش لك تبدل هاد طلب",
+                message: "You are not allowed to update this oder",
                 error: 'forbidden error',
             },
         },
@@ -500,7 +557,7 @@ __decorate([
         description: 'Not found exception: the order not found',
         schema: {
             example: {
-                "message": "طلب ديالك مكاينش",
+                "message": "Order Not found",
                 "error": "Not Found",
                 "statusCode": 404
             }
@@ -521,7 +578,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: "The company owner deletes the order successfully",
-        example: "تم مسح طلب بنجاح"
+        example: "The order was deleted successfully"
     }),
     (0, swagger_1.ApiResponse)({
         status: 401,
@@ -529,7 +586,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "حاول تسجل مرة أخرى",
+                message: "Try to login again",
                 error: 'Unauthorized error',
             },
         },
@@ -540,7 +597,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 403,
-                message: "ممسموحش لك تمسح هاد طلب",
+                message: "You can't delete this order",
                 error: 'forbidden error',
             },
         },
@@ -550,7 +607,7 @@ __decorate([
         description: 'Not found exception: the order not found',
         schema: {
             example: {
-                "message": "طلب ديالك مكاينش",
+                "message": "Order Not found",
                 "error": "Not Found",
                 "statusCode": 404
             }
@@ -564,13 +621,13 @@ __decorate([
                 examples: {
                     "The id of an order is not valid mongodbId": {
                         value: {
-                            "message": "رقم ديال طلب خطء حاول مرة أخرى",
+                            "message": "The order Is is not valid, try with a valid order Id",
                             "error": "Bad Request",
                             "statusCode": 400
                         },
                     },
                     "Something happend that can crash the app": {
-                        value: "حاول مرة خرى"
+                        value: "Try again"
                     },
                 },
             },
@@ -596,7 +653,7 @@ __decorate([
         description: 'Command not found',
         schema: {
             example: {
-                message: 'لم يتم العثور على الطلب',
+                message: "The order is not found",
                 error: 'Not Found',
                 statusCode: 404
             }
@@ -609,6 +666,29 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], CommandController.prototype, "scanQrCode", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "The company owner can change his order's status to Done and the client will get a notification related to this" }),
+    (0, swagger_1.ApiBody)({
+        type: update_status_command_dto_1.UpdateStatusCommandDto,
+    }),
+    (0, common_1.Patch)("status/:orderId"),
+    __param(0, (0, common_1.Param)("orderId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_status_command_dto_1.UpdateStatusCommandDto, Object]),
+    __metadata("design:returntype", Promise)
+], CommandController.prototype, "updateStatusToDone", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "The company owner can change his order's pickup date and once he done so the user will get a notification related to this" }),
+    (0, common_1.Patch)("pickup/:orderId"),
+    __param(0, (0, common_1.Param)("orderId")),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_pickup_date_command_dto_1.UpdatepickUpDateCommandDto, Object]),
+    __metadata("design:returntype", Promise)
+], CommandController.prototype, "updatepickUpDateToDone", null);
 exports.CommandController = CommandController = __decorate([
     (0, swagger_1.ApiTags)('Orders '),
     (0, common_1.Controller)('order'),
