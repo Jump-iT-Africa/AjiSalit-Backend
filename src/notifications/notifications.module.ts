@@ -4,8 +4,8 @@ import { NotificationsController } from './notifications.controller';
 import { NotificationsGateway } from './notifications.gateway';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Notification, NotificationSchema } from './entities/notification.schema';
-import { UserModule } from 'src/user/user.module';
-import { CommandModule } from 'src/command/command.module';
+import { UserModule } from '../user/user.module';
+import { CommandModule } from '../command/command.module';
 
 @Module({
   imports: [

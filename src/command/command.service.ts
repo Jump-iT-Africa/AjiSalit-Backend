@@ -7,9 +7,10 @@ import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
 import {  User, UserDocument } from '../user/entities/user.schema';
 import { ValidationOrder  } from "../services/validationOrder"
-import { NotificationsGateway } from 'src/notifications/notifications.gateway';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { validationPickUpdate } from 'src/services/validationPickUpdate';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
+import { validationPickUpdate } from '../services/validationPickUpdate';
+
 
 
 @Injectable()

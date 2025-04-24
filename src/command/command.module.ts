@@ -3,8 +3,8 @@ import { CommandService } from './command.service';
 import { CommandController } from './command.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Command, CommandSchema } from './entities/command.schema';
-import { NotificationsModule } from 'src/notifications/notifications.module';
-import { User, UserSchema } from 'src/user/entities/user.schema';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { User, UserSchema } from '../user/entities/user.schema';
 
 @Module({
   imports: [MongooseModule.forFeature([
