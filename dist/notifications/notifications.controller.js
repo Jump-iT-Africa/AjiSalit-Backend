@@ -20,8 +20,8 @@ const update_notification_dto_1 = require("./dto/update-notification.dto");
 const verifyJwt_1 = require("../services/verifyJwt");
 const swagger_1 = require("@nestjs/swagger");
 const jsonwebtoken_1 = require("jsonwebtoken");
-const response_fmc_dto_1 = require("../fcm/Dtos/response-fmc.dto");
 const send_notification_dto_1 = require("./dto/send-notification.dto");
+const response_websocket_notification_dto_1 = require("./dto/response-websocket-notification.dto");
 let NotificationsController = class NotificationsController {
     constructor(notificationsService) {
         this.notificationsService = notificationsService;
@@ -114,7 +114,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: "the notification was created successfully, rather it's for broadcasting or notify a specific user",
-        type: response_fmc_dto_1.default
+        type: response_websocket_notification_dto_1.ResponseNotificationZwbSocket
     }),
     (0, swagger_1.ApiResponse)({
         status: 401,

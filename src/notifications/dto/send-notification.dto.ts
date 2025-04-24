@@ -21,5 +21,4 @@ export class sendNotificationDto {
     @IsString({ message: 'The expo push token should be String' })
     @IsNotEmpty({ message: "The expo push shouldn't be empty" })
     expoPushToken: string
-
 }
