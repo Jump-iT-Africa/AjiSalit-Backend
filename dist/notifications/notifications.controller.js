@@ -89,7 +89,7 @@ __decorate([
     }),
     (0, swagger_1.ApiResponse)({
         status: 200,
-        description: 'The company change the pick up date successfully',
+        description: 'The notification was send successfully, The response comes from expo Push Notification Tool',
         schema: {
             example: {
                 "data": {
@@ -106,7 +106,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], NotificationsController.prototype, "sendNotification", null);
 __decorate([
-    (0, swagger_1.ApiOperation)({ summary: "Create notification destinited to the reciever" }),
+    (0, swagger_1.ApiOperation)({ summary: "Create notification destnited to the reciever" }),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiBody)({
         type: create_notification_dto_1.CreateNotificationDto,
