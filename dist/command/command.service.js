@@ -18,17 +18,23 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const mongoose_3 = require("mongoose");
 const command_schema_1 = require("./entities/command.schema");
+const user_schema_1 = require("../user/entities/user.schema");
 const validationOrder_1 = require("../services/validationOrder");
+const notifications_gateway_1 = require("../notifications/notifications.gateway");
+const notifications_service_1 = require("../notifications/notifications.service");
+const validationPickUpdate_1 = require("../services/validationPickUpdate");
 let CommandService = class CommandService {
-    constructor(commandModel, userModel) {
+    constructor(commandModel, userModel, notificationsGateway, notificationsService) {
         this.commandModel = commandModel;
         this.userModel = userModel;
+        this.notificationsGateway = notificationsGateway;
+        this.notificationsService = notificationsService;
     }
     async create(createCommandDto, authentificatedId) {
         try {
             const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
             if (existingOrder) {
-                throw new common_1.ConflictException("هاد الكود مستعمل");
+                throw new common_1.ConflictException("This code is already used");
             }
             createCommandDto.companyId = new mongoose_2.Types.ObjectId(authentificatedId);
             let newOrder = new this.commandModel(createCommandDto);
@@ -38,7 +44,7 @@ let CommandService = class CommandService {
             }
             let savingOrder = newOrder.save();
             if (!savingOrder) {
-                return "حاول مرة خرى";
+                return "try again";
             }
             return savingOrder;
         }
@@ -52,24 +58,35 @@ let CommandService = class CommandService {
             throw new common_1.BadRequestException(e.message);
         }
     }
-    async scanedUserId(qrcode, userId) {
+    async scanedUserId(qrcode, userId, username) {
         try {
-            const updatedCommand = await this.commandModel.findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true }).exec();
-            if (!updatedCommand)
-                throw new common_1.NotFoundException(" طلب مكاينش تأكد من رمز مرة أخرى");
-            if (updatedCommand.clientId === userId) {
-                throw new common_1.BadRequestException("عاود حول مسح  Qr مرة خرى");
+            const updateCommad = await this.commandModel.findOne({ qrCode: qrcode });
+            let companyData = await this.userModel.findById(updateCommad.companyId);
+            if (!updateCommad)
+                throw new common_1.NotFoundException("The order not found");
+            console.log("client idddd", updateCommad.clientId, updateCommad);
+            if (updateCommad.clientId !== null) {
+                throw new common_1.ConflictException("The qrCode is already scanned");
             }
-            return "مبروك تم مسح رمز بنجاح";
+            const updatedCommand = await this.commandModel.findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true }).exec();
+            if (companyData.expoPushToken) {
+                let message = `Your qrCode has been was scanned successfully by ${username}`;
+                let notificationSender = await this.notificationsService.sendPushNotification(companyData.expoPushToken, "AjiSalit", message);
+                console.log("ohhhhh la laa", notificationSender);
+            }
+            return "Congratulation the qrCode has been scanned successfully";
         }
         catch (e) {
             if (e instanceof common_1.NotFoundException) {
-                throw new common_1.NotFoundException(" طلب مكاينش تأكد من رمز مرة أخرى");
+                throw new common_1.NotFoundException("The order not found");
             }
             if (e instanceof common_1.BadRequestException) {
-                throw new common_1.BadRequestException("عاود حول مسح  Qr مرة خرى");
+                throw new common_1.BadRequestException("Try to scan the QrCode again");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            if (e instanceof common_1.ConflictException) {
+                throw new common_1.ConflictException("The qrCode is already scanned");
+            }
+            throw new common_1.BadRequestException("Try again");
         }
     }
     async findAll(userId, role) {
@@ -83,7 +100,7 @@ let CommandService = class CommandService {
             }
             const allOrders = await this.commandModel.find(query);
             if (allOrders.length == 0) {
-                return "ماكين حتا طلب";
+                return "No order found";
             }
             const clientIds = [...new Set(allOrders
                     .filter(order => order.clientId)
@@ -128,7 +145,7 @@ let CommandService = class CommandService {
         }
         catch (e) {
             console.log(e);
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Please try again");
         }
     }
     async findOne(id, infoUser) {
@@ -143,47 +160,50 @@ let CommandService = class CommandService {
             console.log(query);
             let order = await this.commandModel.findOne(query).exec();
             if (!order) {
-                throw new common_1.NotFoundException("ماكين حتا طلب");
+                throw new common_1.NotFoundException("No order found");
             }
             return order;
         }
         catch (e) {
             if (e.name === 'CastError') {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
                 throw e;
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     async update(authentificatedId, id, updateCommandDto) {
         try {
             if (!mongoose_3.default.Types.ObjectId.isValid(id)) {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             const command = await this.commandModel.findById(id).exec();
             console.log(id, command);
             if (!command) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw new common_1.NotFoundException("The order is not found");
             }
-            console.log("Authenticated ID:", authentificatedId);
-            console.log("Command company ID:", command.companyId.toString());
             if (command.companyId.toString() !== authentificatedId) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            console.log("Update DTO:", JSON.stringify(updateCommandDto));
-            const updatedCommand = await this.commandModel
-                .findByIdAndUpdate(id, updateCommandDto, { new: true, runValidators: true })
-                .exec();
+            const updatedCommand = await this.commandModel.findByIdAndUpdate(id, updateCommandDto, { new: true, runValidators: true }).exec();
+            if (updateCommandDto.status == "جاهزة للتسليم" && updatedCommand) {
+                console.log("Ops we are here ");
+                let clientInfo = await this.userModel.findById(updatedCommand.clientId).exec();
+                if (clientInfo.expoPushToken) {
+                    let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`);
+                    console.log("Here's my notification sender: ", notificationSender);
+                }
+            }
             console.log("Updated command:", updatedCommand);
             return updatedCommand;
         }
         catch (e) {
-            console.log("Error type:", e.constructor.name);
+            console.log("error type:", e.constructor.name);
             console.log("Full error:", e);
             if (e.name === 'CastError' || e.name === 'ValidationError') {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
                 throw e;
@@ -191,53 +211,111 @@ let CommandService = class CommandService {
             if (e instanceof common_1.ForbiddenException) {
                 throw e;
             }
-            throw new common_1.BadRequestException(`حاول مرة خرى: ${e.message}`);
+            throw new common_1.BadRequestException(`try again : ${e.message}`);
+        }
+    }
+    async updateOrderToDoneStatus(userId, orderId, data) {
+        try {
+            const command = await this.commandModel.findById(orderId).exec();
+            console.log(orderId, command);
+            if (!command) {
+                throw new common_1.NotFoundException("The command not found");
+            }
+            if (command.companyId.toString() !== userId) {
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
+            }
+            let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true, runValidators: true }).exec();
+            if (!result) {
+                throw new common_1.BadRequestException("Ops try to update it again");
+            }
+            let clientInfo = await this.userModel.findById(command.clientId).exec();
+            if (clientInfo.expoPushToken && result) {
+                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`);
+                console.log("Here's my notification sender: ", notificationSender);
+            }
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
+        }
+    }
+    async updateOrderpickUpDate(userId, orderId, data) {
+        try {
+            const command = await this.commandModel.findById(orderId).exec();
+            if (!command) {
+                throw new common_1.NotFoundException("The command not found");
+            }
+            if (command.companyId.toString() !== userId) {
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
+            }
+            let validateDate = (0, validationPickUpdate_1.validationPickUpdate)(data);
+            if (validateDate !== "valid") {
+                throw new common_1.UnprocessableEntityException(validateDate);
+            }
+            let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true, runValidators: true }).exec();
+            if (!result) {
+                throw new common_1.BadRequestException("Ops try to update it again");
+            }
+            let clientInfo = await this.userModel.findById(command.clientId).exec();
+            if (clientInfo.expoPushToken && result) {
+                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`);
+                console.log("Here's my notification sender: ", notificationSender);
+            }
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnprocessableEntityException) {
+                throw e;
+            }
+            throw new common_1.BadRequestException("Ops Something went wrong");
         }
     }
     async deleteOrder(id, userId) {
         try {
             let order = await this.commandModel.findById(id);
             if (!order) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw new common_1.NotFoundException("The order is not found");
             }
             if (order.companyId.toString() !== userId) {
-                throw new common_1.ForbiddenException("ممسموحش لك تمسح هاد طلب");
+                throw new common_1.ForbiddenException("You can't delete this order");
             }
             let deleteOrder = await this.commandModel.findByIdAndDelete(id).exec();
             return {
-                mess: "تم مسح طلب بنجاح",
+                mess: "The order was deleted successfully",
                 deleteOrder
             };
         }
         catch (e) {
             console.log("there's an error", e);
             if (e.name === 'CastError') {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw new common_1.NotFoundException("The order is not found");
             }
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تمسح هاد طلب");
+                throw new common_1.ForbiddenException("You can't delete this order");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
     async getCommandByQrCode(qrCode) {
         try {
-            console.log(`Service`);
             const command = await this.commandModel.findOne({ qrCode })
                 .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status')
                 .exec();
             console.log(command);
             if (!command) {
-                throw new common_1.NotFoundException('لم يتم العثور على الطلب');
+                throw new common_1.NotFoundException("The order is not found");
             }
             return command;
         }
         catch (e) {
             console.log(e);
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Try again");
         }
     }
 };
@@ -245,8 +323,11 @@ exports.CommandService = CommandService;
 exports.CommandService = CommandService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
-    __param(1, (0, mongoose_1.InjectModel)('User')),
+    __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_gateway_1.NotificationsGateway))),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        mongoose_2.Model])
+        mongoose_2.Model,
+        notifications_gateway_1.NotificationsGateway,
+        notifications_service_1.NotificationsService])
 ], CommandService);
 //# sourceMappingURL=command.service.js.map

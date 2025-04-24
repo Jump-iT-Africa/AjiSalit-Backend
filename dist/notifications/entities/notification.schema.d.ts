@@ -1,16 +1,18 @@
-import { Document } from 'mongoose';
-export declare class Notification extends Document {
-    userId: string;
-    CompanyId: string;
+import mongoose, { Types } from 'mongoose';
+export type NotificationDocument = Notification & mongoose.Document;
+export declare class Notification {
+    senderId: string;
+    recipientId: string;
     message: string;
-    isRead: boolean;
+    read: boolean;
+    createdAt: Date;
 }
-export declare const NotificationSchema: import("mongoose").Schema<Notification, import("mongoose").Model<Notification, any, any, any, Document<unknown, any, Notification> & Notification & Required<{
-    _id: unknown;
-}> & {
+export declare const NotificationSchema: mongoose.Schema<Notification, mongoose.Model<Notification, any, any, any, mongoose.Document<unknown, any, Notification> & Notification & {
+    _id: Types.ObjectId;
+} & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, Notification, Document<unknown, {}, import("mongoose").FlatRecord<Notification>> & import("mongoose").FlatRecord<Notification> & Required<{
-    _id: unknown;
-}> & {
+}, any>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, Notification, mongoose.Document<unknown, {}, mongoose.FlatRecord<Notification>> & mongoose.FlatRecord<Notification> & {
+    _id: Types.ObjectId;
+} & {
     __v: number;
 }>;

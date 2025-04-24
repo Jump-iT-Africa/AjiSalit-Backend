@@ -12,17 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationSchema = exports.Notification = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-let Notification = class Notification extends mongoose_2.Document {
+let Notification = class Notification {
 };
 exports.Notification = Notification;
 __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: "User", required: true }),
     __metadata("design:type", String)
-], Notification.prototype, "userId", void 0);
+], Notification.prototype, "senderId", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: "Company", required: true }),
     __metadata("design:type", String)
-], Notification.prototype, "CompanyId", void 0);
+], Notification.prototype, "recipientId", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -30,7 +30,11 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ default: false }),
     __metadata("design:type", Boolean)
-], Notification.prototype, "isRead", void 0);
+], Notification.prototype, "read", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Date)
+], Notification.prototype, "createdAt", void 0);
 exports.Notification = Notification = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Notification);

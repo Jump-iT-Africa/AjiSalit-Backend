@@ -23,8 +23,8 @@ async function bootstrap() {
   .setTitle('AjiSalit API ')
   .setDescription('AjiSalit is an app that help you track your orders and get them on time')
   .setVersion('1.0')
-  .addServer('https://www.ajisalit.com/', 'Production')
   .addServer('http://localhost:3000/', 'Local environment')
+  // .addServer('https://www.ajisalit.com/', 'Production')
   .addBearerAuth()
   .addTag('ajisalit')
   .build();
@@ -32,7 +32,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  // const notifgat = app.get(NotificationsGateway)
+  const notifgat = app.get(NotificationsGateway)
   // setInterval(()=>notifgat.handleNotification())
 
   // await app.listen(process.env.PORT ?? 3000);

@@ -34,7 +34,7 @@ export class UserController {
         examples: {
           'Using an existing number ': {
             value: {
-              "message": "هاد الرقم مستعمل من قبل جرب رقم أخر",
+              "message": "This number is already used, try to login or use another one",
               "error": "Bad Request",
               "statusCode": 400
             }
@@ -64,7 +64,7 @@ export class UserController {
     type: LoginUserDto,
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: "The user logged in to his account successfully",
     content: {
       'application/json': {
@@ -182,7 +182,7 @@ export class UserController {
     description: 'Bad error : something breaks down',
     schema: {
       example: {
-        "message": "حاول مرة أخرى",
+        "message": "try again",
         "error": "Bad Request Exception",
         "statusCode": 400
       }
@@ -193,7 +193,7 @@ export class UserController {
     description: 'Not found exception : the info of user not found',
     schema: {
       example: {
-        "message": "حساب مكاينش، حاول مرة أخرى",
+        "message": "The account not found",
         "error": "Not found",
         "statusCode": 404
       }
@@ -201,10 +201,10 @@ export class UserController {
   })
   findOne(@Param('id') id: string, @Req() req) {
     try {
-      let token = req.headers['authorization'].split(" ")[1];
+      let token = req.headers['authorization']?.split(" ")[1];
       let infoUser = validateJwt(token);
       if (!infoUser) {
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       }
       return this.userService.findOne(id);
     } catch (e) {
@@ -212,7 +212,7 @@ export class UserController {
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError) {
         throw new UnauthorizedException("حاول تسجل ف الحساب ديالك مرة أخرى")
       }
-      throw new BadRequestException("حاول مرة أخرى")
+      throw new BadRequestException("try again")
     }
   }
 
@@ -223,14 +223,14 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: "The user or the company owner deletes his account successfully",
-    example: "تم مسح الحساب بنجاح"
+    example: "The account was deleted successfully"
   })
   @ApiResponse({
     status: 400,
     description: 'Bad error : something breaks down',
     schema: {
       example: {
-        "message": "حاول مرة أخرى",
+        "message": "try again",
         "error": "Bad Request Exception",
         "statusCode": 400
       }
@@ -241,7 +241,7 @@ export class UserController {
     description: 'Unauthorized error: the user should login again using his phone number and password to continue filling his informations',
     schema: {
       example: {
-        "message": "حاول تسجل مرة أخرى",
+        "message": "Try to login again",
         "error": "Unauthorized",
         "statusCode": 401
       }
@@ -249,21 +249,21 @@ export class UserController {
   })
   deleteAccount(@Param('id') id: string, @Req() req) {
     try {
-      let token = req.headers['authorization'].split(" ")[1];
+      let token = req.headers['authorization']?.split(" ")[1];
 
       let infoUser = validateJwt(token);
       if (!infoUser) {
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       }
       return this.userService.deleteAccount(id, infoUser.id);
     } catch (e) {
       console.log(e)
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+        throw new ForbiddenException("You are not allowed to update this oder")
       }
-      throw new BadRequestException("حاول مرة خرى")
+      throw new BadRequestException("Try again")
     }
   }
 
@@ -289,7 +289,7 @@ export class UserController {
     description: "Unauthorized - Invalid or expired token",
     schema: {
       example: {
-        message: "حاول تسجل مرة أخرى",
+        message: "Try to login again",
         error: "Unauthorized",
         statusCode: 401
       }
@@ -300,7 +300,7 @@ export class UserController {
     description: "Forbidden - User doesn't have permission to update this profile",
     schema: {
       example: {
-        message: "ممسموحش لك تبدل هاد طلب",
+        message: "You are not allowed to update this oder",
         error: "Forbidden",
         statusCode: 403
       }
@@ -319,18 +319,17 @@ export class UserController {
   })
   @ApiBearerAuth()
   @Put(':id')
-
   updateUserProfile(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req) {
   try {
-    let token = req.headers['authorization'].split(" ")[1];
+    let token = req.headers['authorization']?.split(" ")[1];
     let infoUser = validateJwt(token);
     
     if (!infoUser) {
-      throw new UnauthorizedException("حاول تسجل مرة أخرى")
+      throw new UnauthorizedException("Try to login again")
     }
     
     if (id !== infoUser.id) {
-      throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+      throw new ForbiddenException("You are not allowed to update this oder")
     }
     
     return this.userService.updateUserInfo(id, updateUserDto);
@@ -339,9 +338,9 @@ export class UserController {
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
         throw new UnauthorizedException("حاول تسجل مرة أخرى")
       if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+        throw new ForbiddenException("You aren't authorized to perform this task تبدل هاد طلب")
       }
-      throw new BadRequestException("حاول مرة خرى")
+      throw new BadRequestException("Please try again")
     }
   }
 
@@ -384,7 +383,7 @@ export class UserController {
     description: ' Invalid User',
     schema: {
       example: {
-        message: 'المستخدم غير موجود',
+        message: "the user not found ",
         error: 'Not Found',
         statusCode: 404,
       },

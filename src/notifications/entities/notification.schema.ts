@@ -1,19 +1,26 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 
+export type NotificationDocument = Notification & mongoose.Document;
 @Schema({ timestamps: true })
-export class Notification extends Document {
+export class Notification {
+
   @Prop({ type: Types.ObjectId,  ref: "User", required: true})
-  userId: string;
+  senderId: string;
 
   @Prop({ type: Types.ObjectId,  ref: "Company", required: true})
-  CompanyId: string;
+  recipientId: string;
 
   @Prop({ required: true })
   message: string;
 
   @Prop({ default: false })
-  isRead: boolean;
+  read: boolean;
+
+  @Prop()
+  createdAt:Date
+
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
+

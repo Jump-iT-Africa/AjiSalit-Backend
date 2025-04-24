@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model, ObjectId } from 'mongoose';
 import { User, UserDocument } from './entities/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
@@ -41,7 +41,7 @@ export class UserService {
 
       if (existingUser) {
         return {
-          message: 'هاد الرقم مستعمل من قبل جرب رقم أخر'
+          message: "This number is already used, try to login or use another one"
         }
       }
   
@@ -187,18 +187,18 @@ export class UserService {
       console.log("hello from service ,", updateDto)
       let result = await this.userModel.findById(id).exec()
       if (!result) {
-        throw new NotFoundException("حاول دخل رقم ديالك مرة أخرى")
+        throw new NotFoundException("Command not found")
       }
       // console.log(authentificatedId, "user ",result._id)
       if(authentificatedId !== result._id.toString()){
-          throw new ForbiddenException("ممسموحش لك")
+          throw new ForbiddenException("You aren't authorized to perform this task")
       }
       const updateAuthentificator = await this.userModel.findByIdAndUpdate(id, updateDto, {new:true}).exec()
-      return "تم إنشاء حسابك بنجاح"
+      return "The account created successfully"
 
     }catch(e){
       console.log(e)
-      throw new BadRequestException("حاول مرة أخرى")
+      throw new BadRequestException("try again")
     }
 
   }
@@ -208,13 +208,13 @@ export class UserService {
     return `This action returns all users`;
   }
 
-  async findOne(id: string) {
+  async findOne(userid:string | ObjectId) {
     try{
-      let result = await this.userModel.findById(id).exec()
+      let result = await this.userModel.findById({_id:userid}).exec()
+
       if(!result){
-        throw new NotFoundException("حساب مكاينش، حاول مرة أخرى")
+        throw new NotFoundException("The account not found")
       }
-      // console.log(result)
       if(result.role == "company"){
         let data = plainToClass(ResoponseCompanyDto,result, {
           excludeExtraneousValues:true,
@@ -233,45 +233,63 @@ export class UserService {
     }catch(e){
       console.log("there's an error", e)
       if(e instanceof NotFoundException){
-        throw new NotFoundException("حساب مكاينش، حاول مرة أخرى")
+        throw new NotFoundException("The account not found")
       }
-      throw new BadRequestException("حاول مرة أخرى")
+      throw new BadRequestException("try again")
 
     }
   }
 
-  update(id: string, updateDto: UpdateUserDto | UpdateCompanyDto) {
-    return `This action updates a #${id} user`;
+ async updateSocketId(userId: string, socketUserId:string) {
+    try{
+      let result = await this.userModel.findById(userId).exec()
+      if (!result) {
+        throw new NotFoundException("Command not found")
+      }
+      // console.log(authentificatedId, "user ",result._id)
+      if(userId !== result._id.toString()){
+          throw new ForbiddenException("You aren't authorized to perform this task")
+      }
+      let updateDto = {
+        socketId: socketUserId
+      }
+      const updateAuthentificator = await this.userModel.findByIdAndUpdate(userId, updateDto, {new:true}).exec()
+      return "updated successfully"
+
+    }catch(e){
+      console.log('ops')
+    }
   }
 
   async deleteAccount(id: string, userId) {
     try{
         let account = await this.userModel.findById(id);
         if(!account){
-          throw new NotFoundException("الحساب ديالك مكاينش")
+          throw new NotFoundException("The account not found")
         }
         if(account._id.toString() !== userId){
-          throw new ForbiddenException("ممسموحش لك تمسح هاد الحساب")
+          throw new ForbiddenException("You aren't authorized to perform this task تمسح هاد الحساب")
         }
         let deleteAccount = await this.userModel.findByIdAndDelete(id).exec();
-        return "تم مسح الحساب بنجاح"
+        return "The account was deleted successfully"
     }catch(e){
       if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError)
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       if(e instanceof ForbiddenException){
-        throw new ForbiddenException("ممسموحش لك تبدل هاد طلب")
+        throw new ForbiddenException("You are not allowed to update this oder")
       }
-      throw new BadRequestException("حاول مرة خرى")
+      throw new BadRequestException("Try again")
     }
   }
 
 
   async updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
+      console.log("teeeeeeeeest")
       const toUpdate = await this.userModel.findById(id);
   
       if (!toUpdate) {
-        throw new NotFoundException('المستخدم غير موجود');
+        throw new NotFoundException("the user not found ");
       }
   
       const originalRefBy = toUpdate.refBy;
@@ -316,7 +334,7 @@ export class UserService {
       return toUpdate;
     } catch (error) {
       console.error("Error updating user profile:", error);
-      throw new BadRequestException('تعذر تحديث الملف الشخصي');
+      throw new BadRequestException("Ops something went wrong ");
     }
   }
 

@@ -22,7 +22,7 @@ __decorate([
         required: true
     }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "دخل العنوان و المدينة ديالك" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "Enter your address" }),
     __metadata("design:type", String)
 ], UpdateCompanyDto.prototype, "fullAddress", void 0);
 __decorate([
@@ -31,7 +31,7 @@ __decorate([
         required: true
     }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "دخل المجال ديالك" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "Please enter your field" }),
     __metadata("design:type", String)
 ], UpdateCompanyDto.prototype, "field", void 0);
 __decorate([
@@ -40,7 +40,7 @@ __decorate([
         required: true
     }),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "خصك دخل رقم البطاقة الضريبية أو رقم ICE" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "ICE number is required" }),
     __metadata("design:type", String)
 ], UpdateCompanyDto.prototype, "ice", void 0);
 //# sourceMappingURL=update-company.dto.js.map

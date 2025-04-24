@@ -55,7 +55,7 @@ export default class ResponseDto {
   pickupDate: string;
 
   @ApiProperty({
-    example: ['image1111.jpg', 'image2.jpg'],
+    example: ["image.jpg", "image2.jpg"],
     description: 'images URLs related to the service',
     required: false,
   })

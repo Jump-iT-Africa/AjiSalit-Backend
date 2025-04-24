@@ -38,4 +38,8 @@ __decorate([
     (0, class_transformer_1.Expose)(),
     __metadata("design:type", String)
 ], ResoponseCompanyDto.prototype, "role", void 0);
+__decorate([
+    (0, class_transformer_1.Expose)(),
+    __metadata("design:type", String)
+], ResoponseCompanyDto.prototype, "socketId", void 0);
 //# sourceMappingURL=response-company.dto.js.map

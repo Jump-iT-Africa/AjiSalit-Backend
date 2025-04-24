@@ -13,6 +13,8 @@ export declare class User {
     ownRef: string;
     refBy?: string;
     listRefs?: string[];
+    socketId?: string;
+    expoPushToken?: string;
 }
 export declare const UserSchema: import("mongoose").Schema<User, import("mongoose").Model<User, any, any, any, Document<unknown, any, User> & User & {
     _id: Types.ObjectId;

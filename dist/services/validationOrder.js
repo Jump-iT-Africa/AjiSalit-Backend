@@ -4,16 +4,16 @@ exports.ValidationOrder = ValidationOrder;
 function ValidationOrder(newOrder) {
     if (newOrder.situation == "خالص" || newOrder.situation == "غير خالص") {
         if (newOrder.advancedAmount !== null)
-            return "تأكد من الحالة، مبلغ ديال تسبيق كيتستعمل غير فحالة التسبيق";
+            return "Ops you have to choose the situation of partially paid to be able to add advanced amount";
     }
     if (newOrder.situation == "تسبيق") {
         if (newOrder.price <= newOrder.advancedAmount)
-            return "مبلغ التسبيق خاص اكون صغر من المبلغ الاجمالي، تأكد مرة أخرى";
+            return "The advanced amount of The order suppose to be less than the total price";
     }
     let todayDate = new Date();
     todayDate.setHours(0, 0, 0, 0);
     if (newOrder.deliveryDate < todayDate) {
-        return "تاريخ ماشي صحيح تأكد مرة أخرى";
+        return "The delivery Date is not valid, you can't deliver in the past";
     }
     return "valide";
 }

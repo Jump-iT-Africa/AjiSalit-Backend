@@ -1,5 +1,4 @@
 export declare class UpdateUserDto {
-    name?: string;
     Fname?: string;
     Lname?: string;
     companyName?: string;
@@ -12,4 +11,5 @@ export declare class UpdateUserDto {
     ownRef?: string;
     refBy?: string;
     listRefs?: string[];
+    expoPushToken: string;
 }

@@ -11,4 +11,5 @@ export declare class CreateUserDto {
     ownRef: string;
     refBy: string;
     listRefs: string[];
+    expoPushToken: string;
 }

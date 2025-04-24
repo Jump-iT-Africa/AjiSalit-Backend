@@ -12,4 +12,6 @@ export class ResoponseCompanyDto{
     ice:number
     @Expose()
     role:string
+    @Expose()
+    socketId?:string
 }
