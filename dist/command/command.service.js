@@ -257,6 +257,7 @@ let CommandService = class CommandService {
             }
             let clientInfo = await this.userModel.findById(command.clientId).exec();
             if (clientInfo && clientInfo.expoPushToken && result) {
+                console.log("info user:", clientInfo, clientInfo.expoPushToken, result);
                 let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`);
                 console.log("Here's my notification sender: ", notificationSender);
             }
