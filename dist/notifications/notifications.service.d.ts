@@ -2,8 +2,8 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification, NotificationDocument } from './entities/notification.schema';
 import mongoose, { Model } from 'mongoose';
-import { UserService } from 'src/user/user.service';
-import { CommandService } from 'src/command/command.service';
+import { UserService } from '../user/user.service';
+import { CommandService } from '../command/command.service';
 export declare class NotificationsService {
     private notificationModel;
     private userService;

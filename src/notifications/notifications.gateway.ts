@@ -3,7 +3,7 @@ import { Server,Socket } from 'socket.io';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { UserService } from '../user/user.service';
-import { validateJwt } from 'src/services/verifyJwt';
+import { validateJwt } from '../services/verifyJwt';
 import { JsonWebTokenError } from 'jsonwebtoken';
 
 @WebSocketGateway({namespace:"notification", cors:{origin: '*'}})
