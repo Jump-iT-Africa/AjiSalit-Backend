@@ -134,17 +134,17 @@ let UserService = class UserService {
             console.log("hello from service ,", updateDto);
             let result = await this.userModel.findById(id).exec();
             if (!result) {
-                throw new common_1.NotFoundException("حاول دخل رقم ديالك مرة أخرى");
+                throw new common_1.NotFoundException("Command not found");
             }
             if (authentificatedId !== result._id.toString()) {
-                throw new common_1.ForbiddenException("ممسموحش لك");
+                throw new common_1.ForbiddenException("You aren't authorized to perform this task");
             }
             const updateAuthentificator = await this.userModel.findByIdAndUpdate(id, updateDto, { new: true }).exec();
-            return "تم إنشاء حسابك بنجاح";
+            return "The account created successfully";
         }
         catch (e) {
             console.log(e);
-            throw new common_1.BadRequestException("حاول مرة أخرى");
+            throw new common_1.BadRequestException("try again");
         }
     }
     findAll() {
@@ -154,7 +154,7 @@ let UserService = class UserService {
         try {
             let result = await this.userModel.findById({ _id: userid }).exec();
             if (!result) {
-                throw new common_1.NotFoundException("حساب مكاينش، حاول مرة أخرى");
+                throw new common_1.NotFoundException("The account not found");
             }
             if (result.role == "company") {
                 let data = (0, class_transformer_1.plainToClass)(response_company_dto_1.ResoponseCompanyDto, result, {
@@ -174,19 +174,19 @@ let UserService = class UserService {
         catch (e) {
             console.log("there's an error", e);
             if (e instanceof common_1.NotFoundException) {
-                throw new common_1.NotFoundException("حساب مكاينش، حاول مرة أخرى");
+                throw new common_1.NotFoundException("The account not found");
             }
-            throw new common_1.BadRequestException("حاول مرة أخرى");
+            throw new common_1.BadRequestException("try again");
         }
     }
     async updateSocketId(userId, socketUserId) {
         try {
             let result = await this.userModel.findById(userId).exec();
             if (!result) {
-                throw new common_1.NotFoundException("حاول دخل رقم ديالك مرة أخرى");
+                throw new common_1.NotFoundException("Command not found");
             }
             if (userId !== result._id.toString()) {
-                throw new common_1.ForbiddenException("ممسموحش لك");
+                throw new common_1.ForbiddenException("You aren't authorized to perform this task");
             }
             let updateDto = {
                 socketId: socketUserId
@@ -202,13 +202,13 @@ let UserService = class UserService {
         try {
             let account = await this.userModel.findById(id);
             if (!account) {
-                throw new common_1.NotFoundException("الحساب ديالك مكاينش");
+                throw new common_1.NotFoundException("The account not found");
             }
             if (account._id.toString() !== userId) {
-                throw new common_1.ForbiddenException("ممسموحش لك تمسح هاد الحساب");
+                throw new common_1.ForbiddenException("You aren't authorized to perform this task تمسح هاد الحساب");
             }
             let deleteAccount = await this.userModel.findByIdAndDelete(id).exec();
-            return "تم مسح الحساب بنجاح";
+            return "The account was deleted successfully";
         }
         catch (e) {
             if (e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError)
@@ -224,7 +224,7 @@ let UserService = class UserService {
             console.log("teeeeeeeeest");
             const toUpdate = await this.userModel.findById(id);
             if (!toUpdate) {
-                throw new common_1.NotFoundException('المستخدم غير موجود');
+                throw new common_1.NotFoundException("the user not found ");
             }
             const originalRefBy = toUpdate.refBy;
             delete updateUserDto.password;
@@ -248,7 +248,7 @@ let UserService = class UserService {
         }
         catch (error) {
             console.error("Error updating user profile:", error);
-            throw new common_1.BadRequestException('تعذر تحديث الملف الشخصي');
+            throw new common_1.BadRequestException("Ops something went wrong ");
         }
     }
     async VerifyNumber(phoneNumber, verifyNumberDto) {

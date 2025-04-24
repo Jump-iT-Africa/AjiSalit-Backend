@@ -47,7 +47,7 @@ let UserController = class UserController {
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError) {
                 throw new common_1.UnauthorizedException("حاول تسجل ف الحساب ديالك مرة أخرى");
             }
-            throw new common_1.BadRequestException("حاول مرة أخرى");
+            throw new common_1.BadRequestException("try again");
         }
     }
     deleteAccount(id, req) {
@@ -86,9 +86,9 @@ let UserController = class UserController {
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
                 throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("ممسموحش لك تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You aren't authorized to perform this task تبدل هاد طلب");
             }
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Please try again");
         }
     }
     async verifyPhone(verifyNumberDto) {
@@ -258,7 +258,7 @@ __decorate([
         description: 'Bad error : something breaks down',
         schema: {
             example: {
-                "message": "حاول مرة أخرى",
+                "message": "try again",
                 "error": "Bad Request Exception",
                 "statusCode": 400
             }
@@ -269,7 +269,7 @@ __decorate([
         description: 'Not found exception : the info of user not found',
         schema: {
             example: {
-                "message": "حساب مكاينش، حاول مرة أخرى",
+                "message": "The account not found",
                 "error": "Not found",
                 "statusCode": 404
             }
@@ -288,14 +288,14 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: "The user or the company owner deletes his account successfully",
-        example: "تم مسح الحساب بنجاح"
+        example: "The account was deleted successfully"
     }),
     (0, swagger_1.ApiResponse)({
         status: 400,
         description: 'Bad error : something breaks down',
         schema: {
             example: {
-                "message": "حاول مرة أخرى",
+                "message": "try again",
                 "error": "Bad Request Exception",
                 "statusCode": 400
             }
@@ -417,7 +417,7 @@ __decorate([
         description: ' Invalid User',
         schema: {
             example: {
-                message: 'المستخدم غير موجود',
+                message: "the user not found ",
                 error: 'Not Found',
                 statusCode: 404,
             },

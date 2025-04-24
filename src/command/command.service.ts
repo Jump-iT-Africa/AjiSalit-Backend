@@ -27,7 +27,7 @@ export class CommandService {
       const existingOrder = await this.commandModel.findOne({qrCode : createCommandDto.qrCode}).exec();
 
       if(existingOrder){
-        throw new ConflictException("هاد الكود مستعمل")
+        throw new ConflictException("This code is already used")
       }
 
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
@@ -99,7 +99,7 @@ export class CommandService {
       const allOrders = await this.commandModel.find(query)
       
       if (allOrders.length == 0) {
-        return "ماكين حتا طلب"
+        return "No order found"
       }
       
       const clientIds = [...new Set(
@@ -158,7 +158,7 @@ export class CommandService {
       return ordersWithCustomerNames;
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("حاول مرة خرى");
+      throw new BadRequestException("Please try again");
     }
   }
 
@@ -176,13 +176,13 @@ export class CommandService {
       
       let order = await this.commandModel.findOne(query).exec();
       if (!order) {
-        throw new NotFoundException("ماكين حتا طلب");
+        throw new NotFoundException("No order found");
       }
       
       return order;
     } catch (e) {
       if (e.name === 'CastError') {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
       if  (e instanceof NotFoundException)  {
         throw e;
@@ -195,14 +195,14 @@ export class CommandService {
     try {
       // Validate ID format first
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
 
       const command = await this.commandModel.findById(id).exec();
       console.log(id, command);
 
       if (!command) {
-        throw new NotFoundException("طلب ديالك مكاينش");
+        throw new NotFoundException("The order is not found");
       }
       // console.log("authenticated ID:", authentificatedId);
       // console.log("command company ID:", command.companyId.toString());
@@ -227,7 +227,7 @@ export class CommandService {
       console.log("Full error:", e);
 
       if (e.name === 'CastError' || e.name === 'ValidationError') {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
       if (e instanceof NotFoundException) {
         throw e;
@@ -235,7 +235,7 @@ export class CommandService {
       if (e instanceof ForbiddenException) {
         throw e;
       }
-      throw new BadRequestException(`حاول مرة خرى: ${e.message}`);
+      throw new BadRequestException(`try again : ${e.message}`);
     }
   }
 
@@ -271,7 +271,7 @@ export class CommandService {
   }
 
 
-  async updateOrderToDonepickUpDate(userId, orderId, data){
+  async updateOrderpickUpDate(userId, orderId, data){
     try{
       const command = await this.commandModel.findById(orderId).exec();
       if (!command) {
@@ -310,7 +310,7 @@ export class CommandService {
     try {
       let order = await this.commandModel.findById(id);
       if (!order) {
-        throw new NotFoundException("طلب ديالك مكاينش")
+        throw new NotFoundException("The order is not found")
       }
       if (order.companyId.toString() !== userId) {
         throw new ForbiddenException("You can't delete this order")
@@ -323,10 +323,10 @@ export class CommandService {
     } catch (e) {
       console.log("there's an error", e)
       if (e.name === 'CastError') {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
       if (e instanceof NotFoundException) {
-        throw new NotFoundException("طلب ديالك مكاينش")
+        throw new NotFoundException("The order is not found")
       }
       if (e instanceof ForbiddenException) {
         throw new ForbiddenException("You can't delete this order")

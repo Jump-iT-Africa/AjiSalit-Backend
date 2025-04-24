@@ -47,13 +47,13 @@ __decorate([
 ], CreateCommandDto.prototype, "situation", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: "قيد الانتظار",
+        example: "في طور الانجاز",
         required: true
     }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^(في طور الانجاز|قيد الانتظار|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, قيد الانتظار, جاهزة للتسليم, تم تسليم" }),
-    (0, class_validator_1.IsEnum)(["في طور الانجاز", "قيد الانتظار", "جاهزة للتسليم", "تم تسليم"]),
+    (0, class_validator_1.Matches)(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم" }),
+    (0, class_validator_1.IsEnum)(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"]),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "status", void 0);
 __decorate([
@@ -71,6 +71,7 @@ __decorate([
         required: true
     }),
     (0, class_validator_1.IsNotEmpty)({ message: "The city Name can not be empty, please enter your city name" }),
+    (0, class_validator_1.MinLength)(3, { message: 'The city must be at least 3 characters long' }),
     (0, class_validator_1.Matches)(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" }),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

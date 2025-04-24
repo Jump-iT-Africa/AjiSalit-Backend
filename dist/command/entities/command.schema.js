@@ -28,7 +28,7 @@ __decorate([
     __metadata("design:type", String)
 ], Command.prototype, "situation", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: "قيد الانتظار", enum: ["في طور الانجاز", "قيد الانتظار", "جاهزة للتسليم", "تم تسليم"] }),
+    (0, mongoose_1.Prop)({ required: true, default: "قيد الانتظار", enum: ["قيد الانتظار", "جاهزة للتسليم", "تم تسليم"] }),
     __metadata("design:type", String)
 ], Command.prototype, "status", void 0);
 __decorate([

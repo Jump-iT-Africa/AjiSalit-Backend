@@ -6,12 +6,38 @@ import { validateJwt } from 'src/services/verifyJwt';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import ResponseFcmDto from 'src/fcm/Dtos/response-fmc.dto';
+import { sendNotificationDto } from './dto/send-notification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) { }
 
-
+  @ApiOperation({ summary: "Push notification to user through expo Push Notification" })
+  @ApiBody({
+    type: sendNotificationDto,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Sending Body without expo push Token : this error comes from Expo Push Notification Tool',
+    schema: {
+      example: {
+        "statusCode": 500,
+        "message": "Internal server error"
+    }
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The company change the pick up date successfully',
+    schema: {
+      example: {
+        "data": {
+            "status": "ok",
+            "id": "0196670b-aa78-7a90-9803-a5fe62ad1b0a"
+        }
+    }
+    },
+  })
   @Post('/send')
   sendNotification(
     @Body() body: { expoPushToken: string; title: string; message: string; data?: any },

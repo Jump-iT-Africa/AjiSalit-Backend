@@ -12,11 +12,11 @@ export declare class CommandController {
         __v: number;
     })>;
     scanedUserId(qrcode: string, req: any): Promise<string>;
-    findAll(req: any): Promise<"ماكين حتا طلب" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | {
+    })[] | "No order found" | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;
@@ -71,7 +71,7 @@ export declare class CommandController {
     }> & {
         __v: number;
     }>;
-    updatepickUpDateToDone(orderId: string, updatepickUpDateDTo: UpdatepickUpDateCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    updatepickUpDate(orderId: string, updatepickUpDateDTo: UpdatepickUpDateCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
