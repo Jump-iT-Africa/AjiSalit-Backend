@@ -1,0 +1,71 @@
+import { Model } from "mongoose";
+import { CreateCommandDto } from './dto/create-command.dto';
+import { UpdateCommandDto } from './dto/update-command.dto';
+import mongoose from 'mongoose';
+import { Command, CommandDocument } from './entities/command.schema';
+import { UserDocument } from '../user/entities/user.schema';
+export declare class CommandService {
+    private commandModel;
+    private userModel;
+    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>);
+    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"حاول مرة خرى" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    })>;
+    scanedUserId(qrcode: string, userId: string): Promise<string>;
+    findAll(userId: string, role: string): Promise<"ماكين حتا طلب" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    })[] | {
+        customerDisplayName: any;
+        customerField: any;
+        companyId: string;
+        clientId: string;
+        situation: string;
+        status: string;
+        advancedAmount: number;
+        city: string;
+        price: number;
+        images: [{
+            type: String;
+        }];
+        deliveryDate: Date;
+        pickupDate: Date;
+        qrCode: string;
+        isFinished: false;
+        isPickUp: false;
+        _id: unknown;
+        $locals: Record<string, unknown>;
+        $op: "save" | "validate" | "remove" | null;
+        $where: Record<string, unknown>;
+        baseModelName?: string;
+        collection: mongoose.Collection;
+        db: mongoose.Connection;
+        errors?: mongoose.Error.ValidationError;
+        id?: any;
+        isNew: boolean;
+        schema: mongoose.Schema;
+        __v: number;
+    }[]>;
+    findOne(id: string, infoUser: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
+    update(authentificatedId: any, id: any, updateCommandDto: UpdateCommandDto): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
+    deleteOrder(id: string, userId: any): Promise<{
+        mess: string;
+        deleteOrder: mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+            _id: unknown;
+        }> & {
+            __v: number;
+        };
+    }>;
+    getCommandByQrCode(qrCode: string): Promise<Command>;
+}
