@@ -4,8 +4,8 @@ import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
 import { UserDocument } from '../user/entities/user.schema';
-import { NotificationsGateway } from 'src/notifications/notifications.gateway';
-import { NotificationsService } from 'src/notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class CommandService {
     private commandModel;
     private userModel;
@@ -18,7 +18,7 @@ export declare class CommandService {
         __v: number;
     })>;
     scanedUserId(qrcode: string, userId: string, username: string): Promise<string>;
-    findAll(userId: string, role: string): Promise<"ماكين حتا طلب" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    findAll(userId: string, role: string): Promise<"No order found" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
@@ -68,7 +68,7 @@ export declare class CommandService {
     }> & {
         __v: number;
     }>;
-    updateOrderToDonepickUpDate(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    updateOrderpickUpDate(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
@@ -81,5 +81,5 @@ export declare class CommandService {
             __v: number;
         };
     }>;
-    getCommandByQrCode(qrCode: string): Promise<Command>;
+    getCommandByQrCode(qrCode: string): Promise<any>;
 }

@@ -9,64 +9,65 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ResponseNotificationZwbSocket = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const mongoose_1 = require("mongoose");
-class ResponseFcmDto {
+class ResponseNotificationZwbSocket {
 }
-exports.default = ResponseFcmDto;
+exports.ResponseNotificationZwbSocket = ResponseNotificationZwbSocket;
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "67d94bd7567f4c7c7a207c51",
         description: 'id of sender',
     }),
     __metadata("design:type", mongoose_1.Types.ObjectId)
-], ResponseFcmDto.prototype, "senderId", void 0);
+], ResponseNotificationZwbSocket.prototype, "senderId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: '67d949596f68ef0a9892f91e',
         description: 'id of reciever',
     }),
     __metadata("design:type", mongoose_1.Types.ObjectId)
-], ResponseFcmDto.prototype, "recipientId", void 0);
+], ResponseNotificationZwbSocket.prototype, "recipientId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: 'Your order has been completed successfully',
         description: 'the message of the notification',
     }),
     __metadata("design:type", String)
-], ResponseFcmDto.prototype, "message", void 0);
+], ResponseNotificationZwbSocket.prototype, "message", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: false,
         description: 'the status of notification is it seen or not',
     }),
     __metadata("design:type", Boolean)
-], ResponseFcmDto.prototype, "read", void 0);
+], ResponseNotificationZwbSocket.prototype, "read", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "67dc0944729af5dae8b5393c",
         description: 'the  id of notification',
     }),
     __metadata("design:type", mongoose_1.Types.ObjectId)
-], ResponseFcmDto.prototype, "_id", void 0);
+], ResponseNotificationZwbSocket.prototype, "_id", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "2025-03-20T12:25:40.629Z",
         description: "Date and time of creation "
     }),
     __metadata("design:type", Date)
-], ResponseFcmDto.prototype, "createdAt", void 0);
+], ResponseNotificationZwbSocket.prototype, "createdAt", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "2025-03-20T12:25:40.629Z",
         description: "Date and time of update "
     }),
     __metadata("design:type", Date)
-], ResponseFcmDto.prototype, "updatedAt", void 0);
+], ResponseNotificationZwbSocket.prototype, "updatedAt", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: 0,
     }),
     __metadata("design:type", Number)
-], ResponseFcmDto.prototype, "__v", void 0);
-//# sourceMappingURL=response-fmc.dto.js.map
+], ResponseNotificationZwbSocket.prototype, "__v", void 0);
+//# sourceMappingURL=response-websocket-notification.dto.js.map

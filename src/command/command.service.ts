@@ -7,9 +7,10 @@ import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
 import {  User, UserDocument } from '../user/entities/user.schema';
 import { ValidationOrder  } from "../services/validationOrder"
-import { NotificationsGateway } from 'src/notifications/notifications.gateway';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { validationPickUpdate } from 'src/services/validationPickUpdate';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
+import { validationPickUpdate } from '../services/validationPickUpdate';
+
 
 
 @Injectable()
@@ -27,7 +28,7 @@ export class CommandService {
       const existingOrder = await this.commandModel.findOne({qrCode : createCommandDto.qrCode}).exec();
 
       if(existingOrder){
-        throw new ConflictException("هاد الكود مستعمل")
+        throw new ConflictException("This code is already used")
       }
 
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
@@ -99,7 +100,7 @@ export class CommandService {
       const allOrders = await this.commandModel.find(query)
       
       if (allOrders.length == 0) {
-        return "ماكين حتا طلب"
+        return "No order found"
       }
       
       const clientIds = [...new Set(
@@ -158,7 +159,7 @@ export class CommandService {
       return ordersWithCustomerNames;
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("حاول مرة خرى");
+      throw new BadRequestException("Please try again");
     }
   }
 
@@ -176,13 +177,13 @@ export class CommandService {
       
       let order = await this.commandModel.findOne(query).exec();
       if (!order) {
-        throw new NotFoundException("ماكين حتا طلب");
+        throw new NotFoundException("No order found");
       }
       
       return order;
     } catch (e) {
       if (e.name === 'CastError') {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
       if  (e instanceof NotFoundException)  {
         throw e;
@@ -195,14 +196,14 @@ export class CommandService {
     try {
       // Validate ID format first
       if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
 
       const command = await this.commandModel.findById(id).exec();
       console.log(id, command);
 
       if (!command) {
-        throw new NotFoundException("طلب ديالك مكاينش");
+        throw new NotFoundException("The order is not found");
       }
       // console.log("authenticated ID:", authentificatedId);
       // console.log("command company ID:", command.companyId.toString());
@@ -227,7 +228,7 @@ export class CommandService {
       console.log("Full error:", e);
 
       if (e.name === 'CastError' || e.name === 'ValidationError') {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
       if (e instanceof NotFoundException) {
         throw e;
@@ -235,7 +236,7 @@ export class CommandService {
       if (e instanceof ForbiddenException) {
         throw e;
       }
-      throw new BadRequestException(`حاول مرة خرى: ${e.message}`);
+      throw new BadRequestException(`try again : ${e.message}`);
     }
   }
 
@@ -271,7 +272,7 @@ export class CommandService {
   }
 
 
-  async updateOrderToDonepickUpDate(userId, orderId, data){
+  async updateOrderpickUpDate(userId, orderId, data){
     try{
       const command = await this.commandModel.findById(orderId).exec();
       if (!command) {
@@ -310,7 +311,7 @@ export class CommandService {
     try {
       let order = await this.commandModel.findById(id);
       if (!order) {
-        throw new NotFoundException("طلب ديالك مكاينش")
+        throw new NotFoundException("The order is not found")
       }
       if (order.companyId.toString() !== userId) {
         throw new ForbiddenException("You can't delete this order")
@@ -323,10 +324,10 @@ export class CommandService {
     } catch (e) {
       console.log("there's an error", e)
       if (e.name === 'CastError') {
-        throw new BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+        throw new BadRequestException("The id of this order is not correct");
       }
       if (e instanceof NotFoundException) {
-        throw new NotFoundException("طلب ديالك مكاينش")
+        throw new NotFoundException("The order is not found")
       }
       if (e instanceof ForbiddenException) {
         throw new ForbiddenException("You can't delete this order")
@@ -334,23 +335,41 @@ export class CommandService {
       throw new BadRequestException("Try again")
     }
   }
-  async getCommandByQrCode(qrCode: string): Promise<Command> {
+
+
+  async getCommandByQrCode(qrCode: string): Promise<any> {
     try {
-      const command = await this.commandModel.findOne({ qrCode })
-        .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status')
-        .exec();
-
-      console.log(command);
-
+      const command = await this.commandModel.findOne({ qrCode }).exec();
+  
       if (!command) {
         throw new NotFoundException("The order is not found");
       }
-      return command;
-
+  
+      const companyId = command.companyId?.toString();
+  
+      let companyData = null;
+      if (companyId) {
+        companyData = await this.userModel.findById(companyId).select('_id phoneNumber field companyName').exec();
+      }
+  
+      const plainCommand = command.toObject();
+  
+      return {
+        ...plainCommand,
+        companyId: companyData ? {
+          _id: companyData._id,
+          phoneNumber: companyData.phoneNumber
+        } : null,
+        companyField: companyData?.field || "مجال غير معروف",
+        companyName: companyData?.companyName || "اسم غير معروف"
+      };
+  
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Try again")
+      throw new BadRequestException("Try again");
     }
-}
+  }
+    
+  
 }
 

@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-export default class ResponseFcmDto {
+export declare class ResponseNotificationZwbSocket {
     senderId: Types.ObjectId;
     recipientId: Types.ObjectId;
     message: string;

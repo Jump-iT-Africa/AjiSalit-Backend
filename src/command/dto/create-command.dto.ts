@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray, Matches, IsNumber, IsBoolean} from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray, Matches, IsNumber, IsBoolean, MinLength} from "class-validator";
 import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -30,13 +30,13 @@ export class CreateCommandDto {
     situation:string
 
     @ApiProperty({
-        example: "قيد الانتظار",
+        example: "في طور الانجاز",
         required: true
     })
     @IsOptional()
     @IsString()
-    @Matches(/^(في طور الانجاز|قيد الانتظار|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: في طور الانجاز, قيد الانتظار, جاهزة للتسليم, تم تسليم" })
-    @IsEnum(["في طور الانجاز","قيد الانتظار", "جاهزة للتسليم", "تم تسليم"])
+    @Matches(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم" })
+    @IsEnum(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"])
     status:string
 
     @ApiProperty({
@@ -53,7 +53,8 @@ export class CreateCommandDto {
         required: true
     })   
     @IsNotEmpty({message:"The city Name can not be empty, please enter your city name"})
-    @Matches(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" })
+    @MinLength(3, { message: 'The city must be at least 3 characters long' })
+    // @Matches(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" })
     @IsString()
     city:string
 

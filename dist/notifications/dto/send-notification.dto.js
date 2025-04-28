@@ -9,38 +9,34 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateCompanyDto = void 0;
+exports.sendNotificationDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
-const update_user_dto_1 = require("./update-user.dto");
 const class_validator_1 = require("class-validator");
-class UpdateCompanyDto extends update_user_dto_1.UpdateUserDto {
+class sendNotificationDto {
 }
-exports.UpdateCompanyDto = UpdateCompanyDto;
+exports.sendNotificationDto = sendNotificationDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: 'Jump it , Rabat',
-        required: true
+        example: "AjiSalit",
+        description: 'title of notification',
     }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "Enter your address" }),
     __metadata("design:type", String)
-], UpdateCompanyDto.prototype, "fullAddress", void 0);
+], sendNotificationDto.prototype, "title", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: 'خياط',
-        required: true
+        example: "Your order has been completed successfully.",
+        description: 'Message to send in the notification',
     }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "Please enter your field" }),
+    (0, class_validator_1.IsString)({ message: 'The message should be String' }),
     __metadata("design:type", String)
-], UpdateCompanyDto.prototype, "field", void 0);
+], sendNotificationDto.prototype, "message", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: '74839898090939393',
-        required: true
+        example: "ExponentPushToken[aQcWD3F4ELNDS0gbiHccgh]",
+        description: 'the expo push notification',
     }),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)({ message: "ICE number is required" }),
+    (0, class_validator_1.IsString)({ message: 'The expo push token should be String' }),
+    (0, class_validator_1.IsNotEmpty)({ message: "The expo push shouldn't be empty" }),
     __metadata("design:type", String)
-], UpdateCompanyDto.prototype, "ice", void 0);
-//# sourceMappingURL=update-company.dto.js.map
+], sendNotificationDto.prototype, "expoPushToken", void 0);
+//# sourceMappingURL=send-notification.dto.js.map

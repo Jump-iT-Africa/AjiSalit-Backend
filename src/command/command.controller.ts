@@ -8,6 +8,7 @@ import ResponseDto from "./dto/response-command.dto"
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { UpdateStatusCommandDto } from './dto/update-status-command.dto';
 import { UpdatepickUpDateCommandDto } from './dto/update-pickup-date-command.dto';
+import { responseStatusDTO } from './dto/reponse-update-status-command.dto';
 
 @ApiTags('Orders ')
 @Controller('order')
@@ -129,7 +130,7 @@ export class CommandController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Fobidden error: the user has company role and is not allowed to scan the qr code',
+    description: 'Fobidden error: the user h  as company role and is not allowed to scan the qr code',
     schema: {
       example: {
         statusCode: 403,
@@ -576,7 +577,7 @@ export class CommandController {
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again")
       }
-
+      
       return this.commandService.getCommandByQrCode(qrCode);
     }
     catch (e) {
@@ -594,6 +595,71 @@ export class CommandController {
   @ApiBody({
     type: UpdateStatusCommandDto,
   })
+  @ApiResponse({
+    status: 200,
+    description: 'The company change the status successfully',
+    type: responseStatusDTO,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized error: the user is not logged in ',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: "Try to login again",
+        error: 'Unauthorized error',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found exception: the order not found',
+    schema: {
+      example: {
+        "message": "Ops this command not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request: new exception',
+    content: {
+      'application/json': {
+        examples: {
+          "Wrong status": {
+            value: {
+              "message": [
+                "status must be one of the following values: ",
+                "The status must be one of the following: في طور الانجاز, جاهزة للتسليم, تم تسليم"
+            ],
+              "error": "Bad Request",
+              "statusCode": 400
+            },
+
+          },
+          "Something happend that can crash the app": {
+            value: "Ops Something went wrong"
+          },
+        },
+      },
+    }
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Fobidden error: The user should be the owner of this order to update it',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: "You are not allowed to update this oder",
+        error: 'forbidden error',
+      },
+    },
+  })
+  @ApiBearerAuth()
+
+
 
   
 
@@ -611,7 +677,7 @@ export class CommandController {
       }
       let result = await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, updatestatusDTo)
       if(!result){
-        throw new NotFoundException("Ops this command is not found")
+        throw new NotFoundException("Ops this command not found")
       }
       return result
     } catch (e) {
@@ -625,9 +691,87 @@ export class CommandController {
 
 
   @ApiOperation({ summary: "The company owner can change his order's pickup date and once he done so the user will get a notification related to this" })
+  @ApiBody({
+    type: UpdateStatusCommandDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The company change the pick up date successfully',
+    type: responseStatusDTO,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized error: the user is not logged in ',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: "Try to login again",
+        error: 'Unauthorized error',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found exception: the order not found',
+    schema: {
+      example: {
+        "message": "Ops this command not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request: new exception',
+    content: {
+      'application/json': {
+        examples: {
+          "Wrong status": {
+            value: {
+              "message": [
+                "The date must be in the format YYYY-MM-DD",
+                "The date has be not empty and to  be on this format: YYYY-MM-DD"
+            ],
+              "error": "Bad Request",
+              "statusCode": 400
+            },
+
+          },
+          "Something happend that can crash the app": {
+            value: "Ops Something went wrong"
+          },
+        },
+      },
+    }
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Fobidden error: The user should be the owner of this order to update it',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: "You are not allowed to update this oder",
+        error: 'forbidden error',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 422,
+    description: "The pickupdate is not valid, it shouldn't be in the past",
+    schema: {
+      example: {
+        statusCode: 422,
+        message:  "The pickup Date is not valid, Please pick up another Date rather it's today or in the future",
+        error: "Unprocessable Entity",
+      },
+    },
+  })
+  @ApiBearerAuth()
+
 
   @Patch("pickup/:orderId")
-  async updatepickUpDateToDone(@Param("orderId") orderId: string, @Body() updatepickUpDateDTo: UpdatepickUpDateCommandDto, @Req() req) {
+  async updatepickUpDate(@Param("orderId") orderId: string, @Body() updatepickUpDateDTo: UpdatepickUpDateCommandDto, @Req() req) {
     try {
       let token = req.headers['authorization']?.split(" ")[1]
       let infoUser = validateJwt(token);
@@ -635,7 +779,7 @@ export class CommandController {
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again")
       }
-      let result = await this.commandService.updateOrderToDonepickUpDate(infoUser.id, orderId, updatepickUpDateDTo)
+      let result = await this.commandService.updateOrderpickUpDate(infoUser.id, orderId, updatepickUpDateDTo)
       if(!result){
         throw new NotFoundException("Ops this command is not found")
       }

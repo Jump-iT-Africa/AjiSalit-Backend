@@ -23,6 +23,7 @@ const response_command_dto_1 = require("./dto/response-command.dto");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const update_status_command_dto_1 = require("./dto/update-status-command.dto");
 const update_pickup_date_command_dto_1 = require("./dto/update-pickup-date-command.dto");
+const reponse_update_status_command_dto_1 = require("./dto/reponse-update-status-command.dto");
 let CommandController = class CommandController {
     constructor(commandService) {
         this.commandService = commandService;
@@ -184,7 +185,7 @@ let CommandController = class CommandController {
             }
             let result = await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, updatestatusDTo);
             if (!result) {
-                throw new common_1.NotFoundException("Ops this command is not found");
+                throw new common_1.NotFoundException("Ops this command not found");
             }
             return result;
         }
@@ -196,14 +197,14 @@ let CommandController = class CommandController {
             throw new common_1.BadRequestException("Ops Something went wrong");
         }
     }
-    async updatepickUpDateToDone(orderId, updatepickUpDateDTo, req) {
+    async updatepickUpDate(orderId, updatepickUpDateDTo, req) {
         try {
             let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("Try to login again");
             }
-            let result = await this.commandService.updateOrderToDonepickUpDate(infoUser.id, orderId, updatepickUpDateDTo);
+            let result = await this.commandService.updateOrderpickUpDate(infoUser.id, orderId, updatepickUpDateDTo);
             if (!result) {
                 throw new common_1.NotFoundException("Ops this command is not found");
             }
@@ -316,7 +317,7 @@ __decorate([
     }),
     (0, swagger_1.ApiResponse)({
         status: 403,
-        description: 'Fobidden error: the user has company role and is not allowed to scan the qr code',
+        description: 'Fobidden error: the user h  as company role and is not allowed to scan the qr code',
         schema: {
             example: {
                 statusCode: 403,
@@ -671,6 +672,68 @@ __decorate([
     (0, swagger_1.ApiBody)({
         type: update_status_command_dto_1.UpdateStatusCommandDto,
     }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The company change the status successfully',
+        type: reponse_update_status_command_dto_1.responseStatusDTO,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the user is not logged in ',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: "Try to login again",
+                error: 'Unauthorized error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found exception: the order not found',
+        schema: {
+            example: {
+                "message": "Ops this command not found",
+                "error": "Not Found",
+                "statusCode": 404
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request: new exception',
+        content: {
+            'application/json': {
+                examples: {
+                    "Wrong status": {
+                        value: {
+                            "message": [
+                                "status must be one of the following values: ",
+                                "The status must be one of the following: في طور الانجاز, جاهزة للتسليم, تم تسليم"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        },
+                    },
+                    "Something happend that can crash the app": {
+                        value: "Ops Something went wrong"
+                    },
+                },
+            },
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Fobidden error: The user should be the owner of this order to update it',
+        schema: {
+            example: {
+                statusCode: 403,
+                message: "You are not allowed to update this oder",
+                error: 'forbidden error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Patch)("status/:orderId"),
     __param(0, (0, common_1.Param)("orderId")),
     __param(1, (0, common_1.Body)()),
@@ -681,6 +744,82 @@ __decorate([
 ], CommandController.prototype, "updateStatusToDone", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: "The company owner can change his order's pickup date and once he done so the user will get a notification related to this" }),
+    (0, swagger_1.ApiBody)({
+        type: update_status_command_dto_1.UpdateStatusCommandDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The company change the pick up date successfully',
+        type: reponse_update_status_command_dto_1.responseStatusDTO,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the user is not logged in ',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: "Try to login again",
+                error: 'Unauthorized error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found exception: the order not found',
+        schema: {
+            example: {
+                "message": "Ops this command not found",
+                "error": "Not Found",
+                "statusCode": 404
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request: new exception',
+        content: {
+            'application/json': {
+                examples: {
+                    "Wrong status": {
+                        value: {
+                            "message": [
+                                "The date must be in the format YYYY-MM-DD",
+                                "The date has be not empty and to  be on this format: YYYY-MM-DD"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        },
+                    },
+                    "Something happend that can crash the app": {
+                        value: "Ops Something went wrong"
+                    },
+                },
+            },
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Fobidden error: The user should be the owner of this order to update it',
+        schema: {
+            example: {
+                statusCode: 403,
+                message: "You are not allowed to update this oder",
+                error: 'forbidden error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 422,
+        description: "The pickupdate is not valid, it shouldn't be in the past",
+        schema: {
+            example: {
+                statusCode: 422,
+                message: "The pickup Date is not valid, Please pick up another Date rather it's today or in the future",
+                error: "Unprocessable Entity",
+            },
+        },
+    }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Patch)("pickup/:orderId"),
     __param(0, (0, common_1.Param)("orderId")),
     __param(1, (0, common_1.Body)()),
@@ -688,7 +827,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_pickup_date_command_dto_1.UpdatepickUpDateCommandDto, Object]),
     __metadata("design:returntype", Promise)
-], CommandController.prototype, "updatepickUpDateToDone", null);
+], CommandController.prototype, "updatepickUpDate", null);
 exports.CommandController = CommandController = __decorate([
     (0, swagger_1.ApiTags)('Orders '),
     (0, common_1.Controller)('order'),

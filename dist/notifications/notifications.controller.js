@@ -20,7 +20,8 @@ const update_notification_dto_1 = require("./dto/update-notification.dto");
 const verifyJwt_1 = require("../services/verifyJwt");
 const swagger_1 = require("@nestjs/swagger");
 const jsonwebtoken_1 = require("jsonwebtoken");
-const response_fmc_dto_1 = require("../fcm/Dtos/response-fmc.dto");
+const send_notification_dto_1 = require("./dto/send-notification.dto");
+const response_websocket_notification_dto_1 = require("./dto/response-websocket-notification.dto");
 let NotificationsController = class NotificationsController {
     constructor(notificationsService) {
         this.notificationsService = notificationsService;
@@ -72,6 +73,33 @@ let NotificationsController = class NotificationsController {
 };
 exports.NotificationsController = NotificationsController;
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: "Push notification to user through expo Push Notification" }),
+    (0, swagger_1.ApiBody)({
+        type: send_notification_dto_1.sendNotificationDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 500,
+        description: 'Sending Body without expo push Token : this error comes from Expo Push Notification Tool',
+        schema: {
+            example: {
+                "statusCode": 500,
+                "message": "Internal server error"
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The notification was send successfully, The response comes from expo Push Notification Tool',
+        schema: {
+            example: {
+                "data": {
+                    "status": "ok",
+                    "id": "0196670b-aa78-7a90-9803-a5fe62ad1b0a"
+                }
+            }
+        },
+    }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)('/send'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -87,7 +115,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: "the notification was created successfully, rather it's for broadcasting or notify a specific user",
-        type: response_fmc_dto_1.default
+        type: response_websocket_notification_dto_1.ResponseNotificationZwbSocket
     }),
     (0, swagger_1.ApiResponse)({
         status: 401,
@@ -111,6 +139,7 @@ __decorate([
             },
         },
     }),
+    (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Post)(':recevierId'),
     __param(0, (0, common_1.Param)("recevierId")),
     __param(1, (0, common_1.Body)()),

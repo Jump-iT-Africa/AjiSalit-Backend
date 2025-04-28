@@ -34,7 +34,7 @@ let CommandService = class CommandService {
         try {
             const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
             if (existingOrder) {
-                throw new common_1.ConflictException("هاد الكود مستعمل");
+                throw new common_1.ConflictException("This code is already used");
             }
             createCommandDto.companyId = new mongoose_2.Types.ObjectId(authentificatedId);
             let newOrder = new this.commandModel(createCommandDto);
@@ -100,7 +100,7 @@ let CommandService = class CommandService {
             }
             const allOrders = await this.commandModel.find(query);
             if (allOrders.length == 0) {
-                return "ماكين حتا طلب";
+                return "No order found";
             }
             const clientIds = [...new Set(allOrders
                     .filter(order => order.clientId)
@@ -145,7 +145,7 @@ let CommandService = class CommandService {
         }
         catch (e) {
             console.log(e);
-            throw new common_1.BadRequestException("حاول مرة خرى");
+            throw new common_1.BadRequestException("Please try again");
         }
     }
     async findOne(id, infoUser) {
@@ -160,13 +160,13 @@ let CommandService = class CommandService {
             console.log(query);
             let order = await this.commandModel.findOne(query).exec();
             if (!order) {
-                throw new common_1.NotFoundException("ماكين حتا طلب");
+                throw new common_1.NotFoundException("No order found");
             }
             return order;
         }
         catch (e) {
             if (e.name === 'CastError') {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
                 throw e;
@@ -177,12 +177,12 @@ let CommandService = class CommandService {
     async update(authentificatedId, id, updateCommandDto) {
         try {
             if (!mongoose_3.default.Types.ObjectId.isValid(id)) {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             const command = await this.commandModel.findById(id).exec();
             console.log(id, command);
             if (!command) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw new common_1.NotFoundException("The order is not found");
             }
             if (command.companyId.toString() !== authentificatedId) {
                 throw new common_1.ForbiddenException("You are not allowed to update this oder");
@@ -203,7 +203,7 @@ let CommandService = class CommandService {
             console.log("error type:", e.constructor.name);
             console.log("Full error:", e);
             if (e.name === 'CastError' || e.name === 'ValidationError') {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
                 throw e;
@@ -211,7 +211,7 @@ let CommandService = class CommandService {
             if (e instanceof common_1.ForbiddenException) {
                 throw e;
             }
-            throw new common_1.BadRequestException(`حاول مرة خرى: ${e.message}`);
+            throw new common_1.BadRequestException(`try again : ${e.message}`);
         }
     }
     async updateOrderToDoneStatus(userId, orderId, data) {
@@ -242,7 +242,7 @@ let CommandService = class CommandService {
             throw new common_1.BadRequestException("Ops Something went wrong");
         }
     }
-    async updateOrderToDonepickUpDate(userId, orderId, data) {
+    async updateOrderpickUpDate(userId, orderId, data) {
         try {
             const command = await this.commandModel.findById(orderId).exec();
             if (!command) {
@@ -277,7 +277,7 @@ let CommandService = class CommandService {
         try {
             let order = await this.commandModel.findById(id);
             if (!order) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw new common_1.NotFoundException("The order is not found");
             }
             if (order.companyId.toString() !== userId) {
                 throw new common_1.ForbiddenException("You can't delete this order");
@@ -291,10 +291,10 @@ let CommandService = class CommandService {
         catch (e) {
             console.log("there's an error", e);
             if (e.name === 'CastError') {
-                throw new common_1.BadRequestException("رقم ديال طلب خطء حاول مرة أخرى");
+                throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
-                throw new common_1.NotFoundException("طلب ديالك مكاينش");
+                throw new common_1.NotFoundException("The order is not found");
             }
             if (e instanceof common_1.ForbiddenException) {
                 throw new common_1.ForbiddenException("You can't delete this order");
@@ -304,14 +304,25 @@ let CommandService = class CommandService {
     }
     async getCommandByQrCode(qrCode) {
         try {
-            const command = await this.commandModel.findOne({ qrCode })
-                .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status')
-                .exec();
-            console.log(command);
+            const command = await this.commandModel.findOne({ qrCode }).exec();
             if (!command) {
                 throw new common_1.NotFoundException("The order is not found");
             }
-            return command;
+            const companyId = command.companyId?.toString();
+            let companyData = null;
+            if (companyId) {
+                companyData = await this.userModel.findById(companyId).select('_id phoneNumber field companyName').exec();
+            }
+            const plainCommand = command.toObject();
+            return {
+                ...plainCommand,
+                companyId: companyData ? {
+                    _id: companyData._id,
+                    phoneNumber: companyData.phoneNumber
+                } : null,
+                companyField: companyData?.field || "مجال غير معروف",
+                companyName: companyData?.companyName || "اسم غير معروف"
+            };
         }
         catch (e) {
             console.log(e);

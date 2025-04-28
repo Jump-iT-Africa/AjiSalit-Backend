@@ -2,14 +2,43 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UnauthorizedExc
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { validateJwt } from 'src/services/verifyJwt';
+import { validateJwt } from '../services/verifyJwt';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import ResponseFcmDto from 'src/fcm/Dtos/response-fmc.dto';
+import { sendNotificationDto } from './dto/send-notification.dto';
+import { ResponseNotificationZwbSocket } from './dto/response-websocket-notification.dto';
 
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) { }
+
+  @ApiOperation({ summary: "Push notification to user through expo Push Notification" })
+  @ApiBody({
+    type: sendNotificationDto,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Sending Body without expo push Token : this error comes from Expo Push Notification Tool',
+    schema: {
+      example: {
+        "statusCode": 500,
+        "message": "Internal server error"
+    }
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The notification was send successfully, The response comes from expo Push Notification Tool',
+    schema: {
+      example: {
+        "data": {
+            "status": "ok",
+            "id": "0196670b-aa78-7a90-9803-a5fe62ad1b0a"
+        }
+    }
+    },
+  })
+  @ApiBearerAuth()
 
   @Post('/send')
   sendNotification(
@@ -32,7 +61,7 @@ export class NotificationsController {
   @ApiResponse({
     status: 200,
     description: "the notification was created successfully, rather it's for broadcasting or notify a specific user",
-    type : ResponseFcmDto
+    type : ResponseNotificationZwbSocket
   })
   @ApiResponse({
     status: 401,
@@ -56,6 +85,8 @@ export class NotificationsController {
       },
     },
   })
+  @ApiBearerAuth()
+
 
   @Post(':recevierId')
   createNotification(@Param("recevierId") recevierId: string, @Body() createNotificationDto: CreateNotificationDto, @Req() req) {

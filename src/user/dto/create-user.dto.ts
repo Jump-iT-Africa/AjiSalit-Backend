@@ -1,27 +1,28 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, Matches, IsOptional, IsArray, IsEnum, IsPhoneNumber, IsBoolean } from "class-validator";
+import { IsNotEmpty, IsString, Matches, IsOptional, IsArray, IsEnum, IsPhoneNumber, IsBoolean, MinLength } from "class-validator";
 
 export class CreateUserDto {
     @ApiProperty({ example: 'OSM', required: true })
     @IsString()
-    @Matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your name must be valid name" })
+    // @Matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your first name must be valid name" })
+    @MinLength(3, { message: 'The first name must be at least 3 characters long' })
     @IsNotEmpty()
     Fname: string;
 
     @ApiProperty({ example: 'BEN', required: true })
     @IsString()
+    // @Matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your last name must be valid name" })
+    @MinLength(3, { message: 'The last name must be at least 3 characters long' })
     @IsNotEmpty()
     Lname: string;
 
     @ApiProperty({ example: 'Aji Salit', required: false })
+    // @Matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Your company must be valid company name with alphabets" })
+    @MinLength(3, { message: 'The last name must be at least 3 characters long' })
     @IsOptional()
     companyName: string;
 
     @ApiProperty({ example: '+212697042868', required: true })
-    @IsPhoneNumber()
-    @Matches(/^\+[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format (e.g., +212697042868)'
-    })
     @IsString()
     @IsNotEmpty()
     phoneNumber: string;
@@ -41,12 +42,12 @@ export class CreateUserDto {
 
     @ApiProperty({ example: 'marrakech', required: true })
     @IsString()
-    @Matches(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" })
+    // @Matches(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" })
     @IsOptional()
     city: string;
 
     @ApiProperty({ example: 'pressing', required: true })
-    @Matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Field must be a valid field" })
+    // @Matches(/^[A-Za-z]+(?:\s[A-Za-z]+)*$/, { message: "Field must be a valid field" })
     @IsString()
     @IsOptional()
     field: string;
