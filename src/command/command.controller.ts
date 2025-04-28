@@ -578,8 +578,9 @@ export class CommandController {
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again")
       }
+      console.log("asds",infoUser.id);
       
-      return this.commandService.getCommandByQrCode(qrCode);
+      return this.commandService.getCommandByQrCode(qrCode, infoUser.id, infoUser.role);
     }
     catch (e) {
       console.log(e);

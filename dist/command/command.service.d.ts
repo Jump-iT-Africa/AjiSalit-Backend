@@ -82,5 +82,5 @@ export declare class CommandService {
             __v: number;
         };
     }>;
-    getCommandByQrCode(qrCode: string): Promise<any>;
+    getCommandByQrCode(qrCode: string, userId?: string, role?: string): Promise<any>;
 }

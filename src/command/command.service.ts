@@ -334,23 +334,27 @@ export class CommandService {
   }
 
 
-  async getCommandByQrCode(qrCode: string): Promise<any> {
+  async getCommandByQrCode(qrCode: string, userId?: string, role?: string): Promise<any> {
     try {
       const command = await this.commandModel.findOne({ qrCode }).exec();
-  
+      
       if (!command) {
         throw new NotFoundException("The order is not found");
       }
-  
+      
       const companyId = command.companyId?.toString();
-  
+      
+      if (role === 'company' && userId && companyId !== userId) {
+        throw new ForbiddenException("You don't have permission to view this order");
+      }
+      
       let companyData = null;
       if (companyId) {
         companyData = await this.userModel.findById(companyId).select('_id phoneNumber field companyName').exec();
       }
-  
+      
       const plainCommand = command.toObject();
-  
+      
       return {
         ...plainCommand,
         companyId: companyData ? {
@@ -360,9 +364,12 @@ export class CommandService {
         companyField: companyData?.field || "مجال غير معروف",
         companyName: companyData?.companyName || "اسم غير معروف"
       };
-  
+      
     } catch (e) {
       console.log(e);
+      if (e instanceof NotFoundException || e instanceof ForbiddenException) {
+        throw e;
+      }
       throw new BadRequestException("Try again");
     }
   }

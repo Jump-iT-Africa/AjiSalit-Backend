@@ -99,13 +99,11 @@ export class CreateCommandDto {
         example: "true",
         required: false
     })
-    @IsNotEmpty()
     isDateChanged:boolean
 
     @ApiProperty({
         example: "sick",
         required: false
     })
-    @IsNotEmpty()
     ChangeDateReason:string
 }
