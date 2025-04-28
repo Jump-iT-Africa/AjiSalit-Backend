@@ -42,6 +42,14 @@ export class Command {
 
   @Prop({required:true, default:false})
   isPickUp: false;
+
+
+
+  @Prop({required:false, default:false})
+  isDateChanged: boolean;
+
+  @Prop({required:false})
+  ChangeDateReason: string;
 }
 
 export const CommandSchema = SchemaFactory.createForClass(Command);

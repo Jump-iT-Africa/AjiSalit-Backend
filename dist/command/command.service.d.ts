@@ -4,21 +4,25 @@ import { UpdateCommandDto } from './dto/update-command.dto';
 import mongoose from 'mongoose';
 import { Command, CommandDocument } from './entities/command.schema';
 import { UserDocument } from '../user/entities/user.schema';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class CommandService {
     private commandModel;
     private userModel;
-    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>);
-    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"حاول مرة خرى" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    private readonly notificationsGateway;
+    private notificationsService;
+    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>, notificationsGateway: NotificationsGateway, notificationsService: NotificationsService);
+    create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"try again" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     })>;
-    scanedUserId(qrcode: string, userId: string): Promise<string>;
-    findAll(userId: string, role: string): Promise<"ماكين حتا طلب" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    scanedUserId(qrcode: string, userId: string, username: string): Promise<string>;
+    findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | {
+    })[] | "No order found" | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;
@@ -26,7 +30,6 @@ export declare class CommandService {
         situation: string;
         status: string;
         advancedAmount: number;
-        city: string;
         price: number;
         images: [{
             type: String;
@@ -36,6 +39,8 @@ export declare class CommandService {
         qrCode: string;
         isFinished: false;
         isPickUp: false;
+        isDateChanged: boolean;
+        ChangeDateReason: string;
         _id: unknown;
         $locals: Record<string, unknown>;
         $op: "save" | "validate" | "remove" | null;
@@ -59,6 +64,16 @@ export declare class CommandService {
     }> & {
         __v: number;
     }>;
+    updateOrderToDoneStatus(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
+    updateOrderpickUpDate(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+        _id: unknown;
+    }> & {
+        __v: number;
+    }>;
     deleteOrder(id: string, userId: any): Promise<{
         mess: string;
         deleteOrder: mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
@@ -67,5 +82,5 @@ export declare class CommandService {
             __v: number;
         };
     }>;
-    getCommandByQrCode(qrCode: string): Promise<Command>;
+    getCommandByQrCode(qrCode: string): Promise<any>;
 }

@@ -64,4 +64,16 @@ export default class ResponseDto {
     required: false,
   })
   userId?: Types.ObjectId | null;
+
+  @ApiProperty({
+    example: "true",
+    required: false
+  })
+  isDateChanged:boolean
+
+  @ApiProperty({
+      example: "sick",
+      required: false
+  })
+  ChangeDateReason:string
 }

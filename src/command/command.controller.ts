@@ -437,6 +437,9 @@ export class CommandController {
     try {
       let token = req.headers['authorization']?.split(" ")[1];
       let infoUser = validateJwt(token);
+
+      console.log('dasdas',infoUser);
+      
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again")
       }

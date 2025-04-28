@@ -92,4 +92,20 @@ export class CreateCommandDto {
     @IsBoolean()
     @IsOptional()
     isPickUp:boolean
+
+
+
+    @ApiProperty({
+        example: "true",
+        required: false
+    })
+    @IsNotEmpty()
+    isDateChanged:boolean
+
+    @ApiProperty({
+        example: "sick",
+        required: false
+    })
+    @IsNotEmpty()
+    ChangeDateReason:string
 }
