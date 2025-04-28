@@ -243,7 +243,6 @@ export class CommandController {
                 "situation": "تسبيق",
                 "status": "قيد الانتظار",
                 "advancedAmount": 2000,
-                "city": "rabat",
                 "price": 50000,
                 "images": [],
                 "deliveryDate": "2025-10-26T00:00:00.000Z",
@@ -257,7 +256,6 @@ export class CommandController {
                 "situation": "تسبيق",
                 "status": "قيد الانتظار",
                 "advancedAmount": 2000,
-                "city": "rabat",
                 "price": 70000,
                 "images": [],
                 "deliveryDate": "2025-10-29T00:00:00.000Z",
@@ -682,22 +680,22 @@ export class CommandController {
       return result
     } catch (e) {
       console.log("there's a problem oooo", e)
-      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnauthorizedException){
+      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof UnauthorizedException){
         throw e
       }
-      throw new BadRequestException("Ops Something went wrong")
+      throw new BadRequestException("Ops Something went wrong", e)
     }
   }
 
 
   @ApiOperation({ summary: "The company owner can change his order's pickup date and once he done so the user will get a notification related to this" })
   @ApiBody({
-    type: UpdateStatusCommandDto,
+    type: UpdatepickUpDateCommandDto,
   })
   @ApiResponse({
     status: 200,
     description: 'The company change the pick up date successfully',
-    type: responseStatusDTO,
+    type: UpdatepickUpDateCommandDto,
   })
   @ApiResponse({
     status: 401,
