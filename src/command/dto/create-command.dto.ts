@@ -106,4 +106,16 @@ export class CreateCommandDto {
         required: false
     })
     ChangeDateReason:string
+
+
+
+
+    @ApiProperty({
+        example: "2025-10-30",
+        required: true
+    })
+    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
+    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
+    @IsOptional()
+    newDate:string
 }

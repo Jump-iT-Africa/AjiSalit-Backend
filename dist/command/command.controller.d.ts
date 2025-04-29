@@ -12,11 +12,11 @@ export declare class CommandController {
         __v: number;
     })>;
     scanedUserId(qrcode: string, req: any): Promise<string>;
-    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findAll(req: any): Promise<"No order found" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | "No order found" | {
+    })[] | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;
@@ -35,6 +35,7 @@ export declare class CommandController {
         isPickUp: false;
         isDateChanged: boolean;
         ChangeDateReason: string;
+        newDate: Date;
         _id: unknown;
         $locals: Record<string, unknown>;
         $op: "save" | "validate" | "remove" | null;

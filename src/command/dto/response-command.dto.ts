@@ -76,4 +76,12 @@ export default class ResponseDto {
       required: false
   })
   ChangeDateReason:string
+
+
+  @ApiProperty({
+    example: null,
+    description: 'the new changed date',
+    required: true,
+  })
+  newDate: string;
 }
