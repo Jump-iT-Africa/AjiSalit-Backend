@@ -115,4 +115,28 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], CreateCommandDto.prototype, "isPickUp", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "true",
+        required: false
+    }),
+    __metadata("design:type", Boolean)
+], CreateCommandDto.prototype, "isDateChanged", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "sick",
+        required: false
+    }),
+    __metadata("design:type", String)
+], CreateCommandDto.prototype, "ChangeDateReason", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        example: "2025-10-30",
+        required: true
+    }),
+    (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
+    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreateCommandDto.prototype, "newDate", void 0);
 //# sourceMappingURL=create-command.dto.js.map

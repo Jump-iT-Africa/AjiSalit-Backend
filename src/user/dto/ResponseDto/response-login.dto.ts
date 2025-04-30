@@ -32,4 +32,3 @@ export class ResponseLoginDto{
     @Expose()
     city:string
 }
-

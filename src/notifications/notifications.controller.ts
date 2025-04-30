@@ -52,6 +52,7 @@ export class NotificationsController {
     );
   }
 
+
   @ApiOperation({ summary: "Create notification destinited to the reciever" })
   @ApiBearerAuth()
   @ApiBody({

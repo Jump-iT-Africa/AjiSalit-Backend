@@ -64,6 +64,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
       this.logger.log(`client disconnected: ${userId}`);
     }
   }
+  
   @SubscribeMessage('statusUpdate')
   async handleStatusNotification(orderId: string, clientId: string, companyId: string) {
     try {

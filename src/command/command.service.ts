@@ -256,7 +256,7 @@ export class CommandService {
         let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken,` Aji di raz9k chez ${companyInfo.field}` , `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
         console.log("Here's my notification sender: ", notificationSender)
       }
-      return result 
+      return result;
     }catch(e){
       if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException){
         throw e
@@ -331,23 +331,48 @@ export class CommandService {
       throw new BadRequestException("Try again")
     }
   }
-  async getCommandByQrCode(qrCode: string): Promise<Command> {
+
+
+  async getCommandByQrCode(qrCode: string, userId?: string, role?: string): Promise<any> {
     try {
-      const command = await this.commandModel.findOne({ qrCode })
-        .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status')
-        .exec();
-
-      console.log(command);
-
+      const command = await this.commandModel.findOne({ qrCode }).exec();
+      
       if (!command) {
         throw new NotFoundException("The order is not found");
       }
-      return command;
-
+      
+      const companyId = command.companyId?.toString();
+      
+      if (role === 'company' && userId && companyId !== userId) {
+        throw new ForbiddenException("You don't have permission to view this order");
+      }
+      
+      let companyData = null;
+      if (companyId) {
+        companyData = await this.userModel.findById(companyId).select('_id phoneNumber field companyName').exec();
+      }
+      
+      const plainCommand = command.toObject();
+      
+      return {
+        ...plainCommand,
+        companyId: companyData ? {
+          _id: companyData._id,
+          phoneNumber: companyData.phoneNumber
+        } : null,
+        companyField: companyData?.field || "مجال غير معروف",
+        companyName: companyData?.companyName || "اسم غير معروف"
+      };
+      
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Try again")
+      if (e instanceof NotFoundException || e instanceof ForbiddenException) {
+        throw e;
+      }
+      throw new BadRequestException("Try again");
     }
-}
+  }
+    
+  
 }
 

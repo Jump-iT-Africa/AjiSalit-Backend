@@ -1,1 +1,0 @@
-export declare function ValidationOrder(newOrder: any): "Ops you have to choose the situation of partially paid to be able to add advanced amount" | "The advanced amount of The order suppose to be less than the total price" | "The delivery Date is not valid, you can't deliver in the past" | "valide";

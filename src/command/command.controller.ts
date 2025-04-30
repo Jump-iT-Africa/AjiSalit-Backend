@@ -130,7 +130,7 @@ export class CommandController {
   })
   @ApiResponse({
     status: 403,
-    description: 'Fobidden error: the user has company role and is not allowed to scan the qr code',
+    description: 'Fobidden error: the user h  as company role and is not allowed to scan the qr code',
     schema: {
       example: {
         statusCode: 403,
@@ -437,6 +437,9 @@ export class CommandController {
     try {
       let token = req.headers['authorization']?.split(" ")[1];
       let infoUser = validateJwt(token);
+
+      console.log('dasdas',infoUser);
+      
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again")
       }
@@ -575,8 +578,9 @@ export class CommandController {
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again")
       }
-
-      return this.commandService.getCommandByQrCode(qrCode);
+      console.log("asds",infoUser.id);
+      
+      return this.commandService.getCommandByQrCode(qrCode, infoUser.id, infoUser.role);
     }
     catch (e) {
       console.log(e);
@@ -656,6 +660,10 @@ export class CommandController {
     },
   })
   @ApiBearerAuth()
+
+
+
+  
 
 
 

@@ -299,19 +299,36 @@ let CommandService = class CommandService {
             throw new common_1.BadRequestException("Try again");
         }
     }
-    async getCommandByQrCode(qrCode) {
+    async getCommandByQrCode(qrCode, userId, role) {
         try {
-            const command = await this.commandModel.findOne({ qrCode })
-                .populate('companyId', 'name phoneNumber images qrCode price advancedAmount pickupDate status')
-                .exec();
-            console.log(command);
+            const command = await this.commandModel.findOne({ qrCode }).exec();
             if (!command) {
                 throw new common_1.NotFoundException("The order is not found");
             }
-            return command;
+            const companyId = command.companyId?.toString();
+            if (role === 'company' && userId && companyId !== userId) {
+                throw new common_1.ForbiddenException("You don't have permission to view this order");
+            }
+            let companyData = null;
+            if (companyId) {
+                companyData = await this.userModel.findById(companyId).select('_id phoneNumber field companyName').exec();
+            }
+            const plainCommand = command.toObject();
+            return {
+                ...plainCommand,
+                companyId: companyData ? {
+                    _id: companyData._id,
+                    phoneNumber: companyData.phoneNumber
+                } : null,
+                companyField: companyData?.field || "مجال غير معروف",
+                companyName: companyData?.companyName || "اسم غير معروف"
+            };
         }
         catch (e) {
             console.log(e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException) {
+                throw e;
+            }
             throw new common_1.BadRequestException("Try again");
         }
     }

@@ -63,6 +63,18 @@ __decorate([
     (0, mongoose_1.Prop)({ required: true, default: false }),
     __metadata("design:type", Boolean)
 ], Command.prototype, "isPickUp", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false, default: false }),
+    __metadata("design:type", Boolean)
+], Command.prototype, "isDateChanged", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false }),
+    __metadata("design:type", String)
+], Command.prototype, "ChangeDateReason", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false, default: null }),
+    __metadata("design:type", Date)
+], Command.prototype, "newDate", void 0);
 exports.Command = Command = __decorate([
     (0, mongoose_1.Schema)()
 ], Command);
