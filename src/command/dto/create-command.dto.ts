@@ -54,8 +54,8 @@ export class CreateCommandDto {
         required: true
     })
     @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
-    @IsNotEmpty({message: "The delivery Date is required"})
     @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
+    @IsOptional()
     deliveryDate:string
 
     @ApiProperty({

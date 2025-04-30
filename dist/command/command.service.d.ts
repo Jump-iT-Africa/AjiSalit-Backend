@@ -18,11 +18,11 @@ export declare class CommandService {
         __v: number;
     })>;
     scanedUserId(qrcode: string, userId: string, username: string): Promise<string>;
-    findAll(userId: string, role: string): Promise<"No order found" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | {
+    })[] | "No order found" | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;

@@ -214,14 +214,12 @@ export class CommandService {
 
       const updatedCommand = await this.commandModel.findByIdAndUpdate( id, updateCommandDto,{ new: true, runValidators: true }).exec();
       if(updateCommandDto.status == "جاهزة للتسليم" && updatedCommand){
-        console.log("Ops we are here ")
         let clientInfo = await this.userModel.findById(updatedCommand.clientId).exec();
-        if(clientInfo.expoPushToken){
+        if(clientInfo && clientInfo.expoPushToken){
           let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
           console.log("Here's my notification sender: ", notificationSender)
         }
       }
-      console.log("Updated command:", updatedCommand);
       return updatedCommand;
     } catch (e) {
       console.log("error type:", e.constructor.name);
@@ -252,9 +250,10 @@ export class CommandService {
 
       let result = await this.commandModel.findByIdAndUpdate(orderId, data,{new:true}).exec()
       let clientInfo = await this.userModel.findById(command.clientId).exec();
+      let companyInfo = await this.userModel.findById(command.companyId).exec()
       // console.log(clientInfo)
       if(clientInfo && clientInfo.expoPushToken && result){
-        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
+        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken,` Aji di raz9k chez ${companyInfo.field}` , `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
         console.log("Here's my notification sender: ", notificationSender)
       }
       return result;
@@ -287,7 +286,7 @@ export class CommandService {
       }
       let clientInfo = await this.userModel.findById(command.clientId).exec();
       if(clientInfo && clientInfo.expoPushToken && result){
-        console.log("info user:", clientInfo, clientInfo.expoPushToken,result)
+        console.log("info user:", clientInfo, clientInfo.expoPushToken, result)
         let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit",`سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`)
         console.log("Here's my notification sender: ", notificationSender)
       }
