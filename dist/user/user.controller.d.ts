@@ -3,6 +3,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/Logindto/login-user.dto';
 import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
+import { UpdateFirstNameDto } from './dto/UpdatesDtos/update-user-first-name.dto';
+import { UpdateLastNameDto } from './dto/UpdatesDtos/update-user-last-name.dto';
+import { UpdateCityDto } from './dto/UpdatesDtos/update-user-city-name.dto';
+import { UpdateCompanyNameDto } from './dto/UpdatesDtos/update-user-company-name.dto';
+import { UpdateFieldDto } from './dto/UpdatesDtos/update-user-field.dto';
+import { ResoponseCompanyDto } from './dto/ResponseDto/response-company.dto';
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
@@ -35,7 +41,7 @@ export declare class UserController {
         token?: undefined;
     }>;
     login(LoginUserDto: LoginUserDto): Promise<any>;
-    findOne(id: string, req: any): Promise<import("./dto/ResponseDto/response-company.dto").ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
+    findOne(id: string, req: any): Promise<ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
     deleteAccount(id: string, req: any): Promise<string>;
     updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any): Promise<import("./entities/user.schema").User>;
     verifyPhone(verifyNumberDto: VerifyNumberDto): Promise<{
@@ -51,4 +57,9 @@ export declare class UserController {
         UserName?: undefined;
         role?: undefined;
     }>;
+    updateFirstName(updateFirstName: UpdateFirstNameDto, req: any): Promise<import("./dto/ResponseDto/response-login.dto").ResponseLoginDto>;
+    updateLastName(updateLastNameDto: UpdateLastNameDto, req: any): Promise<import("./dto/ResponseDto/response-login.dto").ResponseLoginDto | "JWT must be provided, try to login again">;
+    updateCityName(updateCityNameDto: UpdateCityDto, req: any): Promise<import("./dto/ResponseDto/response-login.dto").ResponseLoginDto | "JWT must be provided, try to login again">;
+    updatecompanyName(updateCompanyNameDto: UpdateCompanyNameDto, req: any): Promise<import("./dto/ResponseDto/response-login.dto").ResponseLoginDto | "JWT must be provided, try to login again">;
+    updateField(updateFieldDto: UpdateFieldDto, req: any): Promise<import("./dto/ResponseDto/response-login.dto").ResponseLoginDto | "JWT must be provided, try to login again">;
 }

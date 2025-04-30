@@ -5,6 +5,7 @@ import { LoginUserDto } from './dto/Logindto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ResoponseCompanyDto } from "./dto/ResponseDto/response-company.dto";
 import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
+import { ResponseLoginDto } from './dto/ResponseDto/response-login.dto';
 import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
 export declare class UserService {
     private userModel;
@@ -58,4 +59,9 @@ export declare class UserService {
         UserName?: undefined;
         role?: undefined;
     }>;
+    UpdateFirstName(userId: string, updateFirstName: any): Promise<ResponseLoginDto>;
+    UpdateLastName(userId: string, updateLastNameDto: any): Promise<ResponseLoginDto>;
+    UpdateCityName(userId: any, updateCityNameDto: any): Promise<ResponseLoginDto>;
+    UpdateCompanyName(userId: any, updateCompanyNameDto: any): Promise<ResponseLoginDto>;
+    UpdateField(userId: any, updateFieldDto: any): Promise<ResponseLoginDto>;
 }

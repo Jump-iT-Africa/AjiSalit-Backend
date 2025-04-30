@@ -22,6 +22,12 @@ const verifyJwt_1 = require("../services/verifyJwt");
 const jsonwebtoken_1 = require("jsonwebtoken");
 const swagger_1 = require("@nestjs/swagger");
 const VerifyPhoneNumber_dto_1 = require("./dto/Logindto/VerifyPhoneNumber.dto");
+const update_user_first_name_dto_1 = require("./dto/UpdatesDtos/update-user-first-name.dto");
+const update_user_last_name_dto_1 = require("./dto/UpdatesDtos/update-user-last-name.dto");
+const update_user_city_name_dto_1 = require("./dto/UpdatesDtos/update-user-city-name.dto");
+const update_user_company_name_dto_1 = require("./dto/UpdatesDtos/update-user-company-name.dto");
+const update_user_field_dto_1 = require("./dto/UpdatesDtos/update-user-field.dto");
+const reponse_update_company_dto_1 = require("./dto/ResponseDto/reponse-update-company.dto");
 (0, swagger_1.ApiTags)('User');
 let UserController = class UserController {
     constructor(userService) {
@@ -97,6 +103,106 @@ let UserController = class UserController {
         }
         catch (e) {
             console.log(e);
+        }
+    }
+    async updateFirstName(updateFirstName, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.userService.UpdateFirstName(infoUser.id, updateFirstName);
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            console.log("There's an error :", e);
+        }
+    }
+    async updateLastName(updateLastNameDto, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.userService.UpdateLastName(infoUser.id, updateLastNameDto);
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                return "JWT must be provided, try to login again";
+            }
+            console.log("There's an error :", e);
+        }
+    }
+    async updateCityName(updateCityNameDto, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.userService.UpdateCityName(infoUser.id, updateCityNameDto);
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                return "JWT must be provided, try to login again";
+            }
+            console.log("There's an error :", e);
+        }
+    }
+    async updatecompanyName(updateCompanyNameDto, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.userService.UpdateCompanyName(infoUser.id, updateCompanyNameDto);
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                return "JWT must be provided, try to login again";
+            }
+            console.log("There's an error :", e);
+        }
+    }
+    async updateField(updateFieldDto, req) {
+        try {
+            let token = req.headers['authorization']?.split(" ")[1];
+            let infoUser = (0, verifyJwt_1.validateJwt)(token);
+            if (!infoUser) {
+                throw new common_1.UnauthorizedException("Try to login again");
+            }
+            let result = await this.userService.UpdateField(infoUser.id, updateFieldDto);
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                return "JWT must be provided, try to login again";
+            }
+            console.log("There's an error :", e);
         }
     }
 };
@@ -428,6 +534,341 @@ __decorate([
     __metadata("design:paramtypes", [VerifyPhoneNumber_dto_1.VerifyNumberDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "verifyPhone", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "This method allows users to change their first names" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({
+        type: update_user_first_name_dto_1.UpdateFirstNameDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'the first name provided is valid and the user updates it successfully',
+        type: reponse_update_company_dto_1.ResoponseUpdateCompanyDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Something went wrong',
+        content: {
+            'application/json': {
+                examples: {
+                    "Something went wrong": {
+                        value: {
+                            message: "Ops, the user's first name didn't update",
+                            error: 'Bad Request Exception',
+                            statusCode: 400,
+                        }
+                    },
+                    "Empty body without First name": {
+                        value: {
+                            "message": [
+                                "the first name is required and shouldn't be empty",
+                                "The first name should be string"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                }
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or expired token',
+        schema: {
+            example: {
+                message: "Try to login again",
+                error: 'Unauthorized',
+                statusCode: 401,
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found - User not found',
+        schema: {
+            example: {
+                message: "The user not found, Try again",
+                error: 'NotFount',
+                statusCode: 404,
+            },
+        },
+    }),
+    (0, common_1.Patch)("firstname"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [update_user_first_name_dto_1.UpdateFirstNameDto, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateFirstName", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "This method allows users to change their last names" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({
+        type: update_user_last_name_dto_1.UpdateLastNameDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'the last name provided is valid and the user updates it successfully',
+        type: reponse_update_company_dto_1.ResoponseUpdateCompanyDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Something went wrong',
+        content: {
+            'application/json': {
+                examples: {
+                    "Something went wrong": {
+                        value: {
+                            message: "Ops, the user's last name didn't update",
+                            error: 'Bad Request Exception',
+                            statusCode: 400,
+                        }
+                    },
+                    "Last name is required but not available": {
+                        value: {
+                            "message": [
+                                "the last name is required and shouldn't be empty",
+                                "The last name should be string"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                }
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or expired token',
+        schema: {
+            example: {
+                message: "Try to login again",
+                error: 'Unauthorized',
+                statusCode: 401,
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found - User not found',
+        schema: {
+            example: {
+                message: "The user not found, Try again",
+                error: 'NotFount',
+                statusCode: 404,
+            },
+        },
+    }),
+    (0, common_1.Patch)("lastname"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [update_user_last_name_dto_1.UpdateLastNameDto, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateLastName", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "This method allows users to change their cities" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({
+        type: update_user_city_name_dto_1.UpdateCityDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The city provided is valid and the user updates it successfully',
+        type: reponse_update_company_dto_1.ResoponseUpdateCompanyDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Something went wrong',
+        content: {
+            'application/json': {
+                examples: {
+                    "Something went wrong": {
+                        value: {
+                            message: "Ops, the user's city didn't update",
+                            error: 'Bad Request Exception',
+                            statusCode: 400,
+                        }
+                    },
+                    "City is not sent or not string": {
+                        value: {
+                            "message": [
+                                "the City is required and shouldn't be empty",
+                                "The City should be string"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                }
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or expired token',
+        schema: {
+            example: {
+                message: "Try to login again",
+                error: 'Unauthorized',
+                statusCode: 401,
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found - User not found',
+        schema: {
+            example: {
+                message: "The user not found, Try again",
+                error: 'NotFount',
+                statusCode: 404,
+            },
+        },
+    }),
+    (0, common_1.Patch)("city"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [update_user_city_name_dto_1.UpdateCityDto, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateCityName", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "This method allows users to change their companies name" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({
+        type: update_user_company_name_dto_1.UpdateCompanyNameDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The company name provided is valid and the user updates it successfully',
+        type: reponse_update_company_dto_1.ResoponseUpdateCompanyDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Something went wrong',
+        content: {
+            'application/json': {
+                examples: {
+                    "Something went wrong": {
+                        value: {
+                            message: "Ops, the user's company name didn't update",
+                            error: 'Bad Request Exception',
+                            statusCode: 400,
+                        }
+                    },
+                    "Company name is not sent or its format not string": {
+                        value: {
+                            "message": [
+                                "The company name can not be empty",
+                                "The company name should be string"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                }
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or expired token',
+        schema: {
+            example: {
+                message: "Try to login again",
+                error: 'Unauthorized',
+                statusCode: 401,
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found - User not found',
+        schema: {
+            example: {
+                message: "The user not found, Try again",
+                error: 'NotFount',
+                statusCode: 404,
+            },
+        },
+    }),
+    (0, common_1.Patch)("companyname"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [update_user_company_name_dto_1.UpdateCompanyNameDto, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updatecompanyName", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "This method allows users to change their field" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({
+        type: update_user_field_dto_1.UpdateFieldDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The Field provided is valid and the user updates it successfully',
+        type: reponse_update_company_dto_1.ResoponseUpdateCompanyDto,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Something went wrong',
+        content: {
+            'application/json': {
+                examples: {
+                    "Something went wrong": {
+                        value: {
+                            message: "Ops, the user's field didn't update",
+                            error: 'Bad Request Exception',
+                            statusCode: 400,
+                        }
+                    },
+                    "Field is not sent or its format not string": {
+                        value: {
+                            "message": [
+                                "the field should not be empty",
+                                "The field should be string"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                }
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or expired token',
+        schema: {
+            example: {
+                message: "Try to login again",
+                error: 'Unauthorized',
+                statusCode: 401,
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found - User not found',
+        schema: {
+            example: {
+                message: "The user not found, Try again",
+                error: 'Not Found',
+                statusCode: 404,
+            },
+        },
+    }),
+    (0, common_1.Patch)("field"),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [update_user_field_dto_1.UpdateFieldDto, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateField", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

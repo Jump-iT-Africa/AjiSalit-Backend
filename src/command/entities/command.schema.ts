@@ -28,7 +28,7 @@ export class Command {
   @Prop({ required: false})
   images: [{ type: String }]
 
-  @Prop({ required: true })
+  @Prop({ required: false})
   deliveryDate: Date;
 
   @Prop({ required: false, default:null})

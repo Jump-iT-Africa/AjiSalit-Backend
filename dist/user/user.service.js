@@ -221,7 +221,6 @@ let UserService = class UserService {
     }
     async updateUserInfo(id, updateUserDto) {
         try {
-            console.log("teeeeeeeeest");
             const toUpdate = await this.userModel.findById(id);
             if (!toUpdate) {
                 throw new common_1.NotFoundException("the user not found ");
@@ -286,6 +285,121 @@ let UserService = class UserService {
                 message: 'There was an unexpected error',
                 error: error.message || error,
             });
+        }
+    }
+    async UpdateFirstName(userId, updateFirstName) {
+        try {
+            let user = await this.userModel.findById(userId);
+            if (!user) {
+                throw new common_1.NotFoundException("The user not found, Try again");
+            }
+            let updateUser = await this.userModel.findByIdAndUpdate(userId, updateFirstName, { new: true });
+            if (!updateUser) {
+                throw new common_1.BadRequestException("Ops, the user's first name didn't update");
+            }
+            let updatedUser = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, updateUser, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return updatedUser;
+        }
+        catch (e) {
+            console.log("the error is here", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+        }
+    }
+    async UpdateLastName(userId, updateLastNameDto) {
+        try {
+            let user = await this.userModel.findById(userId);
+            if (!user) {
+                throw new common_1.NotFoundException("The user not found, Try again");
+            }
+            let updateUser = await this.userModel.findByIdAndUpdate(userId, updateLastNameDto, { new: true });
+            if (!updateUser) {
+                throw new common_1.BadRequestException("Ops, the user's last name didn't update");
+            }
+            let updatedUser = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, updateUser, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return updatedUser;
+        }
+        catch (e) {
+            console.log("the error is here", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+        }
+    }
+    async UpdateCityName(userId, updateCityNameDto) {
+        try {
+            let user = await this.userModel.findById(userId);
+            if (!user) {
+                throw new common_1.NotFoundException("The user not found, Try again");
+            }
+            let updateUser = await this.userModel.findByIdAndUpdate(userId, updateCityNameDto, { new: true });
+            if (!updateUser) {
+                throw new common_1.BadRequestException("Ops, the user's city didn't update");
+            }
+            let updatedUser = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, updateUser, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return updatedUser;
+        }
+        catch (e) {
+            console.log("the error is here", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+        }
+    }
+    async UpdateCompanyName(userId, updateCompanyNameDto) {
+        try {
+            let user = await this.userModel.findById(userId);
+            if (!user) {
+                throw new common_1.NotFoundException("The user not found, Try again");
+            }
+            let updateUser = await this.userModel.findByIdAndUpdate(userId, updateCompanyNameDto, { new: true });
+            if (!updateUser) {
+                throw new common_1.BadRequestException("Ops, the user didn't update");
+            }
+            let updatedUser = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, updateUser, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return updatedUser;
+        }
+        catch (e) {
+            console.log("the error is here", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+        }
+    }
+    async UpdateField(userId, updateFieldDto) {
+        try {
+            let user = await this.userModel.findById(userId);
+            if (!user) {
+                throw new common_1.NotFoundException("The user not found, Try again");
+            }
+            let updateUser = await this.userModel.findByIdAndUpdate(userId, updateFieldDto, { new: true });
+            if (!updateUser) {
+                throw new common_1.BadRequestException("Ops, the user didn't update");
+            }
+            let updatedUser = (0, class_transformer_1.plainToClass)(response_login_dto_1.ResponseLoginDto, updateUser, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return updatedUser;
+        }
+        catch (e) {
+            console.log("the error is here", e);
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
         }
     }
 };

@@ -44,7 +44,7 @@ __decorate([
     __metadata("design:type", Array)
 ], Command.prototype, "images", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ required: false }),
     __metadata("design:type", Date)
 ], Command.prototype, "deliveryDate", void 0);
 __decorate([
