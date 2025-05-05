@@ -34,12 +34,6 @@ export default class ResponseDto {
   })
   advancedAmount?: number;
 
-  @ApiProperty({
-    example: 'rabat',
-    description: 'city related to the service',
-    required: true,
-  })
-  city: string;
 
   @ApiProperty({
     example: '2025-10-26',
@@ -70,4 +64,24 @@ export default class ResponseDto {
     required: false,
   })
   userId?: Types.ObjectId | null;
+
+  @ApiProperty({
+    example: "true",
+    required: false
+  })
+  isDateChanged:boolean
+
+  @ApiProperty({
+      example: "sick",
+      required: false
+  })
+  ChangeDateReason:string
+
+
+  @ApiProperty({
+    example: null,
+    description: 'the new changed date',
+    required: true,
+  })
+  newDate: string;
 }

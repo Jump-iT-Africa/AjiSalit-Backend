@@ -12,11 +12,11 @@ export declare class CommandController {
         __v: number;
     })>;
     scanedUserId(qrcode: string, req: any): Promise<string>;
-    findAll(req: any): Promise<"No order found" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
-    })[] | {
+    })[] | "No order found" | {
         customerDisplayName: any;
         customerField: any;
         companyId: string;
@@ -24,7 +24,6 @@ export declare class CommandController {
         situation: string;
         status: string;
         advancedAmount: number;
-        city: string;
         price: number;
         images: [{
             type: String;
@@ -34,6 +33,9 @@ export declare class CommandController {
         qrCode: string;
         isFinished: false;
         isPickUp: false;
+        isDateChanged: boolean;
+        ChangeDateReason: string;
+        newDate: Date;
         _id: unknown;
         $locals: Record<string, unknown>;
         $op: "save" | "validate" | "remove" | null;
@@ -65,7 +67,7 @@ export declare class CommandController {
             __v: number;
         };
     }>;
-    scanQrCode(qrCode: string, req: any): Promise<import("./entities/command.schema").Command>;
+    scanQrCode(qrCode: string, req: any): Promise<any>;
     updateStatusToDone(orderId: string, updatestatusDTo: UpdateStatusCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {

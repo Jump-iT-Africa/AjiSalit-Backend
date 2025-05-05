@@ -24,9 +24,6 @@ export class UpdateUserDto {
     @ApiProperty({ example: '+212600000000', required: false })
     @IsString()
     @IsOptional()
-    @Matches(/^\+[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format (e.g., +212697042868)'
-    })
     phoneNumber?: string;
 
     @ApiProperty({ example: '12456', required: false })

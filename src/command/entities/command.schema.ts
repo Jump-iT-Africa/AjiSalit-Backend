@@ -16,14 +16,11 @@ export class Command {
   @Prop({required: true, default: "غير خالص", enum: ["خالص", "غير خالص","تسبيق"]})
   situation:string;
 
-  @Prop({ required: true, default:"قيد الانتظار", enum: ["قيد الانتظار", "جاهزة للتسليم", "تم تسليم"] })
+  @Prop({ required: true, default:"في طور الانجاز", enum: ["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"] })
   status: string;
   
   @Prop({ required: false, default:null})
   advancedAmount:number;
-
-  @Prop({required: false})
-  city:string;
 
   @Prop({ required: true })
   price: number; 
@@ -31,7 +28,7 @@ export class Command {
   @Prop({ required: false})
   images: [{ type: String }]
 
-  @Prop({ required: true })
+  @Prop({ required: false})
   deliveryDate: Date;
 
   @Prop({ required: false, default:null})
@@ -45,6 +42,20 @@ export class Command {
 
   @Prop({required:true, default:false})
   isPickUp: false;
+
+
+
+  @Prop({required:false, default:false})
+  isDateChanged: boolean;
+
+  @Prop({required:false})
+  ChangeDateReason: string;
+
+
+  @Prop({ required: false, default:null})
+  newDate: Date;
+
+
 }
 
 export const CommandSchema = SchemaFactory.createForClass(Command);

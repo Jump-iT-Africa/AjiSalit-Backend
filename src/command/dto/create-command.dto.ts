@@ -48,23 +48,14 @@ export class CreateCommandDto {
     @IsNumber({},{message:"The Advanced Amount has to be a valid number "})
     advancedAmount:number
 
-    @ApiProperty({
-        example: "rabat",
-        required: true
-    })   
-    @IsNotEmpty({message:"The city Name can not be empty, please enter your city name"})
-    @MinLength(3, { message: 'The city must be at least 3 characters long' })
-    @Matches(/^[A-Za-z]+$/, { message: "you must provid a valid cityname" })
-    @IsString()
-    city:string
 
     @ApiProperty({
         example: "2025-10-26",
         required: true
     })
     @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
-    @IsNotEmpty({message: "The delivery Date is required"})
     @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
+    @IsOptional()
     deliveryDate:string
 
     @ApiProperty({
@@ -101,4 +92,30 @@ export class CreateCommandDto {
     @IsBoolean()
     @IsOptional()
     isPickUp:boolean
+
+
+
+    @ApiProperty({
+        example: "true",
+        required: false
+    })
+    isDateChanged:boolean
+
+    @ApiProperty({
+        example: "sick",
+        required: false
+    })
+    ChangeDateReason:string
+
+
+
+
+    @ApiProperty({
+        example: "2025-10-30",
+        required: true
+    })
+    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
+    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
+    @IsOptional()
+    newDate:string
 }

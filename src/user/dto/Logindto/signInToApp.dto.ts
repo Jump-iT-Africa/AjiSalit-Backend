@@ -5,9 +5,6 @@ export class SignInToAppDto {
 
     @ApiProperty({ example: '+212697042868', required: true })
     @IsPhoneNumber()
-    @Matches(/^\+[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format (e.g., +212697042868)'
-    })
     @IsNotEmpty()
 
     phoneNumber: string;
