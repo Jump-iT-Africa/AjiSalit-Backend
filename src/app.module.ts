@@ -5,6 +5,7 @@ import { CommandModule } from './command/command.module';
 import { UserModule } from './user/user.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { NotificationsGateway } from './notifications/notifications.gateway';
+import { SiteinfoModule } from './siteinfo/siteinfo.module';
 
 
 @Module({
@@ -16,10 +17,10 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
     CommandModule,
     UserModule,
     NotificationsModule,
+    SiteinfoModule,
   ],
   providers:[
     NotificationsGateway
-
   ]
 
 })
