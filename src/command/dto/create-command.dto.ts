@@ -53,7 +53,7 @@ export class CreateCommandDto {
         example: "2025-10-26",
         required: true
     })
-    @IsNotEmpty({message: "The delivery Date is required"})
+    @IsOptional()
     deliveryDate:string
 
     @ApiProperty({
