@@ -46,6 +46,10 @@ export class User {
 
   @Prop({required:false})
   expoPushToken?: string;
+
+
+  @Prop({required:false, default:250})
+  pocket:number
   
 
 

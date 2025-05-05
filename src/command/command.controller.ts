@@ -207,7 +207,7 @@ export class CommandController {
 
 
   @Get()
-  @ApiOperation({ summary: "The client or the company can check their orders" })
+  @ApiOperation({ summary: "The client or the company can check their orders, and the admin can view all the orders" })
   @ApiBearerAuth()
   @ApiResponse({
     status: 401,

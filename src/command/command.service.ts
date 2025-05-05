@@ -91,11 +91,17 @@ export class CommandService {
   async findAll(userId: string, role: string) {
     try {
       let query = {}
+      console.log("I m here ")
+      if(role == "admin"){
+        const allOrders = await this.commandModel.find()
+        return allOrders
+      }
       if (role == "client") {
         query = { clientId: userId }
       } else if (role == "company") {
         query = { companyId: userId }
       }
+
       
       const allOrders = await this.commandModel.find(query)
       

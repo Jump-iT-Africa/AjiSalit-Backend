@@ -35,16 +35,14 @@ let SiteinfoService = class SiteinfoService {
             console.log("there's an error", e);
         }
     }
-    async updateSiteInfo(userId, UpdateSiteInfoDto, siteInfoId) {
+    async updateSiteInfo(userId, UpdateSiteInfoDto, id) {
         try {
-            console.log("look those info", UpdateSiteInfoDto, userId);
             UpdateSiteInfoDto.adminId = userId;
-            const siteInfo = await this.siteInfoModel.findById(siteInfoId).exec();
-            console.log(siteInfoId, siteInfo);
+            const siteInfo = await this.siteInfoModel.findById(id.id).exec();
             if (!siteInfo) {
-                throw new common_1.NotFoundException("The site information that you are looking for to update not found");
+                throw new common_1.NotFoundException("The site information that you are looking for to update does not exist");
             }
-            const updatedsiteInfo = await this.siteInfoModel.findByIdAndUpdate(siteInfoId, UpdateSiteInfoDto, { new: true, runValidators: true }).exec();
+            const updatedsiteInfo = await this.siteInfoModel.findByIdAndUpdate(id.id, UpdateSiteInfoDto, { new: true, runValidators: true }).exec();
             if (!updatedsiteInfo) {
                 throw new common_1.BadRequestException("Ops, Couldn't update the siteInfo");
             }
@@ -55,6 +53,37 @@ let SiteinfoService = class SiteinfoService {
                 throw new common_1.UnauthorizedException("Ops you have to login again");
             }
             console.log("ops an error", e);
+            if (e instanceof common_1.NotFoundException) {
+                throw e;
+            }
+        }
+    }
+    async showSiteInfo(id) {
+        try {
+            const siteInfo = await this.siteInfoModel.findById(id.id).exec();
+            if (!siteInfo) {
+                throw new common_1.NotFoundException("The site information that you are looking for, does not exist");
+            }
+            return siteInfo;
+        }
+        catch (e) {
+            console.log("there's an error", e);
+            if (e instanceof common_1.NotFoundException) {
+                throw e;
+            }
+        }
+    }
+    async deleteSiteInfo(id) {
+        try {
+            let siteInfo = await this.siteInfoModel.findById(id.id);
+            if (!siteInfo) {
+                throw new common_1.NotFoundException("The siteInfo not found");
+            }
+            let deleteSiteInfo = await this.siteInfoModel.findByIdAndDelete(id.id).exec();
+            return "The site info was deleted successfully";
+        }
+        catch (e) {
+            console.log("there's an error", e);
             if (e instanceof common_1.NotFoundException) {
                 throw e;
             }

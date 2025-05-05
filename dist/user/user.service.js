@@ -27,6 +27,7 @@ const response_login_dto_1 = require("./dto/ResponseDto/response-login.dto");
 const crypto = require("crypto");
 const class_validator_1 = require("class-validator");
 const VerifyPhoneNumber_dto_1 = require("./dto/Logindto/VerifyPhoneNumber.dto");
+const response_info_company_dto_1 = require("./dto/ResponseDto/response-info-company.dto");
 const secretKey = process.env.JWT_SECRET;
 let UserService = class UserService {
     constructor(userModel) {
@@ -400,6 +401,67 @@ let UserService = class UserService {
             if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
                 throw e;
             }
+        }
+    }
+    async getAllCompanies() {
+        try {
+            let result = await this.userModel.find({ role: "company" }).exec();
+            if (!result) {
+                throw new common_1.NotFoundException("Ops No result found");
+            }
+            if (result.length == 0) {
+                return "No comapanies yet";
+            }
+            let dataCompanies = (0, class_transformer_1.plainToClass)(response_info_company_dto_1.ResoponseCompanyInfoDto, result, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return dataCompanies;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException) {
+                throw e;
+            }
+            throw e;
+            console.log("there's an error", e);
+        }
+    }
+    async getAllClients() {
+        try {
+            let result = await this.userModel.find({ role: "client" }).exec();
+            if (!result) {
+                throw new common_1.NotFoundException("Ops there's no data found");
+            }
+            if (result.length == 0) {
+                return "No clients yet";
+            }
+            let dataCompanies = (0, class_transformer_1.plainToClass)(response_user_dto_1.ResponseUserDto, result, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return dataCompanies;
+        }
+        catch (e) {
+            console.log("there's an error", e);
+        }
+    }
+    async updatePocketBalance(companyId, updateBalance) {
+        try {
+            let updatePocketBalance = await this.userModel.findByIdAndUpdate({ _id: companyId.companyId }, updateBalance, { new: true, runValidators: true }).exec();
+            if (updatePocketBalance == null) {
+                throw new common_1.NotFoundException("Company not found");
+            }
+            let dataCompanies = (0, class_transformer_1.plainToClass)(response_info_company_dto_1.ResoponseCompanyInfoDto, updatePocketBalance, {
+                excludeExtraneousValues: true,
+                enableImplicitConversion: true
+            });
+            return dataCompanies;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException) {
+                throw e;
+            }
+            console.log("there's an error", e);
         }
     }
 };
