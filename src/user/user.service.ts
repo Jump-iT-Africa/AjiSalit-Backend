@@ -20,6 +20,7 @@ import * as crypto from 'crypto';
 import { log } from 'console';
 import { isInstance, validate } from 'class-validator';
 import {VerifyNumberDto} from "./dto/Logindto/VerifyPhoneNumber.dto"
+import { ResoponseCompanyInfoDto } from './dto/ResponseDto/response-info-company.dto';
 
 
 const secretKey = process.env.JWT_SECRET;
@@ -495,6 +496,74 @@ export class UserService {
         throw e 
       }
     }
+  }
+
+  async getAllCompanies(){
+    try{
+      let result = await this.userModel.find({role: "company"}).exec()
+      if(!result){
+        throw new NotFoundException("Ops No result found")
+      }
+      if(result.length == 0){
+        return "No comapanies yet"
+      }
+      
+      let dataCompanies = plainToClass(ResoponseCompanyInfoDto,result, {
+        excludeExtraneousValues:true,
+        enableImplicitConversion:true
+      })
+      return dataCompanies
+    }catch(e){
+      if(e instanceof NotFoundException){
+        throw e
+      }
+      throw e 
+      console.log("there's an error", e)
+    }
+  }
+
+
+  async getAllClients(){
+    try{
+      let result = await this.userModel.find({role: "client"}).exec()
+      if(!result){
+        throw new NotFoundException("Ops there's no data found")
+      }
+      if(result.length == 0){
+        return "No clients yet"
+      }
+      
+      let dataCompanies = plainToClass(ResponseUserDto,result, {
+        excludeExtraneousValues:true,
+        enableImplicitConversion:true
+      })
+      return dataCompanies
+
+    }catch(e){
+      console.log("there's an error", e)
+    }
+  }
+
+  async updatePocketBalance(companyId, updateBalance){
+    try{
+      // console.log("company id ",companyId.companyId)
+      let updatePocketBalance = await this.userModel.findByIdAndUpdate({_id:companyId.companyId}, updateBalance, {new:true,runValidators:true}).exec()
+      // console.log("oh lali oh lala ", updatePocketBalance)
+      if(updatePocketBalance == null){
+        throw new NotFoundException("Company not found")
+      }
+      let dataCompanies = plainToClass(ResoponseCompanyInfoDto,updatePocketBalance, {
+        excludeExtraneousValues:true,
+        enableImplicitConversion:true
+      })
+      return dataCompanies
+    }catch(e){
+      if(e instanceof NotFoundException){
+        throw e 
+      }
+      console.log("there's an error", e)
+    }
+
   }
 
 

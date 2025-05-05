@@ -92,6 +92,11 @@ let CommandService = class CommandService {
     async findAll(userId, role) {
         try {
             let query = {};
+            console.log("I m here ");
+            if (role == "admin") {
+                const allOrders = await this.commandModel.find();
+                return allOrders;
+            }
             if (role == "client") {
                 query = { clientId: userId };
             }

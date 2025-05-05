@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Put, BadRequestException, Req, UnauthorizedException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, Put, BadRequestException, Req, UnauthorizedException, NotFoundException, ForbiddenException, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -18,6 +18,8 @@ import { UpdateCompanyNameDto } from './dto/UpdatesDtos/update-user-company-name
 import { UpdateFieldDto } from './dto/UpdatesDtos/update-user-field.dto';
 import { ResoponseCompanyDto } from './dto/ResponseDto/response-company.dto';
 import { ResoponseUpdateCompanyDto } from './dto/ResponseDto/reponse-update-company.dto';
+import { AdminRoleGuard } from './guards/admin-role.guard';
+import { UpdatePocketBalance } from './dto/UpdatesDtos/update-pocket.dto';
 
 ApiTags('User')
 @Controller('user')
@@ -139,6 +141,123 @@ export class UserController {
     return this.userService.login(LoginUserDto);
   }
 
+  @ApiOperation({ summary: 'the admin can preview all the users info' })
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'the response returns the info of companies',
+    content: {
+      'application/json': {
+        examples: {
+          "Info of companies": {
+          value:  [{
+              "pocket": 250,
+              "_id": "68189f73271ae1b74abf888e",
+              "Fname": "Salima BHMD",
+              "Lname": "company",
+              "companyName": null,
+              "role": "company",
+              "phoneNumber": "+212698888311",
+              "password": "$2b$10$12L4nfRf65G72im3xw/z.eIjqOZB/y/XCxUN9QKePoA2MNKPWsNyG",
+              "city": "rabat",
+              "field": "pressing",
+              "ice": 0,
+              "ownRef": "C79D568E",
+              "listRefs": [],
+              "createdAt": "2025-05-05T11:22:27.314Z",
+              "updatedAt": "2025-05-05T11:22:27.314Z",
+              "__v": 0
+            }],
+          },
+
+        },
+      },
+    }
+
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized error: the admin should be authentificated',
+    schema: {
+      example: {
+        "message": 'kindly try to login again',
+        "error": "Unauthorized",
+        "statusCode": 401
+      }
+    },
+  })
+
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden error: Only users who have admin role can access to this route',
+    schema: {
+      example: {
+        "message": 'Osp only admins can access to this route',
+        "error": "Forbidden",
+        "statusCode": 403
+      }
+    },
+  })
+
+
+  @ApiResponse({
+    status: 400,
+    description: 'Bad error : something breaks down',
+    schema: {
+      example: {
+        "message": "Ops try again",
+        "error": "Bad Request Exception",
+        "statusCode": 400
+      }
+    },
+  })
+
+  @Get("companies")
+  @UseGuards(AdminRoleGuard)
+  async getAllCompanies(){
+    try{
+      let result = await this.userService.getAllCompanies()
+      return result
+    }catch(e){
+      if(e instanceof NotFoundException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError){
+        throw e
+      }
+      console.log("There's an error ", e)
+      throw new   BadRequestException("Ops try again")
+    }
+  }
+
+  @Get("clients")
+  @UseGuards(AdminRoleGuard)
+  async getAllClients(){
+    try{
+      let result = await this.userService.getAllClients()
+      return result
+    }catch(e){
+      if(e instanceof NotFoundException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError){
+        throw e
+      }
+      console.log("There's an error ", e)
+      throw new   BadRequestException("Ops try again")
+    }
+  }
+
+
+  @Patch('pocket/:companyId')
+  @UseGuards(AdminRoleGuard)
+  async updatePocketBalance(@Param() companyId:string, @Body() updateBalance: UpdatePocketBalance){
+    try{
+      return await this.userService.updatePocketBalance(companyId,updateBalance)
+    }catch(e){
+      if(e instanceof NotFoundException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError){
+        throw e
+      }
+      console.log("There's an error ", e)
+      throw new BadRequestException("Ops try again")
+
+    }
+  }
+
 
   @Get(':id')
   @ApiOperation({ summary: 'the user or the company owner can preview their own informations' })
@@ -217,7 +336,7 @@ export class UserController {
     } catch (e) {
       console.log("there's an error", e)
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError) {
-        throw new UnauthorizedException("حاول تسجل ف الحساب ديالك مرة أخرى")
+        throw new UnauthorizedException("Try to login again")
       }
       throw new BadRequestException("try again")
     }
@@ -318,7 +437,7 @@ export class UserController {
     description: "Not Found - User not found",
     schema: {
       example: {
-        message: "المستخدم غير موجود",
+        message: "The account not found",
         error: "Not Found",
         statusCode: 404
       }
@@ -343,9 +462,9 @@ export class UserController {
   } catch (e) {
       console.log(e);
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("حاول تسجل مرة أخرى")
+        throw new UnauthorizedException("try to login again")
       if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You aren't authorized to perform this task تبدل هاد طلب")
+        throw new ForbiddenException("You are not allowed to update this oder")
       }
       throw new BadRequestException("Please try again")
     }
@@ -834,6 +953,8 @@ export class UserController {
       console.log("There's an error :",e)
     }
   }
+
+
 
 
 

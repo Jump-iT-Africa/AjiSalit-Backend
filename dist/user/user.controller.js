@@ -28,6 +28,8 @@ const update_user_city_name_dto_1 = require("./dto/UpdatesDtos/update-user-city-
 const update_user_company_name_dto_1 = require("./dto/UpdatesDtos/update-user-company-name.dto");
 const update_user_field_dto_1 = require("./dto/UpdatesDtos/update-user-field.dto");
 const reponse_update_company_dto_1 = require("./dto/ResponseDto/reponse-update-company.dto");
+const admin_role_guard_1 = require("./guards/admin-role.guard");
+const update_pocket_dto_1 = require("./dto/UpdatesDtos/update-pocket.dto");
 (0, swagger_1.ApiTags)('User');
 let UserController = class UserController {
     constructor(userService) {
@@ -38,6 +40,44 @@ let UserController = class UserController {
     }
     async login(LoginUserDto) {
         return this.userService.login(LoginUserDto);
+    }
+    async getAllCompanies() {
+        try {
+            let result = await this.userService.getAllCompanies();
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                throw e;
+            }
+            console.log("There's an error ", e);
+            throw new common_1.BadRequestException("Ops try again");
+        }
+    }
+    async getAllClients() {
+        try {
+            let result = await this.userService.getAllClients();
+            return result;
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                throw e;
+            }
+            console.log("There's an error ", e);
+            throw new common_1.BadRequestException("Ops try again");
+        }
+    }
+    async updatePocketBalance(companyId, updateBalance) {
+        try {
+            return await this.userService.updatePocketBalance(companyId, updateBalance);
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof jsonwebtoken_1.JsonWebTokenError) {
+                throw e;
+            }
+            console.log("There's an error ", e);
+            throw new common_1.BadRequestException("Ops try again");
+        }
     }
     findOne(id, req) {
         try {
@@ -51,7 +91,7 @@ let UserController = class UserController {
         catch (e) {
             console.log("there's an error", e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError) {
-                throw new common_1.UnauthorizedException("حاول تسجل ف الحساب ديالك مرة أخرى");
+                throw new common_1.UnauthorizedException("Try to login again");
             }
             throw new common_1.BadRequestException("try again");
         }
@@ -90,9 +130,9 @@ let UserController = class UserController {
         catch (e) {
             console.log(e);
             if (e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof jsonwebtoken_1.TokenExpiredError)
-                throw new common_1.UnauthorizedException("حاول تسجل مرة أخرى");
+                throw new common_1.UnauthorizedException("try to login again");
             if (e instanceof common_1.ForbiddenException) {
-                throw new common_1.ForbiddenException("You aren't authorized to perform this task تبدل هاد طلب");
+                throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
             throw new common_1.BadRequestException("Please try again");
         }
@@ -318,6 +358,94 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'the admin can preview all the users info' }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'the response returns the info of companies',
+        content: {
+            'application/json': {
+                examples: {
+                    "Info of companies": {
+                        value: [{
+                                "pocket": 250,
+                                "_id": "68189f73271ae1b74abf888e",
+                                "Fname": "Salima BHMD",
+                                "Lname": "company",
+                                "companyName": null,
+                                "role": "company",
+                                "phoneNumber": "+212698888311",
+                                "password": "$2b$10$12L4nfRf65G72im3xw/z.eIjqOZB/y/XCxUN9QKePoA2MNKPWsNyG",
+                                "city": "rabat",
+                                "field": "pressing",
+                                "ice": 0,
+                                "ownRef": "C79D568E",
+                                "listRefs": [],
+                                "createdAt": "2025-05-05T11:22:27.314Z",
+                                "updatedAt": "2025-05-05T11:22:27.314Z",
+                                "__v": 0
+                            }],
+                    },
+                },
+            },
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the admin should be authentificated',
+        schema: {
+            example: {
+                "message": 'kindly try to login again',
+                "error": "Unauthorized",
+                "statusCode": 401
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden error: Only users who have admin role can access to this route',
+        schema: {
+            example: {
+                "message": 'Osp only admins can access to this route',
+                "error": "Forbidden",
+                "statusCode": 403
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad error : something breaks down',
+        schema: {
+            example: {
+                "message": "Ops try again",
+                "error": "Bad Request Exception",
+                "statusCode": 400
+            }
+        },
+    }),
+    (0, common_1.Get)("companies"),
+    (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getAllCompanies", null);
+__decorate([
+    (0, common_1.Get)("clients"),
+    (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getAllClients", null);
+__decorate([
+    (0, common_1.Patch)('pocket/:companyId'),
+    (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
+    __param(0, (0, common_1.Param)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_pocket_dto_1.UpdatePocketBalance]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updatePocketBalance", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'the user or the company owner can preview their own informations' }),
     (0, swagger_1.ApiBearerAuth)(),
@@ -468,7 +596,7 @@ __decorate([
         description: "Not Found - User not found",
         schema: {
             example: {
-                message: "المستخدم غير موجود",
+                message: "The account not found",
                 error: "Not Found",
                 statusCode: 404
             }
