@@ -53,13 +53,17 @@ export class CreateCommandDto {
         example: "2025-10-26",
         required: true
     })
-    @IsOptional()
+    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
+    @IsNotEmpty({message: "The delivery Date is required"})
+    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
     deliveryDate:string
 
     @ApiProperty({
         example: "2025-10-28",
         required: true
     })
+    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
+    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
     @IsOptional()
     pickupDate:string
 
@@ -110,6 +114,8 @@ export class CreateCommandDto {
         example: "2025-10-30",
         required: true
     })
+    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
+    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
     @IsOptional()
     newDate:string
 }
