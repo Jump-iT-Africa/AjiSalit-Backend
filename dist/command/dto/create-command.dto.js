@@ -47,7 +47,7 @@ __decorate([
 ], CreateCommandDto.prototype, "situation", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: "في طور الانجاز",
+        example: "جاهزة للتسليم",
         required: true
     }),
     (0, class_validator_1.IsOptional)(),

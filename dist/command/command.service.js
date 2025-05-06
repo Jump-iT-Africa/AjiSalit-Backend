@@ -32,6 +32,11 @@ let CommandService = class CommandService {
     }
     async create(createCommandDto, authentificatedId) {
         try {
+            let companyOwner = await this.userModel.findById(authentificatedId).exec();
+            console.log("the company owner is here ", companyOwner);
+            if (companyOwner.pocket <= 0) {
+                throw new common_1.HttpException("Ops you are poor, your balance is zero", common_1.HttpStatus.PAYMENT_REQUIRED);
+            }
             const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
             if (existingOrder) {
                 throw new common_1.ConflictException("This code is already used");
@@ -49,12 +54,10 @@ let CommandService = class CommandService {
             return savingOrder;
         }
         catch (e) {
-            if (e instanceof common_1.UnprocessableEntityException) {
+            if (e instanceof common_1.UnprocessableEntityException || e instanceof common_1.ConflictException || e instanceof common_1.HttpException) {
                 throw e;
             }
-            else if (e instanceof common_1.ConflictException) {
-                throw e;
-            }
+            console.log("ops new wonderful error", e);
             throw new common_1.BadRequestException(e.message);
         }
     }
@@ -187,7 +190,7 @@ let CommandService = class CommandService {
             const command = await this.commandModel.findById(id).exec();
             console.log(id, command);
             if (!command) {
-                throw new common_1.NotFoundException("The order is not found");
+                throw new common_1.NotFoundException("The order not found");
             }
             if (command.companyId.toString() !== authentificatedId) {
                 throw new common_1.ForbiddenException("You are not allowed to update this oder");
@@ -195,8 +198,9 @@ let CommandService = class CommandService {
             const updatedCommand = await this.commandModel.findByIdAndUpdate(id, updateCommandDto, { new: true, runValidators: true }).exec();
             if (updateCommandDto.status == "جاهزة للتسليم" && updatedCommand) {
                 let clientInfo = await this.userModel.findById(updatedCommand.clientId).exec();
+                let companyInfo = await this.userModel.findById(updatedCommand.companyId).exec();
                 if (clientInfo && clientInfo.expoPushToken) {
-                    let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`);
+                    let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, ` 🛎️ Talabek tbdel !`, `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `);
                     console.log("Here's my notification sender: ", notificationSender);
                 }
             }
@@ -230,7 +234,7 @@ let CommandService = class CommandService {
             let clientInfo = await this.userModel.findById(command.clientId).exec();
             let companyInfo = await this.userModel.findById(command.companyId).exec();
             if (clientInfo && clientInfo.expoPushToken && result) {
-                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, ` Aji di raz9k chez ${companyInfo.field}`, `سلام 👋، ${clientInfo?.Fname} أجي ساليت`);
+                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, `📦Talabek wajed !`, `Salam ${clientInfo?.Fname} 👋, Ajiii Salit Talab dyalk wajed 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 `);
                 console.log("Here's my notification sender: ", notificationSender);
             }
             return result;
@@ -260,9 +264,10 @@ let CommandService = class CommandService {
                 throw new common_1.BadRequestException("Ops try to update it again");
             }
             let clientInfo = await this.userModel.findById(command.clientId).exec();
+            let companyInfo = await this.userModel.findById(command.companyId).exec();
             if (clientInfo && clientInfo.expoPushToken && result) {
                 console.log("info user:", clientInfo, clientInfo.expoPushToken, result);
-                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`);
+                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, `🕒 Tarikh l'istilam tbdl !`, `Salam ${clientInfo?.Fname} 👋, Ajii t2ked mn tarikh el istilam jedid 📆 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 `);
                 console.log("Here's my notification sender: ", notificationSender);
             }
             return result;
@@ -286,8 +291,7 @@ let CommandService = class CommandService {
             }
             let deleteOrder = await this.commandModel.findByIdAndDelete(id).exec();
             return {
-                mess: "The order was deleted successfully",
-                deleteOrder
+                message: "The order was deleted successfully",
             };
         }
         catch (e) {

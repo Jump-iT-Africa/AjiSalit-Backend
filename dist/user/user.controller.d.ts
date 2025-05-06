@@ -10,6 +10,7 @@ import { UpdateCompanyNameDto } from './dto/UpdatesDtos/update-user-company-name
 import { UpdateFieldDto } from './dto/UpdatesDtos/update-user-field.dto';
 import { ResoponseCompanyDto } from './dto/ResponseDto/response-company.dto';
 import { UpdatePocketBalance } from './dto/UpdatesDtos/update-pocket.dto';
+import { ResoponseCompanyInfoDto } from './dto/ResponseDto/response-info-company.dto';
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
@@ -42,10 +43,10 @@ export declare class UserController {
         token?: undefined;
     }>;
     login(LoginUserDto: LoginUserDto): Promise<any>;
-    getAllCompanies(): Promise<string | import("./dto/ResponseDto/response-info-company.dto").ResoponseCompanyInfoDto[]>;
+    getAllCompanies(): Promise<string | ResoponseCompanyInfoDto[]>;
     getAllClients(): Promise<string | import("./dto/ResponseDto/response-user.dto").ResponseUserDto[]>;
-    updatePocketBalance(companyId: string, updateBalance: UpdatePocketBalance): Promise<import("./dto/ResponseDto/response-info-company.dto").ResoponseCompanyInfoDto>;
-    findOne(id: string, req: any): Promise<ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
+    updatePocketBalance(companyId: string, updateBalance: UpdatePocketBalance): Promise<ResoponseCompanyInfoDto>;
+    findOne(id: string, req: any): Promise<import("./dto/ResponseDto/response-user.dto").ResponseUserDto | ResoponseCompanyDto>;
     deleteAccount(id: string, req: any): Promise<string>;
     updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any): Promise<import("./entities/user.schema").User>;
     verifyPhone(verifyNumberDto: VerifyNumberDto): Promise<{

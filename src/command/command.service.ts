@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, UnprocessableEntityException, forwardRef } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Inject, Injectable, NotFoundException, UnprocessableEntityException, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from "mongoose"
 import { CreateCommandDto } from './dto/create-command.dto';
@@ -25,12 +25,16 @@ export class CommandService {
   
   async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
     try {
+      let companyOwner = await this.userModel.findById(authentificatedId).exec()
+      console.log("the company owner is here ",companyOwner)
+      if(companyOwner.pocket <= 0){
+        throw new HttpException("Ops you are poor, your balance is zero", HttpStatus.PAYMENT_REQUIRED)
+      }
       const existingOrder = await this.commandModel.findOne({qrCode : createCommandDto.qrCode}).exec();
 
       if(existingOrder){
         throw new ConflictException("This code is already used")
       }
-
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
       let resultValidation = ValidationOrder(newOrder)
@@ -45,11 +49,10 @@ export class CommandService {
 
       return savingOrder
     } catch (e) {
-      if (e instanceof UnprocessableEntityException) {
+      if (e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException) {
         throw e;
-      } else if (e instanceof ConflictException) {
-        throw e;
-      }
+      } 
+      console.log("ops new wonderful error", e)
       throw new BadRequestException(e.message)
     }
   }
@@ -200,7 +203,7 @@ export class CommandService {
 
   async update(authentificatedId, id, updateCommandDto: UpdateCommandDto) {
     try {
-      // Validate ID format first
+
       if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestException("The id of this order is not correct");
       }
@@ -209,7 +212,7 @@ export class CommandService {
       console.log(id, command);
 
       if (!command) {
-        throw new NotFoundException("The order is not found");
+        throw new NotFoundException("The order not found");
       }
       // console.log("authenticated ID:", authentificatedId);
       // console.log("command company ID:", command.companyId.toString());
@@ -221,8 +224,10 @@ export class CommandService {
       const updatedCommand = await this.commandModel.findByIdAndUpdate( id, updateCommandDto,{ new: true, runValidators: true }).exec();
       if(updateCommandDto.status == "جاهزة للتسليم" && updatedCommand){
         let clientInfo = await this.userModel.findById(updatedCommand.clientId).exec();
+        let companyInfo = await this.userModel.findById(updatedCommand.companyId).exec()
+
         if(clientInfo && clientInfo.expoPushToken){
-          let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit", `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
+          let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, ` 🛎️ Talabek tbdel !`, `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `)
           console.log("Here's my notification sender: ", notificationSender)
         }
       }
@@ -259,7 +264,7 @@ export class CommandService {
       let companyInfo = await this.userModel.findById(command.companyId).exec()
       // console.log(clientInfo)
       if(clientInfo && clientInfo.expoPushToken && result){
-        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken,` Aji di raz9k chez ${companyInfo.field}` , `سلام 👋، ${clientInfo?.Fname} أجي ساليت`)
+        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken,`📦Talabek wajed !`, `Salam ${clientInfo?.Fname} 👋, Ajiii Salit Talab dyalk wajed 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 `)
         console.log("Here's my notification sender: ", notificationSender)
       }
       return result;
@@ -291,9 +296,10 @@ export class CommandService {
         throw new BadRequestException("Ops try to update it again")
       }
       let clientInfo = await this.userModel.findById(command.clientId).exec();
+      let companyInfo = await this.userModel.findById(command.companyId).exec();
       if(clientInfo && clientInfo.expoPushToken && result){
         console.log("info user:", clientInfo, clientInfo.expoPushToken, result)
-        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, "AjiSalit",`سلام 👋، ${clientInfo?.Fname} تبدل تاريخ الاستلام ديال طلبية`)
+        let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken,`🕒 Tarikh l'istilam tbdl !`, `Salam ${clientInfo?.Fname} 👋, Ajii t2ked mn tarikh el istilam jedid 📆 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 `)
         console.log("Here's my notification sender: ", notificationSender)
       }
     
@@ -320,8 +326,7 @@ export class CommandService {
       }
       let deleteOrder = await this.commandModel.findByIdAndDelete(id).exec();
       return {
-        mess: "The order was deleted successfully",
-        deleteOrder
+        message: "The order was deleted successfully",
       }
     } catch (e) {
       console.log("there's an error", e)

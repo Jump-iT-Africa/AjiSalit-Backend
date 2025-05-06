@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException, Put, ConflictException, UnprocessableEntityException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException, Put, ConflictException, UnprocessableEntityException, UseGuards, HttpException } from '@nestjs/common';
 import { CommandService } from './command.service';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
@@ -9,12 +9,12 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { UpdateStatusCommandDto } from './dto/update-status-command.dto';
 import { UpdatepickUpDateCommandDto } from './dto/update-pickup-date-command.dto';
 import { responseStatusDTO } from './dto/reponse-update-status-command.dto';
+import { CompanyRoleGuard } from 'src/user/guards/company-role.guard';
 
 @ApiTags('Orders ')
 @Controller('order')
 export class CommandController {
   constructor(private readonly commandService: CommandService) { }
-  @Post()
   @ApiOperation({ summary: "Give the company the ability to add new order" })
   @ApiBearerAuth()
   @ApiResponse({
@@ -89,33 +89,31 @@ export class CommandController {
     schema: {
       example: {
         statusCode: 403,
-        message: "you are not allowed to add an Order, you have to have company role to do so",
+        message: "You aren't allowed to access this route unless you have a company role",
         error: 'forbidden error',
       },
     },
+    
   })
-
+  @ApiResponse({
+    status: 402,
+    description: "Payment required error: No money left in the user's pocket, his balance is 0",
+    schema: {
+      example: {
+        statusCode: 402,
+        message: "Ops you are poor, your balance is zero",
+      },
+    },
+  })
+  @Post()
+  @UseGuards(CompanyRoleGuard)
   create(@Body() createCommandDto: CreateCommandDto, @Req() req) {
     try {
-      let token = req.headers['authorization']?.split(" ")[1];
-      let infoUser = validateJwt(token);
-      console.log(infoUser.role);
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again")
-      }
-
-      if (infoUser.role !== "company") {
-        throw new ForbiddenException("you are not allowed to add an Order, you have to have company role to do so")
-      }
-      const authentificatedId = infoUser.id;
-      return this.commandService.create(createCommandDto, authentificatedId);
-
+      return this.commandService.create(createCommandDto, req.user.id);
     } catch (e) {
-      if (e instanceof JsonWebTokenError)
-        throw new UnauthorizedException("Try to login again")
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("you are not allowed to add an Order, you have to have company role to do so")
-      }
+      console.log("ops new wonderful error", e)
+      if (e instanceof JsonWebTokenError || e instanceof ForbiddenException || e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException)
+        throw e
       throw new BadRequestException('Ops smth went wrong', e)
     }
   }
@@ -368,6 +366,7 @@ export class CommandController {
 
 
   @Put(':id')
+  @UseGuards(CompanyRoleGuard)
   @ApiOperation({ summary: "The company owner can update his own order" })
   @ApiBody({
     type: ResponseDto,
@@ -415,7 +414,7 @@ export class CommandController {
     schema: {
       example: {
         statusCode: 403,
-        message: "You are not allowed to update this oder",
+        message: "You aren't allowed to access this route unless you have a company role",
         error: 'forbidden error',
       },
     },
@@ -435,39 +434,28 @@ export class CommandController {
 
   update(@Param('id') id: string, @Body() updateCommandDto: UpdateCommandDto, @Req() req) {
     try {
-      let token = req.headers['authorization']?.split(" ")[1];
-      let infoUser = validateJwt(token);
 
-      console.log('dasdas',infoUser);
-      
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again")
-      }
-      if (infoUser.role !== "company") {
-        throw new ForbiddenException("You are not allowed to update this oder")
-      }
-      return this.commandService.update(infoUser.id, id, updateCommandDto);
+      return this.commandService.update(req.user.id, id, updateCommandDto);
 
     } catch (e) {
       console.log(e)
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("Try to login again")
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You are not allowed to update this oder")
-      }
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof ForbiddenException)
+        throw e
       throw new BadRequestException("Try again")
     }
 
   }
 
   @Delete(':id')
+  @UseGuards(CompanyRoleGuard)
   @ApiBearerAuth()
-
-  @ApiOperation({ summary: "The company order want to delete an order" })
+  @ApiOperation({ summary: "The company order can delete an order" })
   @ApiResponse({
     status: 200,
     description: "The company owner deletes the order successfully",
-    example: "The order was deleted successfully"
+    example: {
+      message: "The order was deleted successfully",
+    }
   })
   @ApiResponse({
     status: 401,
@@ -486,7 +474,7 @@ export class CommandController {
     schema: {
       example: {
         statusCode: 403,
-        message: "You can't delete this order",
+        message: "You aren't allowed to access this route unless you have a company role",
         error: 'forbidden error',
       },
     },
@@ -523,26 +511,15 @@ export class CommandController {
       },
     }
   })
-  @ApiBearerAuth()
 
   remove(@Param('id') id: string, @Req() req) {
     try {
-      let token = req.headers['authorization']?.split(" ")[1]
-      let infoUser = validateJwt(token);
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again")
-      }
-      if (infoUser.role !== "company") {
-        throw new ForbiddenException("You can't delete this order")
-      }
-      return this.commandService.deleteOrder(id, infoUser.id);
+      return this.commandService.deleteOrder(id, req.user.id);
     } catch (e) {
       console.log(e);
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("Try to login again")
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You are not allowed to update this oder")
-      }
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof ForbiddenException || e instanceof UnauthorizedException)
+        throw e
+
       throw new BadRequestException("Try again")
     }
   }
@@ -618,7 +595,7 @@ export class CommandController {
     description: 'Not found exception: the order not found',
     schema: {
       example: {
-        "message": "Ops this command not found",
+        "message": "The command not found",
         "error": "Not Found",
         "statusCode": 404
       }
@@ -651,37 +628,35 @@ export class CommandController {
   @ApiResponse({
     status: 403,
     description: 'Fobidden error: The user should be the owner of this order to update it',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: "You are not allowed to update this oder",
-        error: 'forbidden error',
+    content: {
+      'application/json': {
+        examples: {
+          "You don't have the role of company": {
+            value: {
+              "message": "You aren't allowed to access this route unless you have a company role",
+              "error": "Forbidden",
+              statusCode: 403,
+            },
+
+          },
+          "You are trying to update an order that's not yours ": {
+            value: {
+              statusCode: 403,
+              message: "You are not allowed to update this oder",
+              error: 'forbidden error',
+            }
+          },
+        },
       },
-    },
+    }
   })
   @ApiBearerAuth()
 
-
-
-  
-
-
-
-  
   @Patch("status/:orderId")
+  @UseGuards(CompanyRoleGuard)
   async updateStatusToDone(@Param("orderId") orderId: string, @Body() updatestatusDTo: UpdateStatusCommandDto, @Req() req) {
     try {
-      let token = req.headers['authorization']?.split(" ")[1]
-      let infoUser = validateJwt(token);
-
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again")
-      }
-      let result = await this.commandService.updateOrderToDoneStatus(infoUser.id, orderId, updatestatusDTo)
-      if(!result){
-        throw new NotFoundException("Ops this command not found")
-      }
-      return result
+      return await this.commandService.updateOrderToDoneStatus(req.user.id, orderId, updatestatusDTo)
     } catch (e) {
       console.log("there's a problem oooo", e)
       if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof UnauthorizedException){
@@ -750,13 +725,28 @@ export class CommandController {
   @ApiResponse({
     status: 403,
     description: 'Fobidden error: The user should be the owner of this order to update it',
-    schema: {
-      example: {
-        statusCode: 403,
-        message: "You are not allowed to update this oder",
-        error: 'forbidden error',
+    content: {
+      'application/json': {
+        examples: {
+          "You don't have the role of company": {
+            value: {
+              "message": "You aren't allowed to access this route unless you have a company role",
+              "error": "Forbidden",
+              statusCode: 403,
+            },
+
+          },
+          "You are trying to update an order that's not yours ": {
+            value: {
+              statusCode: 403,
+              message: "You are not allowed to update this oder",
+              error: 'forbidden error',
+            }
+          },
+        },
       },
-    },
+    }
+
   })
   @ApiResponse({
     status: 422,
@@ -773,22 +763,15 @@ export class CommandController {
 
 
   @Patch("pickup/:orderId")
+  @UseGuards(CompanyRoleGuard)
+
   async updatepickUpDate(@Param("orderId") orderId: string, @Body() updatepickUpDateDTo: UpdatepickUpDateCommandDto, @Req() req) {
     try {
-      let token = req.headers['authorization']?.split(" ")[1]
-      let infoUser = validateJwt(token);
+     return await this.commandService.updateOrderpickUpDate(req.user.id, orderId, updatepickUpDateDTo)
 
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again")
-      }
-      let result = await this.commandService.updateOrderpickUpDate(infoUser.id, orderId, updatepickUpDateDTo)
-      if(!result){
-        throw new NotFoundException("Ops this command is not found")
-      }
-      return result
     } catch (e) {
       console.log("there's a problem oooo", e)
-      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException){
+      if( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException || e instanceof UnauthorizedException){
         throw e
       }
       throw new BadRequestException("Ops Something went wrong")

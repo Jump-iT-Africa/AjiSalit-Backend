@@ -1,7 +1,11 @@
 import { Expose } from "class-transformer";
 export class ResponseUserDto{
     @Expose()
-    name:string
+    Fname:string
+    @Expose()
+    Lname:string
+    @Expose()
+    city:string
     @Expose()
     phoneNumber:string
     @Expose()

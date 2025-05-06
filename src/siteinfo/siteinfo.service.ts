@@ -21,7 +21,7 @@ export class SiteinfoService {
             return savingInfo
         }catch(e){
             if(e instanceof JsonWebTokenError){
-                throw new UnauthorizedException("Ops you have to login again")
+                throw new UnauthorizedException('kindly try to login again')
             }
             console.log("there's an error",e)
         }
@@ -30,12 +30,12 @@ export class SiteinfoService {
     async updateSiteInfo(userId, UpdateSiteInfoDto,id){
         try{
             UpdateSiteInfoDto.adminId = userId
-            const siteInfo = await this.siteInfoModel.findById(id.id).exec();
+            const siteInfo = await this.siteInfoModel.findById(id).exec();
       
             if (!siteInfo) {
               throw new NotFoundException("The site information that you are looking for to update does not exist");
             }
-            const updatedsiteInfo = await this.siteInfoModel.findByIdAndUpdate( id.id, UpdateSiteInfoDto,{ new: true, runValidators: true }).exec();
+            const updatedsiteInfo = await this.siteInfoModel.findByIdAndUpdate( id, UpdateSiteInfoDto,{ new: true, runValidators: true }).exec();
             if(!updatedsiteInfo){
                 throw new BadRequestException("Ops, Couldn't update the siteInfo")
             }
@@ -46,7 +46,7 @@ export class SiteinfoService {
                 throw new UnauthorizedException("Ops you have to login again")
             }
             console.log("ops an error", e)
-              if (e instanceof NotFoundException) {
+              if (e instanceof NotFoundException || e instanceof BadRequestException) {
                 throw e;
               }
         }
@@ -54,7 +54,7 @@ export class SiteinfoService {
 
     async showSiteInfo(id){
         try{
-            const siteInfo = await this.siteInfoModel.findById(id.id).exec();
+            const siteInfo = await this.siteInfoModel.findById(id).exec();
             if (!siteInfo) {
               throw new NotFoundException("The site information that you are looking for, does not exist");
             }
@@ -71,14 +71,17 @@ export class SiteinfoService {
         try{
             let siteInfo = await this.siteInfoModel.findById(id.id)
             if (!siteInfo) {
-              throw new NotFoundException("The siteInfo not found")
+              throw new NotFoundException("The website info not found")
             }
             let deleteSiteInfo = await this.siteInfoModel.findByIdAndDelete(id.id).exec();
-            return "The site info was deleted successfully"
+            if(!deleteSiteInfo){
+                throw new BadRequestException("Ops can not delete the website ")
+            }
+            return "The website info was deleted successfully"
 
         }catch(e){
             console.log("there's an error",e)
-            if(e instanceof NotFoundException){
+            if(e instanceof NotFoundException || e instanceof BadRequestException){
                 throw e 
             }
         }
