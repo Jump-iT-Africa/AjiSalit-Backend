@@ -343,7 +343,6 @@ export class CommandService {
     }
   }
 
-
   async getCommandByQrCode(qrCode: string, userId?: string, role?: string): Promise<any> {
     try {
       const command = await this.commandModel.findOne({ qrCode }).exec();
