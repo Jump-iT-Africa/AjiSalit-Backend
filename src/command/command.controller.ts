@@ -9,7 +9,7 @@ import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { UpdateStatusCommandDto } from './dto/update-status-command.dto';
 import { UpdatepickUpDateCommandDto } from './dto/update-pickup-date-command.dto';
 import { responseStatusDTO } from './dto/reponse-update-status-command.dto';
-import { CompanyRoleGuard } from 'src/user/guards/company-role.guard';
+import { CompanyRoleGuard } from '../user/guards/company-role.guard';
 
 @ApiTags('Orders ')
 @Controller('order')

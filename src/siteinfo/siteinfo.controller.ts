@@ -7,8 +7,7 @@ import { error } from 'console';
 import { UpdateSiteInfoDto } from './dto/update-siteinfo.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { responseSiteInfoDTO } from './dto/reponse-siteInfo.dto';
-import { CompanyRoleGuard } from 'src/user/guards/company-role.guard';
-import { AdminRoleGuard } from 'src/user/guards/admin-role.guard';
+import { AdminRoleGuard } from '../user/guards/admin-role.guard';
 
 @Controller('siteinfo')
 export class SiteinfoController {

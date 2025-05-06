@@ -71,8 +71,8 @@ __decorate([
         required: true
     }),
     (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "The delivery Date is required" }),
     (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" }),
-    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "deliveryDate", void 0);
 __decorate([
