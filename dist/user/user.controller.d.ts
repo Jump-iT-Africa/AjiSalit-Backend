@@ -46,7 +46,7 @@ export declare class UserController {
     getAllCompanies(): Promise<string | ResoponseCompanyInfoDto[]>;
     getAllClients(): Promise<string | import("./dto/ResponseDto/response-user.dto").ResponseUserDto[]>;
     updatePocketBalance(companyId: string, updateBalance: UpdatePocketBalance): Promise<ResoponseCompanyInfoDto>;
-    findOne(id: string, req: any): Promise<import("./dto/ResponseDto/response-user.dto").ResponseUserDto | ResoponseCompanyDto>;
+    findOne(id: string, req: any): Promise<ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
     deleteAccount(id: string, req: any): Promise<string>;
     updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any): Promise<import("./entities/user.schema").User>;
     verifyPhone(verifyNumberDto: VerifyNumberDto): Promise<{
