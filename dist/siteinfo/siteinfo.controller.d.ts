@@ -9,15 +9,15 @@ export declare class SiteinfoController {
     }> & {
         __v: number;
     }>;
-    updateSiteInfo(updateSiteInfoDto: UpdateSiteInfoDto, id: any, req: any): Promise<import("mongoose").Document<unknown, {}, import("./enitites/siteinfo.schema").SiteInfoDocument> & import("./enitites/siteinfo.schema").SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
+    updateSiteInfo(id: string, updateSiteInfoDto: UpdateSiteInfoDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./enitites/siteinfo.schema").SiteInfoDocument> & import("./enitites/siteinfo.schema").SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    showSiteInfo(id: any, req: any): Promise<import("mongoose").Document<unknown, {}, import("./enitites/siteinfo.schema").SiteInfoDocument> & import("./enitites/siteinfo.schema").SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
+    showSiteInfo(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./enitites/siteinfo.schema").SiteInfoDocument> & import("./enitites/siteinfo.schema").SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    deleteSiteInfo(id: any, req: any): Promise<string>;
+    deleteSiteInfo(id: string, req: any): Promise<string>;
 }

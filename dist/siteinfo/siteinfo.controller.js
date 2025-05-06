@@ -21,23 +21,14 @@ const jsonwebtoken_1 = require("jsonwebtoken");
 const update_siteinfo_dto_1 = require("./dto/update-siteinfo.dto");
 const swagger_1 = require("@nestjs/swagger");
 const reponse_siteInfo_dto_1 = require("./dto/reponse-siteInfo.dto");
+const admin_role_guard_1 = require("../user/guards/admin-role.guard");
 let SiteinfoController = class SiteinfoController {
     constructor(siteinfoService) {
         this.siteinfoService = siteinfoService;
     }
     async create(createSiteInfoDto, req) {
         try {
-            let token = req.headers['authorization']?.split(" ")[1];
-            let infoUser = (0, verifyJwt_1.validateJwt)(token);
-            console.log(infoUser.role);
-            if (!infoUser) {
-                throw new common_1.UnauthorizedException("Try to login again");
-            }
-            if (infoUser.role !== "admin") {
-                throw new common_1.ForbiddenException("You are not allowed to add site info");
-            }
-            const authentificatedId = infoUser.id;
-            let infouser = await this.siteinfoService.addSiteInfo(authentificatedId, createSiteInfoDto);
+            let infouser = await this.siteinfoService.addSiteInfo(req.user.id, createSiteInfoDto);
             return infouser;
         }
         catch (e) {
@@ -48,29 +39,14 @@ let SiteinfoController = class SiteinfoController {
                 throw new common_1.UnauthorizedException("Try to login again");
             }
             throw new common_1.BadRequestException("Smth went wrong");
-            console.log("Ops smth went wrong", e);
         }
     }
-    async updateSiteInfo(updateSiteInfoDto, id, req) {
+    async updateSiteInfo(id, updateSiteInfoDto, req) {
         try {
-            let token = req.headers['authorization']?.split(" ")[1];
-            let infoUser = (0, verifyJwt_1.validateJwt)(token);
-            console.log(infoUser.role);
-            if (!infoUser) {
-                throw new common_1.UnauthorizedException("Ops you have to login again");
-            }
-            if (infoUser.role !== "admin") {
-                throw new common_1.ForbiddenException("You are not allowed to update site info");
-            }
-            const authentificatedId = infoUser.id;
-            return this.siteinfoService.updateSiteInfo(authentificatedId, updateSiteInfoDto, id);
+            return this.siteinfoService.updateSiteInfo(req.user.id, updateSiteInfoDto, id);
         }
         catch (e) {
-            console.log("there's an error", e);
-            if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
-                throw new common_1.UnauthorizedException("Ops you have to login again");
-            }
-            if (e instanceof common_1.UnauthorizedException || e instanceof common_1.ForbiddenException || e.name === 'CastError' || e.name === 'ValidationError' || e instanceof common_1.NotFoundException || e instanceof jsonwebtoken_1.JsonWebTokenError) {
+            if (e instanceof common_1.UnauthorizedException || e instanceof common_1.ForbiddenException || e.name === 'CastError' || e.name === 'ValidationError' || e instanceof common_1.NotFoundException || e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof common_1.BadRequestException) {
                 throw e;
             }
         }
@@ -93,19 +69,11 @@ let SiteinfoController = class SiteinfoController {
             if (e instanceof common_1.UnauthorizedException || e.name === 'CastError' || e.name === 'ValidationError' || e instanceof common_1.NotFoundException || e instanceof jsonwebtoken_1.JsonWebTokenError) {
                 throw e;
             }
+            throw new common_1.BadRequestException("Ops, Couldn't view the website");
         }
     }
     async deleteSiteInfo(id, req) {
         try {
-            let token = req.headers['authorization']?.split(" ")[1];
-            let infoUser = (0, verifyJwt_1.validateJwt)(token);
-            console.log(infoUser.role);
-            if (!infoUser) {
-                throw new common_1.UnauthorizedException("Ops you have to login again");
-            }
-            if (infoUser.role !== "admin") {
-                throw new common_1.ForbiddenException("You are not allowed to update site info");
-            }
             return await this.siteinfoService.deleteSiteInfo(id);
         }
         catch (e) {
@@ -113,6 +81,7 @@ let SiteinfoController = class SiteinfoController {
             if (e instanceof common_1.UnauthorizedException || e instanceof common_1.ForbiddenException || e.name === 'CastError' || e.name === 'ValidationError' || e instanceof common_1.NotFoundException || e instanceof jsonwebtoken_1.JsonWebTokenError) {
                 throw e;
             }
+            throw new common_1.BadRequestException("Ops can not delete the website ");
         }
     }
 };
@@ -134,7 +103,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 401,
-                message: "Try to login again",
+                message: 'kindly try to login again',
                 error: 'Unauthorized error',
             },
         },
@@ -145,7 +114,7 @@ __decorate([
         schema: {
             example: {
                 statusCode: 403,
-                message: "You are not allowed to add site info",
+                message: 'Ops only admins can access to this route',
                 error: 'Forbidden error',
             },
         },
@@ -176,13 +145,14 @@ __decorate([
                         },
                     },
                     "Something happend that can crash the app": {
-                        value: "Ops Something went wrong"
+                        value: 'kindly try to login again'
                     },
                 },
             },
         }
     }),
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -190,28 +160,173 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], SiteinfoController.prototype, "create", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: "The admin can update the website Information" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({ type: create_siteinfo_dto_1.CreateSiteInfoDto }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The response when the admin created a new site information successfully',
+        type: reponse_siteInfo_dto_1.responseSiteInfoDTO,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the user is not logged in ',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: 'kindly try to login again',
+                error: 'Unauthorized error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: "Bad request error: the website info did not update  or there's bad request error that crash the app",
+        schema: {
+            example: {
+                statusCode: 400,
+                message: "Ops, Couldn't update the siteInfo",
+                error: 'Bad Request error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: "Forbidden error: The users should have admin role to process those method",
+        schema: {
+            example: {
+                statusCode: 403,
+                message: 'Osp only admins can access to this route',
+                error: 'Forbidden error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not Found error: the site info is not found',
+        schema: {
+            example: {
+                statusCode: 404,
+                message: "The site information that you are looking for to update does not exist",
+                error: 'Not Found',
+            },
+        },
+    }),
     (0, common_1.Put)(":id"),
-    __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Param)()),
+    (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [update_siteinfo_dto_1.UpdateSiteInfoDto, Object, Object]),
+    __metadata("design:paramtypes", [String, update_siteinfo_dto_1.UpdateSiteInfoDto, Object]),
     __metadata("design:returntype", Promise)
 ], SiteinfoController.prototype, "updateSiteInfo", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: "All users can see the website Info" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The success response if the users are able to see the website info details ',
+        type: reponse_siteInfo_dto_1.responseSiteInfoDTO,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the user is not logged in',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: "Ops you have to login again",
+                error: 'Unauthorized error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: "Bad request error: the website info did not show or there's bad request error that crash the app",
+        schema: {
+            example: {
+                statusCode: 400,
+                message: "Ops, Couldn't view the website",
+                error: 'Bad Request error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not Found error: No info website found',
+        schema: {
+            example: {
+                statusCode: 404,
+                message: "The site information that you are looking for, does not exist",
+                error: 'Not Found',
+            },
+        },
+    }),
     (0, common_1.Get)(":id"),
-    __param(0, (0, common_1.Param)()),
+    __param(0, (0, common_1.Param)("id")),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], SiteinfoController.prototype, "showSiteInfo", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: "The admin can delete the website info " }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The success response if the users are able to see the website info details ',
+        example: "The website info was deleted successfully"
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the user is not logged in',
+        schema: {
+            example: {
+                statusCode: 401,
+                message: 'kindly try to login again',
+                error: 'Unauthorized error',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: "Bad request error: something went wrong",
+        schema: {
+            example: {
+                statusCode: 400,
+                message: "Ops can not delete the website ",
+                error: 'Bad Request error'
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not Found error: No website info found',
+        schema: {
+            example: {
+                statusCode: 404,
+                message: "The website info not found",
+                error: 'Not Found',
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: "Forbidden error: Only admins can delete site info",
+        schema: {
+            example: {
+                statusCode: 403,
+                message: 'Osp only admins can access to this route',
+                error: 'Forbidden error',
+            },
+        },
+    }),
     (0, common_1.Delete)(":id"),
-    __param(0, (0, common_1.Param)()),
+    (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
+    __param(0, (0, common_1.Param)("id")),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], SiteinfoController.prototype, "deleteSiteInfo", null);
 exports.SiteinfoController = SiteinfoController = __decorate([

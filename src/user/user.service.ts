@@ -546,8 +546,7 @@ export class UserService {
 
   async updatePocketBalance(companyId, updateBalance){
     try{
-      // console.log("company id ",companyId.companyId)
-      let updatePocketBalance = await this.userModel.findByIdAndUpdate({_id:companyId.companyId}, updateBalance, {new:true,runValidators:true}).exec()
+      let updatePocketBalance = await this.userModel.findByIdAndUpdate({_id:companyId}, updateBalance, {new:true,runValidators:true}).exec()
       // console.log("oh lali oh lala ", updatePocketBalance)
       if(updatePocketBalance == null){
         throw new NotFoundException("Company not found")
