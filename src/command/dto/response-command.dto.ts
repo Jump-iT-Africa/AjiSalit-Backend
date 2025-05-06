@@ -21,7 +21,7 @@ export default class ResponseDto {
   situation: string;
 
   @ApiProperty({
-    example: 'قيد الانتظار',
+    example: "جاهزة للتسليم",
     description: 'The current status of the order',
     required: true,
   })
@@ -55,7 +55,7 @@ export default class ResponseDto {
   })
   images?: string[];
 
- 
+
 
   @ApiProperty({
     example: 'null',
@@ -69,13 +69,13 @@ export default class ResponseDto {
     example: "true",
     required: false
   })
-  isDateChanged:boolean
+  isDateChanged: boolean
 
   @ApiProperty({
-      example: "sick",
-      required: false
+    example: "sick",
+    required: false
   })
-  ChangeDateReason:string
+  ChangeDateReason: string
 
 
   @ApiProperty({
@@ -84,4 +84,16 @@ export default class ResponseDto {
     required: true,
   })
   newDate: string;
+
+  @ApiProperty({
+    example: 0,
+    description: "__v by default "
+  })
+  __v: 0
+
+  @ApiProperty({
+    example: "6809076a0d062a9147e7eb4c",
+    description: 'The id if the command'
+  })
+  _id: Types.ObjectId
 }

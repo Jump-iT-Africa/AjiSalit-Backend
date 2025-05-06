@@ -30,7 +30,7 @@ let SiteinfoService = class SiteinfoService {
         }
         catch (e) {
             if (e instanceof jsonwebtoken_1.JsonWebTokenError) {
-                throw new common_1.UnauthorizedException("Ops you have to login again");
+                throw new common_1.UnauthorizedException('kindly try to login again');
             }
             console.log("there's an error", e);
         }
@@ -38,11 +38,11 @@ let SiteinfoService = class SiteinfoService {
     async updateSiteInfo(userId, UpdateSiteInfoDto, id) {
         try {
             UpdateSiteInfoDto.adminId = userId;
-            const siteInfo = await this.siteInfoModel.findById(id.id).exec();
+            const siteInfo = await this.siteInfoModel.findById(id).exec();
             if (!siteInfo) {
                 throw new common_1.NotFoundException("The site information that you are looking for to update does not exist");
             }
-            const updatedsiteInfo = await this.siteInfoModel.findByIdAndUpdate(id.id, UpdateSiteInfoDto, { new: true, runValidators: true }).exec();
+            const updatedsiteInfo = await this.siteInfoModel.findByIdAndUpdate(id, UpdateSiteInfoDto, { new: true, runValidators: true }).exec();
             if (!updatedsiteInfo) {
                 throw new common_1.BadRequestException("Ops, Couldn't update the siteInfo");
             }
@@ -53,14 +53,14 @@ let SiteinfoService = class SiteinfoService {
                 throw new common_1.UnauthorizedException("Ops you have to login again");
             }
             console.log("ops an error", e);
-            if (e instanceof common_1.NotFoundException) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
                 throw e;
             }
         }
     }
     async showSiteInfo(id) {
         try {
-            const siteInfo = await this.siteInfoModel.findById(id.id).exec();
+            const siteInfo = await this.siteInfoModel.findById(id).exec();
             if (!siteInfo) {
                 throw new common_1.NotFoundException("The site information that you are looking for, does not exist");
             }
@@ -77,14 +77,17 @@ let SiteinfoService = class SiteinfoService {
         try {
             let siteInfo = await this.siteInfoModel.findById(id.id);
             if (!siteInfo) {
-                throw new common_1.NotFoundException("The siteInfo not found");
+                throw new common_1.NotFoundException("The website info not found");
             }
             let deleteSiteInfo = await this.siteInfoModel.findByIdAndDelete(id.id).exec();
-            return "The site info was deleted successfully";
+            if (!deleteSiteInfo) {
+                throw new common_1.BadRequestException("Ops can not delete the website ");
+            }
+            return "The website info was deleted successfully";
         }
         catch (e) {
             console.log("there's an error", e);
-            if (e instanceof common_1.NotFoundException) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.BadRequestException) {
                 throw e;
             }
         }

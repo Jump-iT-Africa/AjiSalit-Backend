@@ -30,6 +30,7 @@ const update_user_field_dto_1 = require("./dto/UpdatesDtos/update-user-field.dto
 const reponse_update_company_dto_1 = require("./dto/ResponseDto/reponse-update-company.dto");
 const admin_role_guard_1 = require("./guards/admin-role.guard");
 const update_pocket_dto_1 = require("./dto/UpdatesDtos/update-pocket.dto");
+const response_info_company_dto_1 = require("./dto/ResponseDto/response-info-company.dto");
 (0, swagger_1.ApiTags)('User');
 let UserController = class UserController {
     constructor(userService) {
@@ -358,7 +359,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
 __decorate([
-    (0, swagger_1.ApiOperation)({ summary: 'the admin can preview all the users info' }),
+    (0, swagger_1.ApiOperation)({ summary: 'The admin can preview all the company info' }),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiResponse)({
         status: 200,
@@ -368,22 +369,13 @@ __decorate([
                 examples: {
                     "Info of companies": {
                         value: [{
-                                "pocket": 250,
-                                "_id": "68189f73271ae1b74abf888e",
-                                "Fname": "Salima BHMD",
-                                "Lname": "company",
-                                "companyName": null,
-                                "role": "company",
+                                "companyName": "Salima's holding",
+                                "Lname": "BHMD",
+                                "Fname": "Salima",
                                 "phoneNumber": "+212698888311",
-                                "password": "$2b$10$12L4nfRf65G72im3xw/z.eIjqOZB/y/XCxUN9QKePoA2MNKPWsNyG",
                                 "city": "rabat",
-                                "field": "pressing",
-                                "ice": 0,
-                                "ownRef": "C79D568E",
-                                "listRefs": [],
-                                "createdAt": "2025-05-05T11:22:27.314Z",
-                                "updatedAt": "2025-05-05T11:22:27.314Z",
-                                "__v": 0
+                                "role": "company",
+                                "pocket": 250,
                             }],
                     },
                 },
@@ -430,6 +422,60 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getAllCompanies", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'The admin can preview all the clients info' }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'the response returns the info of clients',
+        content: {
+            'application/json': {
+                examples: {
+                    "Info of clients": {
+                        value: [{
+                                "Fname": "Salima",
+                                "Lname": "BHM",
+                                "city": "Rabat",
+                                "phoneNumber": "+212 0697042868",
+                                "role": "client"
+                            }],
+                    },
+                },
+            },
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the admin should be authentificated',
+        schema: {
+            example: {
+                "message": 'kindly try to login again',
+                "error": "Unauthorized",
+                "statusCode": 401
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden error: Only users who have admin role can access to this route',
+        schema: {
+            example: {
+                "message": 'Osp only admins can access to this route',
+                "error": "Forbidden",
+                "statusCode": 403
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad error : something breaks down',
+        schema: {
+            example: {
+                "message": "Ops try again",
+                "error": "Bad Request Exception",
+                "statusCode": 400
+            }
+        },
+    }),
     (0, common_1.Get)("clients"),
     (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
     __metadata("design:type", Function),
@@ -437,9 +483,72 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getAllClients", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'The admin can update the balance of pocket of a company' }),
+    (0, swagger_1.ApiBody)({ type: update_pocket_dto_1.UpdatePocketBalance }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'the response returns the info of clients',
+        type: response_info_company_dto_1.ResoponseCompanyInfoDto
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized error: the admin should be authentificated',
+        schema: {
+            example: {
+                "message": 'kindly try to login again',
+                "error": "Unauthorized",
+                "statusCode": 401
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: 'Forbidden error: Only users who have admin role can access to this route',
+        schema: {
+            example: {
+                "message": 'Osp only admins can access to this route',
+                "error": "Forbidden",
+                "statusCode": 403
+            }
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Bad Request: new exception',
+        content: {
+            'application/json': {
+                examples: {
+                    "Negative number ": {
+                        value: {
+                            "message": [
+                                "The pocket number should be positive or 0 ",
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        },
+                    },
+                    "Empty Balance or invalid format ": {
+                        value: {
+                            "message": [
+                                "The pocket number should be positive or 0 ",
+                                "The pocket number should not be empty and should be a valid number",
+                                "the pocket price must be a valid number"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        },
+                    },
+                    "Something happend that can crash the app": {
+                        value: "Ops try again"
+                    },
+                },
+            },
+        }
+    }),
     (0, common_1.Patch)('pocket/:companyId'),
     (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
-    __param(0, (0, common_1.Param)()),
+    __param(0, (0, common_1.Param)('companyId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_pocket_dto_1.UpdatePocketBalance]),

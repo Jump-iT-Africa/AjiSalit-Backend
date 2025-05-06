@@ -30,7 +30,7 @@ export class CreateCommandDto {
     situation:string
 
     @ApiProperty({
-        example: "في طور الانجاز",
+        example: "جاهزة للتسليم",
         required: true
     })
     @IsOptional()

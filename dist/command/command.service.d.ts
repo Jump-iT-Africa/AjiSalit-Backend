@@ -76,12 +76,7 @@ export declare class CommandService {
         __v: number;
     }>;
     deleteOrder(id: string, userId: any): Promise<{
-        mess: string;
-        deleteOrder: mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
-            _id: unknown;
-        }> & {
-            __v: number;
-        };
+        message: string;
     }>;
     getCommandByQrCode(qrCode: string, userId?: string, role?: string): Promise<any>;
 }

@@ -447,7 +447,7 @@ let UserService = class UserService {
     }
     async updatePocketBalance(companyId, updateBalance) {
         try {
-            let updatePocketBalance = await this.userModel.findByIdAndUpdate({ _id: companyId.companyId }, updateBalance, { new: true, runValidators: true }).exec();
+            let updatePocketBalance = await this.userModel.findByIdAndUpdate({ _id: companyId }, updateBalance, { new: true, runValidators: true }).exec();
             if (updatePocketBalance == null) {
                 throw new common_1.NotFoundException("Company not found");
             }
