@@ -18,7 +18,10 @@ export class Command {
 
   @Prop({ required: true, default:"في طور الانجاز", enum: ["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"] })
   status: string;
-  
+
+  @Prop({required:true, default:false})
+  isExpired: boolean;
+
   @Prop({ required: false, default:null})
   advancedAmount:number;
 
@@ -42,8 +45,6 @@ export class Command {
 
   @Prop({required:true, default:false})
   isPickUp: false;
-
-
 
   @Prop({required:false, default:false})
   isDateChanged: boolean;

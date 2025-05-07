@@ -21,6 +21,7 @@ import { log } from 'console';
 import { isInstance, validate } from 'class-validator';
 import {VerifyNumberDto} from "./dto/Logindto/VerifyPhoneNumber.dto"
 import { ResoponseCompanyInfoDto } from './dto/ResponseDto/response-info-company.dto';
+import { hasSubscribers } from 'diagnostics_channel';
 
 
 const secretKey = process.env.JWT_SECRET;
@@ -48,6 +49,7 @@ export class UserService {
   
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
+      console.log("test", hashedPassword, password)
       const GeneratedRefCode = this.generateReferralCode();
       
       const newUser = new this.userModel({
@@ -245,7 +247,7 @@ export class UserService {
     try{
       let result = await this.userModel.findById(userId).exec()
       if (!result) {
-        throw new NotFoundException("Command not found")
+        throw new NotFoundException("user not found")
       }
       // console.log(authentificatedId, "user ",result._id)
       if(userId !== result._id.toString()){
@@ -508,17 +510,15 @@ export class UserService {
         return "No comapanies yet"
       }
       
-      let dataCompanies = plainToClass(ResoponseCompanyInfoDto,result, {
-        excludeExtraneousValues:true,
-        enableImplicitConversion:true
-      })
+      let dataCompanies = plainToClass(ResoponseCompanyInfoDto,result, { excludeExtraneousValues:true, enableImplicitConversion:true })
       return dataCompanies
     }catch(e){
+      console.log("there's an error", e)
+
       if(e instanceof NotFoundException){
         throw e
       }
       throw e 
-      console.log("there's an error", e)
     }
   }
 
@@ -563,6 +563,36 @@ export class UserService {
       console.log("there's an error", e)
     }
 
+  }
+
+  async updatePassword(updatePasswordDto,userId:string){
+    try{
+      let user = await this.userModel.findById(userId).exec()
+      if(!user){
+        throw new NotFoundException("The  user not found")
+      }
+      console.log()
+      let isCorrectPassword = await bcrypt.compare(updatePasswordDto.oldPassword, user.password)
+      if(!isCorrectPassword){
+        throw new UnauthorizedException("Ops, your password is incorrect")
+      }
+      const saltRounds = 10;
+      let hashedNewPassword = await bcrypt.hash(updatePasswordDto.password, saltRounds)
+      updatePasswordDto.password = hashedNewPassword
+      // console.log("last pass", user.password, "new pass", hashedNewPassword, "user Id", userId)
+      let updatePassword = await this.userModel.findByIdAndUpdate(userId, updatePasswordDto, {new:true, runValidators:true});
+      if(updatePassword.password = hashedNewPassword){
+        return "The password has been updated successfully"
+      }
+
+      
+    }catch(e){
+      if(e instanceof NotFoundException || e instanceof UnauthorizedException || e instanceof BadRequestException){
+        throw e 
+      }
+      console.log("error", e)
+      throw new BadRequestException("Ops, coudln't update the password")
+    }
   }
 
 
