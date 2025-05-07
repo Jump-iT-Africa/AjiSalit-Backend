@@ -23,6 +23,7 @@ export declare class CommandController {
         clientId: string;
         situation: string;
         status: string;
+        isExpired: boolean;
         advancedAmount: number;
         price: number;
         images: [{

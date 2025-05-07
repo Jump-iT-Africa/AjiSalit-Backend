@@ -32,6 +32,10 @@ __decorate([
     __metadata("design:type", String)
 ], Command.prototype, "status", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ required: true, default: false }),
+    __metadata("design:type", Boolean)
+], Command.prototype, "isExpired", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ required: false, default: null }),
     __metadata("design:type", Number)
 ], Command.prototype, "advancedAmount", void 0);

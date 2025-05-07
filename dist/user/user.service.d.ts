@@ -68,4 +68,5 @@ export declare class UserService {
     getAllCompanies(): Promise<"No comapanies yet" | ResoponseCompanyInfoDto[]>;
     getAllClients(): Promise<"No clients yet" | ResponseUserDto[]>;
     updatePocketBalance(companyId: any, updateBalance: any): Promise<ResoponseCompanyInfoDto>;
+    updatePassword(updatePasswordDto: any, userId: string): Promise<string>;
 }

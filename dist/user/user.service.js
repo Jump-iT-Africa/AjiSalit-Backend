@@ -44,6 +44,7 @@ let UserService = class UserService {
             }
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
+            console.log("test", hashedPassword, password);
             const GeneratedRefCode = this.generateReferralCode();
             const newUser = new this.userModel({
                 Fname,
@@ -184,7 +185,7 @@ let UserService = class UserService {
         try {
             let result = await this.userModel.findById(userId).exec();
             if (!result) {
-                throw new common_1.NotFoundException("Command not found");
+                throw new common_1.NotFoundException("user not found");
             }
             if (userId !== result._id.toString()) {
                 throw new common_1.ForbiddenException("You aren't authorized to perform this task");
@@ -412,18 +413,15 @@ let UserService = class UserService {
             if (result.length == 0) {
                 return "No comapanies yet";
             }
-            let dataCompanies = (0, class_transformer_1.plainToClass)(response_info_company_dto_1.ResoponseCompanyInfoDto, result, {
-                excludeExtraneousValues: true,
-                enableImplicitConversion: true
-            });
+            let dataCompanies = (0, class_transformer_1.plainToClass)(response_info_company_dto_1.ResoponseCompanyInfoDto, result, { excludeExtraneousValues: true, enableImplicitConversion: true });
             return dataCompanies;
         }
         catch (e) {
+            console.log("there's an error", e);
             if (e instanceof common_1.NotFoundException) {
                 throw e;
             }
             throw e;
-            console.log("there's an error", e);
         }
     }
     async getAllClients() {
@@ -462,6 +460,33 @@ let UserService = class UserService {
                 throw e;
             }
             console.log("there's an error", e);
+        }
+    }
+    async updatePassword(updatePasswordDto, userId) {
+        try {
+            let user = await this.userModel.findById(userId).exec();
+            if (!user) {
+                throw new common_1.NotFoundException("The  user not found");
+            }
+            console.log();
+            let isCorrectPassword = await bcrypt.compare(updatePasswordDto.oldPassword, user.password);
+            if (!isCorrectPassword) {
+                throw new common_1.UnauthorizedException("Ops, your password is incorrect");
+            }
+            const saltRounds = 10;
+            let hashedNewPassword = await bcrypt.hash(updatePasswordDto.password, saltRounds);
+            updatePasswordDto.password = hashedNewPassword;
+            let updatePassword = await this.userModel.findByIdAndUpdate(userId, updatePasswordDto, { new: true, runValidators: true });
+            if (updatePassword.password = hashedNewPassword) {
+                return "The password has been updated successfully";
+            }
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            console.log("error", e);
+            throw new common_1.BadRequestException("Ops, coudln't update the password");
         }
     }
 };

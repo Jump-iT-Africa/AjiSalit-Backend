@@ -21,6 +21,8 @@ import { ResoponseUpdateCompanyDto } from './dto/ResponseDto/reponse-update-comp
 import { AdminRoleGuard } from './guards/admin-role.guard';
 import { UpdatePocketBalance } from './dto/UpdatesDtos/update-pocket.dto';
 import { ResoponseCompanyInfoDto } from './dto/ResponseDto/response-info-company.dto';
+import { UpdatePassword } from './dto/UpdatesDtos/update-password.dto';
+import { IsAuthenticated } from './guards/is-authentificated.guard';
 
 ApiTags('User')
 @Controller('user')
@@ -1072,6 +1074,112 @@ export class UserController {
         return "JWT must be provided, try to login again"
       }
       console.log("There's an error :",e)
+    }
+  }
+
+
+  @ApiOperation({summary: "This method allows users to change their password"})
+  @ApiBearerAuth()
+  @ApiBody({
+    type: UpdatePassword,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The password has been updated successfully',
+    example: "The password has been updated successfully",
+  })
+
+  @ApiResponse({
+    status: 400,
+    description: 'Something went wrong',
+        content: {
+          'application/json': {
+              examples: {
+                "Passwords include letters instead of digits":{
+                  value: {
+                    "message": [
+                      "The your last password must contain 6 numbers only",
+                      "The your new password must contain 6 numbers only"
+                  ],
+                  "error": "Bad Request",
+                  "statusCode": 400
+                }
+                },
+                  "Something went wrong": {
+                      value: {
+                        message: "Ops, coudln't update the password",
+                        error: 'Bad Request Exception',
+                        statusCode: 400,
+                      }
+                  },
+                  "the Body is empty and the passwords(old and new) aren't in a valid format": {
+                      value: {
+                        "message": [
+                          "Your old password should not be empty",
+                          "The your last password must contain 6 numbers only",
+                          "The password should sent as format string like '287398' ",
+                          "Your new password should not be empty",
+                          "The your new password must contain 6 numbers only",
+                          "The new password should sent as format string like '287398'"
+                      ],
+                      "error": "Bad Request",
+                      "statusCode": 400
+                    }
+              }
+      }
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or expired token',
+    content:{
+      'application/json':{
+        examples:{
+          "The password sent does not match the password of user":{
+            value:{
+              "message": "Ops, your password is incorrect",
+              "error": "Unauthorized",
+              "statusCode": 401
+          }
+          },
+          "The user is not logged in":{
+            value:{
+                "message": "Try to login again",
+                "error": 'Unauthorized',
+                "statusCode": 401,
+
+            }
+          }
+        }
+      }
+    }
+
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found - User not found',
+    schema: {
+      example: {
+        message: "The  user not found",
+        error: 'Not Found',
+        statusCode: 404,
+      },
+    },
+  })
+
+
+  @Patch("password")
+  @UseGuards(IsAuthenticated)
+  async updatePassword(@Body() updatePasswordDto: UpdatePassword, @Req() req){
+    try{
+      return await this.userService.updatePassword(updatePasswordDto, req.user.id)
+    }catch(e){
+      if(e instanceof NotFoundException || e instanceof UnauthorizedException || e instanceof BadRequestException){
+        throw e 
+      }
+      console.log("there's an error",e)
+      throw new BadRequestException( "Ops, coudln't update the password")
     }
   }
 

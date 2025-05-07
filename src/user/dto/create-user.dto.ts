@@ -29,6 +29,7 @@ export class CreateUserDto {
     
     @ApiProperty({ example: '123456', required: true })
     @IsString()
+    @Matches(/^\d{6}$/, {message: "The password must contain 6 numbers only"})
     @IsNotEmpty()
     password: string;
 

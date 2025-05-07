@@ -31,6 +31,8 @@ const reponse_update_company_dto_1 = require("./dto/ResponseDto/reponse-update-c
 const admin_role_guard_1 = require("./guards/admin-role.guard");
 const update_pocket_dto_1 = require("./dto/UpdatesDtos/update-pocket.dto");
 const response_info_company_dto_1 = require("./dto/ResponseDto/response-info-company.dto");
+const update_password_dto_1 = require("./dto/UpdatesDtos/update-password.dto");
+const is_authentificated_guard_1 = require("./guards/is-authentificated.guard");
 (0, swagger_1.ApiTags)('User');
 let UserController = class UserController {
     constructor(userService) {
@@ -244,6 +246,18 @@ let UserController = class UserController {
                 return "JWT must be provided, try to login again";
             }
             console.log("There's an error :", e);
+        }
+    }
+    async updatePassword(updatePasswordDto, req) {
+        try {
+            return await this.userService.updatePassword(updatePasswordDto, req.user.id);
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.UnauthorizedException || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+            console.log("there's an error", e);
+            throw new common_1.BadRequestException("Ops, coudln't update the password");
         }
     }
 };
@@ -1106,6 +1120,101 @@ __decorate([
     __metadata("design:paramtypes", [update_user_field_dto_1.UpdateFieldDto, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateField", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: "This method allows users to change their password" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiBody)({
+        type: update_password_dto_1.UpdatePassword,
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'The password has been updated successfully',
+        example: "The password has been updated successfully",
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: 'Something went wrong',
+        content: {
+            'application/json': {
+                examples: {
+                    "Passwords include letters instead of digits": {
+                        value: {
+                            "message": [
+                                "The your last password must contain 6 numbers only",
+                                "The your new password must contain 6 numbers only"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                    "Something went wrong": {
+                        value: {
+                            message: "Ops, coudln't update the password",
+                            error: 'Bad Request Exception',
+                            statusCode: 400,
+                        }
+                    },
+                    "the Body is empty and the passwords(old and new) aren't in a valid format": {
+                        value: {
+                            "message": [
+                                "Your old password should not be empty",
+                                "The your last password must contain 6 numbers only",
+                                "The password should sent as format string like '287398' ",
+                                "Your new password should not be empty",
+                                "The your new password must contain 6 numbers only",
+                                "The new password should sent as format string like '287398'"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    }
+                }
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: 'Unauthorized - Invalid or expired token',
+        content: {
+            'application/json': {
+                examples: {
+                    "The password sent does not match the password of user": {
+                        value: {
+                            "message": "Ops, your password is incorrect",
+                            "error": "Unauthorized",
+                            "statusCode": 401
+                        }
+                    },
+                    "The user is not logged in": {
+                        value: {
+                            "message": "Try to login again",
+                            "error": 'Unauthorized',
+                            "statusCode": 401,
+                        }
+                    }
+                }
+            }
+        }
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 404,
+        description: 'Not found - User not found',
+        schema: {
+            example: {
+                message: "The  user not found",
+                error: 'Not Found',
+                statusCode: 404,
+            },
+        },
+    }),
+    (0, common_1.Patch)("password"),
+    (0, common_1.UseGuards)(is_authentificated_guard_1.IsAuthenticated),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [update_password_dto_1.UpdatePassword, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updatePassword", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])
