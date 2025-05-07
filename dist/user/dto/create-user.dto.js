@@ -41,6 +41,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ example: '123456', required: true }),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^\d{6}$/, { message: "The password must contain 6 numbers only" }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "password", void 0);
