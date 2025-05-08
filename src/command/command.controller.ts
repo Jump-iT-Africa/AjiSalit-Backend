@@ -10,7 +10,7 @@ import { UpdateStatusCommandDto } from './dto/update-status-command.dto';
 import { UpdatepickUpDateCommandDto } from './dto/update-pickup-date-command.dto';
 import { responseStatusDTO } from './dto/reponse-update-status-command.dto';
 import { CompanyRoleGuard } from '../user/guards/company-role.guard';
-import { IsAuthenticated } from 'src/user/guards/is-authentificated.guard';
+import { IsAuthenticated } from '../user/guards/is-authentificated.guard';
 import { ResponseCommandAndCompanyDTO } from './dto/response-command-and-company.dto';
 
 @ApiTags('Orders ')
