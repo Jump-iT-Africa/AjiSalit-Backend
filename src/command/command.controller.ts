@@ -10,6 +10,8 @@ import { UpdateStatusCommandDto } from './dto/update-status-command.dto';
 import { UpdatepickUpDateCommandDto } from './dto/update-pickup-date-command.dto';
 import { responseStatusDTO } from './dto/reponse-update-status-command.dto';
 import { CompanyRoleGuard } from '../user/guards/company-role.guard';
+import { IsAuthenticated } from 'src/user/guards/is-authentificated.guard';
+import { ResponseCommandAndCompanyDTO } from './dto/response-command-and-company.dto';
 
 @ApiTags('Orders ')
 @Controller('order')
@@ -107,11 +109,11 @@ export class CommandController {
   })
   @Post()
   @UseGuards(CompanyRoleGuard)
-  create(@Body() createCommandDto: CreateCommandDto, @Req() req) {
+  async create(@Body() createCommandDto: CreateCommandDto, @Req() req) {
     try {
-      return this.commandService.create(createCommandDto, req.user.id);
+      return await this.commandService.create(createCommandDto, req.user.id);
     } catch (e) {
-      console.log("ops new wonderful error", e)
+      console.log("ops new error", e)
       if (e instanceof JsonWebTokenError || e instanceof ForbiddenException || e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException)
         throw e
       throw new BadRequestException('Ops smth went wrong', e)
@@ -271,7 +273,7 @@ export class CommandController {
       },
     }
   })
-  findAll(@Req() req) {
+  async findAll(@Req() req) {
     try {
       let token = req.headers['authorization']?.split(" ")[1];
       
@@ -280,7 +282,7 @@ export class CommandController {
       if (!infoUser || !token) {
         throw new UnauthorizedException("Try to login again")
       }
-      return this.commandService.findAll(infoUser.id, infoUser.role);
+      return await this.commandService.findAll(infoUser.id, infoUser.role);
     } catch (e) {
       console.log(e);
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
@@ -295,11 +297,11 @@ export class CommandController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: "The client or the company can see th details of their sepefic order" })
+  @ApiOperation({ summary: "The client or the company can see th details of their sepefic order and the name and field of company" })
   @ApiResponse({
     status: 200,
     description: 'The client or the company check the details of order successfully',
-    type: ResponseDto
+    type: ResponseCommandAndCompanyDTO
   })
 
   @ApiResponse({
@@ -346,16 +348,11 @@ export class CommandController {
     },
   })
   @ApiBearerAuth()
-
-  findOne(@Param('id') id: string, @Req() req) {
+  @UseGuards(IsAuthenticated)
+  async findOne(@Param('id') id: string, @Req() req) {
     try {
-      let token = req.headers['authorization']?.split(" ")[1];
-      let infoUser = validateJwt(token);
-      console.log(infoUser)
-      if (!infoUser){
-        throw new UnauthorizedException("Try to login again")
-      }
-      return this.commandService.findOne(id, infoUser);
+
+      return (await this.commandService.findOne(id, req.user));
     } catch (e) {
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
         throw new UnauthorizedException("Try to login again")
@@ -432,10 +429,10 @@ export class CommandController {
   })
   @ApiBearerAuth()
 
-  update(@Param('id') id: string, @Body() updateCommandDto: UpdateCommandDto, @Req() req) {
+  async update(@Param('id') id: string, @Body() updateCommandDto: UpdateCommandDto, @Req() req) {
     try {
 
-      return this.commandService.update(req.user.id, id, updateCommandDto);
+      return await this.commandService.update(req.user.id, id, updateCommandDto);
 
     } catch (e) {
       console.log(e)
@@ -512,9 +509,9 @@ export class CommandController {
     }
   })
 
-  remove(@Param('id') id: string, @Req() req) {
+  async remove(@Param('id') id: string, @Req() req) {
     try {
-      return this.commandService.deleteOrder(id, req.user.id);
+      return await this.commandService.deleteOrder(id, req.user.id);
     } catch (e) {
       console.log(e);
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof ForbiddenException || e instanceof UnauthorizedException)

@@ -23,21 +23,29 @@ const validationOrder_1 = require("../services/validationOrder");
 const notifications_gateway_1 = require("../notifications/notifications.gateway");
 const notifications_service_1 = require("../notifications/notifications.service");
 const validationPickUpdate_1 = require("../services/validationPickUpdate");
+const mongoose_4 = require("mongoose");
 let CommandService = class CommandService {
-    constructor(commandModel, userModel, notificationsGateway, notificationsService) {
+    constructor(connection, commandModel, userModel, notificationsGateway, notificationsService) {
+        this.connection = connection;
         this.commandModel = commandModel;
         this.userModel = userModel;
         this.notificationsGateway = notificationsGateway;
         this.notificationsService = notificationsService;
     }
     async create(createCommandDto, authentificatedId) {
+        const session = await this.connection.startSession();
         try {
-            let companyOwner = await this.userModel.findById(authentificatedId).exec();
-            console.log("the company owner is here ", companyOwner);
-            if (companyOwner.pocket <= 0) {
+            session.startTransaction();
+            let companyOwner = await this.userModel
+                .findById(authentificatedId)
+                .session(session)
+                .exec();
+            if (companyOwner?.pocket <= 0) {
                 throw new common_1.HttpException("Ops you are poor, your balance is zero", common_1.HttpStatus.PAYMENT_REQUIRED);
             }
-            const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
+            const existingOrder = await this.commandModel
+                .findOne({ qrCode: createCommandDto.qrCode })
+                .exec();
             if (existingOrder) {
                 throw new common_1.ConflictException("This code is already used");
             }
@@ -47,18 +55,28 @@ let CommandService = class CommandService {
             if (resultValidation !== "valide") {
                 throw new common_1.UnprocessableEntityException(resultValidation);
             }
-            let savingOrder = newOrder.save();
+            let savingOrder = newOrder.save({ session });
             if (!savingOrder) {
                 return "try again";
             }
-            return savingOrder;
+            let updateCompanyOwnerPocket = await this.userModel.findByIdAndUpdate({ _id: authentificatedId }, { pocket: companyOwner.pocket - 1 }, { new: true, session });
+            if (updateCompanyOwnerPocket && savingOrder) {
+                await session.commitTransaction();
+                return savingOrder;
+            }
         }
         catch (e) {
-            if (e instanceof common_1.UnprocessableEntityException || e instanceof common_1.ConflictException || e instanceof common_1.HttpException) {
+            await session.abortTransaction();
+            if (e instanceof common_1.UnprocessableEntityException ||
+                e instanceof common_1.ConflictException ||
+                e instanceof common_1.HttpException) {
                 throw e;
             }
             console.log("ops new wonderful error", e);
             throw new common_1.BadRequestException(e.message);
+        }
+        finally {
+            session.endSession();
         }
     }
     async scanedUserId(qrcode, userId, username) {
@@ -71,7 +89,9 @@ let CommandService = class CommandService {
             if (updateCommad.clientId !== null) {
                 throw new common_1.ConflictException("The qrCode is already scanned");
             }
-            const updatedCommand = await this.commandModel.findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true }).exec();
+            const updatedCommand = await this.commandModel
+                .findOneAndUpdate({ qrCode: qrcode }, { clientId: userId }, { new: true })
+                .exec();
             if (companyData.expoPushToken) {
                 let message = `Your qrCode has been was scanned successfully by ${username}`;
                 let notificationSender = await this.notificationsService.sendPushNotification(companyData.expoPushToken, "AjiSalit", message);
@@ -110,20 +130,24 @@ let CommandService = class CommandService {
             if (allOrders.length == 0) {
                 return "No order found";
             }
-            const clientIds = [...new Set(allOrders
-                    .filter(order => order.clientId)
-                    .map(order => order.clientId.toString()))];
-            const companyId = [...new Set(allOrders
-                    .filter(order => order.companyId)
-                    .map(order => order.companyId.toString()))];
+            const clientIds = [
+                ...new Set(allOrders
+                    .filter((order) => order.clientId)
+                    .map((order) => order.clientId.toString())),
+            ];
+            const companyId = [
+                ...new Set(allOrders
+                    .filter((order) => order.companyId)
+                    .map((order) => order.companyId.toString())),
+            ];
             if (clientIds.length === 0 || companyId.length === 0) {
                 return allOrders;
             }
             const users = await this.userModel.find({
-                _id: { $in: clientIds.map(id => new mongoose_2.Types.ObjectId(id)) }
+                _id: { $in: clientIds.map((id) => new mongoose_2.Types.ObjectId(id)) },
             });
             const companies = await this.userModel.find({
-                _id: { $in: companyId.map(id => new mongoose_2.Types.ObjectId(id)) }
+                _id: { $in: companyId.map((id) => new mongoose_2.Types.ObjectId(id)) },
             });
             const userMap = users.reduce((map, user) => {
                 map[user._id.toString()] = {
@@ -133,11 +157,11 @@ let CommandService = class CommandService {
             }, {});
             const companyMap = companies.reduce((map, company) => {
                 map[company._id.toString()] = {
-                    field: company.field || "مجال غير معروف"
+                    field: company.field || "مجال غير معروف",
                 };
                 return map;
             }, {});
-            const ordersWithCustomerNames = allOrders.map(order => {
+            const ordersWithCustomerNames = allOrders.map((order) => {
                 const clientId = order.clientId ? order.clientId.toString() : null;
                 const plainOrder = order.toObject();
                 const userData = clientId ? userMap[clientId] : null;
@@ -146,7 +170,7 @@ let CommandService = class CommandService {
                 return {
                     ...plainOrder,
                     customerDisplayName: userData?.name || "عميل غير معروف",
-                    customerField: companyData?.field || "مجال غير معروف"
+                    customerField: companyData?.field || "مجال غير معروف",
                 };
             });
             return ordersWithCustomerNames;
@@ -158,6 +182,7 @@ let CommandService = class CommandService {
     }
     async findOne(id, infoUser) {
         try {
+            console.log("here's the id of user");
             let query = { _id: id };
             if (infoUser.role == "client") {
                 query.clientId = infoUser.id;
@@ -165,15 +190,18 @@ let CommandService = class CommandService {
             else if (infoUser.role == "company") {
                 query.companyId = infoUser.id;
             }
-            console.log(query);
-            let order = await this.commandModel.findOne(query).exec();
+            let order = await this.commandModel
+                .findOne(query)
+                .populate({ path: "companyId", select: "companyName field" })
+                .exec();
+            console.log("there's an order", order);
             if (!order) {
                 throw new common_1.NotFoundException("No order found");
             }
             return order;
         }
         catch (e) {
-            if (e.name === 'CastError') {
+            if (e.name === "CastError") {
                 throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
@@ -195,10 +223,19 @@ let CommandService = class CommandService {
             if (command.companyId.toString() !== authentificatedId) {
                 throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            const updatedCommand = await this.commandModel.findByIdAndUpdate(id, updateCommandDto, { new: true, runValidators: true }).exec();
+            const updatedCommand = await this.commandModel
+                .findByIdAndUpdate(id, updateCommandDto, {
+                new: true,
+                runValidators: true,
+            })
+                .exec();
             if (updateCommandDto.status == "جاهزة للتسليم" && updatedCommand) {
-                let clientInfo = await this.userModel.findById(updatedCommand.clientId).exec();
-                let companyInfo = await this.userModel.findById(updatedCommand.companyId).exec();
+                let clientInfo = await this.userModel
+                    .findById(updatedCommand.clientId)
+                    .exec();
+                let companyInfo = await this.userModel
+                    .findById(updatedCommand.companyId)
+                    .exec();
                 if (clientInfo && clientInfo.expoPushToken) {
                     let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, ` 🛎️ Talabek tbdel !`, `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `);
                     console.log("Here's my notification sender: ", notificationSender);
@@ -209,7 +246,7 @@ let CommandService = class CommandService {
         catch (e) {
             console.log("error type:", e.constructor.name);
             console.log("Full error:", e);
-            if (e.name === 'CastError' || e.name === 'ValidationError') {
+            if (e.name === "CastError" || e.name === "ValidationError") {
                 throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
@@ -230,7 +267,9 @@ let CommandService = class CommandService {
             if (command.companyId.toString() !== userId) {
                 throw new common_1.ForbiddenException("You are not allowed to update this oder");
             }
-            let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true }).exec();
+            let result = await this.commandModel
+                .findByIdAndUpdate(orderId, data, { new: true })
+                .exec();
             let clientInfo = await this.userModel.findById(command.clientId).exec();
             let companyInfo = await this.userModel.findById(command.companyId).exec();
             if (clientInfo && clientInfo.expoPushToken && result) {
@@ -240,7 +279,9 @@ let CommandService = class CommandService {
             return result;
         }
         catch (e) {
-            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException) {
+            if (e instanceof common_1.NotFoundException ||
+                e instanceof common_1.ForbiddenException ||
+                e instanceof common_1.BadRequestException) {
                 throw e;
             }
             throw new common_1.BadRequestException("Ops Something went wrong");
@@ -259,7 +300,9 @@ let CommandService = class CommandService {
             if (validateDate !== "valid") {
                 throw new common_1.UnprocessableEntityException(validateDate);
             }
-            let result = await this.commandModel.findByIdAndUpdate(orderId, data, { new: true, runValidators: true }).exec();
+            let result = await this.commandModel
+                .findByIdAndUpdate(orderId, data, { new: true, runValidators: true })
+                .exec();
             if (!result) {
                 throw new common_1.BadRequestException("Ops try to update it again");
             }
@@ -274,7 +317,10 @@ let CommandService = class CommandService {
         }
         catch (e) {
             console.log("opsss", e);
-            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnprocessableEntityException) {
+            if (e instanceof common_1.NotFoundException ||
+                e instanceof common_1.ForbiddenException ||
+                e instanceof common_1.BadRequestException ||
+                e instanceof common_1.UnprocessableEntityException) {
                 throw e;
             }
             throw new common_1.BadRequestException("Ops Something went wrong");
@@ -296,7 +342,7 @@ let CommandService = class CommandService {
         }
         catch (e) {
             console.log("there's an error", e);
-            if (e.name === 'CastError') {
+            if (e.name === "CastError") {
                 throw new common_1.BadRequestException("The id of this order is not correct");
             }
             if (e instanceof common_1.NotFoundException) {
@@ -315,22 +361,27 @@ let CommandService = class CommandService {
                 throw new common_1.NotFoundException("The order is not found");
             }
             const companyId = command.companyId?.toString();
-            if (role === 'company' && userId && companyId !== userId) {
+            if (role === "company" && userId && companyId !== userId) {
                 throw new common_1.ForbiddenException("You don't have permission to view this order");
             }
             let companyData = null;
             if (companyId) {
-                companyData = await this.userModel.findById(companyId).select('_id phoneNumber field companyName').exec();
+                companyData = await this.userModel
+                    .findById(companyId)
+                    .select("_id phoneNumber field companyName")
+                    .exec();
             }
             const plainCommand = command.toObject();
             return {
                 ...plainCommand,
-                companyId: companyData ? {
-                    _id: companyData._id,
-                    phoneNumber: companyData.phoneNumber
-                } : null,
+                companyId: companyData
+                    ? {
+                        _id: companyData._id,
+                        phoneNumber: companyData.phoneNumber,
+                    }
+                    : null,
                 companyField: companyData?.field || "مجال غير معروف",
-                companyName: companyData?.companyName || "اسم غير معروف"
+                companyName: companyData?.companyName || "اسم غير معروف",
             };
         }
         catch (e) {
@@ -345,10 +396,12 @@ let CommandService = class CommandService {
 exports.CommandService = CommandService;
 exports.CommandService = CommandService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
-    __param(1, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
-    __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_gateway_1.NotificationsGateway))),
-    __metadata("design:paramtypes", [mongoose_2.Model,
+    __param(0, (0, mongoose_1.InjectConnection)()),
+    __param(1, (0, mongoose_1.InjectModel)(command_schema_1.Command.name)),
+    __param(2, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
+    __param(3, (0, common_1.Inject)((0, common_1.forwardRef)(() => notifications_gateway_1.NotificationsGateway))),
+    __metadata("design:paramtypes", [mongoose_4.Connection,
+        mongoose_2.Model,
         mongoose_2.Model,
         notifications_gateway_1.NotificationsGateway,
         notifications_service_1.NotificationsService])
