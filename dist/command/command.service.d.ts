@@ -1,17 +1,19 @@
 import { Model } from "mongoose";
-import { CreateCommandDto } from './dto/create-command.dto';
-import { UpdateCommandDto } from './dto/update-command.dto';
-import mongoose from 'mongoose';
-import { Command, CommandDocument } from './entities/command.schema';
-import { UserDocument } from '../user/entities/user.schema';
-import { NotificationsGateway } from '../notifications/notifications.gateway';
-import { NotificationsService } from '../notifications/notifications.service';
+import { CreateCommandDto } from "./dto/create-command.dto";
+import { UpdateCommandDto } from "./dto/update-command.dto";
+import mongoose from "mongoose";
+import { Command, CommandDocument } from "./entities/command.schema";
+import { UserDocument } from "../user/entities/user.schema";
+import { NotificationsGateway } from "../notifications/notifications.gateway";
+import { NotificationsService } from "../notifications/notifications.service";
+import { Connection } from "mongoose";
 export declare class CommandService {
+    private readonly connection;
     private commandModel;
     private userModel;
     private readonly notificationsGateway;
     private notificationsService;
-    constructor(commandModel: Model<CommandDocument>, userModel: Model<UserDocument>, notificationsGateway: NotificationsGateway, notificationsService: NotificationsService);
+    constructor(connection: Connection, commandModel: Model<CommandDocument>, userModel: Model<UserDocument>, notificationsGateway: NotificationsGateway, notificationsService: NotificationsService);
     create(createCommandDto: CreateCommandDto, authentificatedId: string): Promise<"try again" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
@@ -49,7 +51,7 @@ export declare class CommandService {
         $where: Record<string, unknown>;
         baseModelName?: string;
         collection: mongoose.Collection;
-        db: mongoose.Connection;
+        db: Connection;
         errors?: mongoose.Error.ValidationError;
         id?: any;
         isNew: boolean;

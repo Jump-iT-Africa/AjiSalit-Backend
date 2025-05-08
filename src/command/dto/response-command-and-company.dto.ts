@@ -1,9 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Types } from 'mongoose';
+import { ApiProperty } from "@nestjs/swagger";
+import { Expose } from "class-transformer";
+import { Types } from "mongoose";
+import { User } from "src/user/entities/user.schema";
 
-export default class ResponseDto {
+export class ResponseCommandAndCompanyDTO{
 
-  companyId: Types.ObjectId;
+    @ApiProperty({
+        description: 'Company information',
+        type: 'object',
+        properties: {
+          _id: { type: 'string', example: '681b604799836f72f332ceb9' },
+          companyName: { type: 'string', example: 'deals' },
+          field: { type: 'string', nullable: true }
+        }
+    })
+    @Expose()
+    companyId: User
 
 
   @ApiProperty({
@@ -11,6 +23,7 @@ export default class ResponseDto {
     description: 'Price of the service',
     required: true,
   })
+  @Expose()
   price: number;
   
 
@@ -19,6 +32,7 @@ export default class ResponseDto {
     description: 'The situation of the order and it can be advanced, paid or not paid',
     required: true,
   })
+  @Expose()
   situation: string;
 
   @ApiProperty({
@@ -26,6 +40,7 @@ export default class ResponseDto {
     description: 'The current status of the order',
     required: true,
   })
+  @Expose()
   status: string;
 
   @ApiProperty({
@@ -41,12 +56,16 @@ export default class ResponseDto {
     description: 'Delivery date of the service',
     required: true,
   })
+  @Expose()
+
   deliveryDate: string;
   @ApiProperty({
     example: null,
     description: 'it will be unpdated in the pick up date',
     required: true,
   })
+  @Expose()
+
   pickupDate: string;
 
   @ApiProperty({
@@ -54,17 +73,18 @@ export default class ResponseDto {
     description: 'images URLs related to the service',
     required: false,
   })
+  @Expose()
   images?: string[];
 
 
 
   @ApiProperty({
     example: 'null',
-    description: 'user ID related to the order, null if not scanned',
+    description: 'client ID related to the order, null if not scanned',
     nullable: true,
-    required: false,
   })
-  userId?: Types.ObjectId | null;
+  @Expose()
+  clientId?: Types.ObjectId | null;
 
   @ApiProperty({
     example: "true",
@@ -97,4 +117,7 @@ export default class ResponseDto {
     description: 'The id if the command'
   })
   _id: Types.ObjectId
+
+
+
 }
