@@ -49,6 +49,9 @@ export class Command {
   @Prop({required:false, default:false})
   isDateChanged: boolean;
 
+  @Prop({required:false, default:false})
+  IsConfirmedByClient: boolean;
+
   @Prop({required:false})
   ChangeDateReason: string;
 

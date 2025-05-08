@@ -71,6 +71,13 @@ export default class ResponseDto {
   })
   isDateChanged: boolean
 
+
+  @ApiProperty({
+    example: "true",
+    required: false
+  })
+  IsConfirmedByClient: boolean
+
   @ApiProperty({
     example: "sick",
     required: false
