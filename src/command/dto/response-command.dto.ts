@@ -12,6 +12,7 @@ export default class ResponseDto {
     required: true,
   })
   price: number;
+  
 
   @ApiProperty({
     example: 'تسبيق',
