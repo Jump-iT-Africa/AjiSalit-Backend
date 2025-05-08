@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 import { Types } from "mongoose";
-import { User } from "src/user/entities/user.schema";
 export class ResoponseCompanyInfoDto {
   @ApiProperty({
     example: "681b604799836f72f332ceb9",
