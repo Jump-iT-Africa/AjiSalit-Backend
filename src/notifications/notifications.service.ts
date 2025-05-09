@@ -91,6 +91,23 @@ export class NotificationsService {
     }
   }
 
+  async sendReminderNotification(infoUser){
+    let user = await this.userService.findOne(infoUser.id)
+    if(!user){
+      throw new NotFoundException("the user not found")
+    }
+    let expotoken = user?.expoPushToken;
+    if(expotoken){
+      console.log("here's the user",user)
+      // let notificationReminder = this.sendPushNotification(expotoken, ` 🛎️ Talabek Wajed !`,
+      //   `Salam ${user?.Fname} 👋, Ajiii Saliit Talab dyalk 3nd  🚀 Dkhl l’app bash tchouf ljadid `)
+    }
+
+
+
+
+  }
+
   async notificationCompleteOrder(orderId, senderInfo,recevierId){
     try{
       const order = await this.commandServide.findOne(orderId,senderInfo)

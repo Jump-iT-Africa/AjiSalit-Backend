@@ -1,8 +1,9 @@
-import { CommandService } from './command.service';
-import { CreateCommandDto } from './dto/create-command.dto';
-import { UpdateCommandDto } from './dto/update-command.dto';
-import { UpdateStatusCommandDto } from './dto/update-status-command.dto';
-import { UpdatepickUpDateCommandDto } from './dto/update-pickup-date-command.dto';
+import { CommandService } from "./command.service";
+import { CreateCommandDto } from "./dto/create-command.dto";
+import { UpdateCommandDto } from "./dto/update-command.dto";
+import { UpdateStatusCommandDto } from "./dto/update-status-command.dto";
+import { UpdatepickUpDateCommandDto } from "./dto/update-pickup-date-command.dto";
+import { updateStatusConfirmationDto } from "./dto/update-confirmdelivery.dto";
 export declare class CommandController {
     private readonly commandService;
     constructor(commandService: CommandService);
@@ -35,6 +36,7 @@ export declare class CommandController {
         isFinished: false;
         isPickUp: false;
         isDateChanged: boolean;
+        IsConfirmedByClient: boolean;
         ChangeDateReason: string;
         newDate: Date;
         _id: unknown;
@@ -50,6 +52,12 @@ export declare class CommandController {
         schema: import("mongoose").Schema;
         __v: number;
     }[]>;
+    statistics(): Promise<{
+        "Total orders": number;
+        "Total of orders made this day": number;
+        "Total of orders made this month": any[];
+        "Total of orders per companyId": any[];
+    }>;
     findOne(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
@@ -74,4 +82,5 @@ export declare class CommandController {
     }> & {
         __v: number;
     }>;
+    confirmDeliveryByClient(orderId: string, updateStatusConfirmation: updateStatusConfirmationDto, req: any): Promise<string>;
 }

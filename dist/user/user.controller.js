@@ -70,6 +70,16 @@ let UserController = class UserController {
             throw new common_1.BadRequestException("Ops try again");
         }
     }
+    async statistics() {
+        try {
+            return await this.userService.getStatistics();
+        }
+        catch (e) {
+            if (e instanceof common_1.UnauthorizedException || e instanceof common_1.ForbiddenException || e instanceof common_1.UnauthorizedException || e instanceof jsonwebtoken_1.JsonWebTokenError || e instanceof common_1.BadRequestException) {
+                throw e;
+            }
+        }
+    }
     async updatePocketBalance(companyId, updateBalance) {
         try {
             return await this.userService.updatePocketBalance(companyId, updateBalance);
@@ -496,6 +506,73 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getAllClients", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({
+        summary: "Only admins can access: get global user statistics (users, clients, companies, admins)",
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: "User statistics retrieved successfully",
+        content: {
+            "application/json": {
+                examples: {
+                    success: {
+                        value: {
+                            "Total Users": 18,
+                            "Total clients": 10,
+                            "Total companies": 6,
+                            "Total admins": 2,
+                        },
+                    },
+                },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 400,
+        description: "Bad Request: Something went wrong during the process",
+        content: {
+            "application/json": {
+                examples: {
+                    "Generic Error": {
+                        value: {
+                            message: "Ops something went wrong",
+                            error: "Bad Request",
+                            statusCode: 400,
+                        },
+                    },
+                },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 401,
+        description: "Unauthorized: Token is missing, invalid, or expired",
+        schema: {
+            example: {
+                statusCode: 401,
+                message: "kindly try to login again",
+                error: "Unauthorized",
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 403,
+        description: "Forbidden: User is not an admin",
+        schema: {
+            example: {
+                statusCode: 403,
+                message: "Ops only admins can access to this route",
+                error: "Forbidden",
+            },
+        },
+    }),
+    (0, common_1.Get)("statistics"),
+    (0, common_1.UseGuards)(admin_role_guard_1.AdminRoleGuard),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "statistics", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'The admin can update the balance of pocket of a company' }),
     (0, swagger_1.ApiBody)({ type: update_pocket_dto_1.UpdatePocketBalance }),

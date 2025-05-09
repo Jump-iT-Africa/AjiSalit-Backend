@@ -43,6 +43,7 @@ export declare class CommandService {
         isFinished: false;
         isPickUp: false;
         isDateChanged: boolean;
+        IsConfirmedByClient: boolean;
         ChangeDateReason: string;
         newDate: Date;
         _id: unknown;
@@ -82,4 +83,11 @@ export declare class CommandService {
         message: string;
     }>;
     getCommandByQrCode(qrCode: string, userId?: string, role?: string): Promise<any>;
+    confirmDeliveryByClient(orderId: any, clientInfo: any, updateStatusConfirmation: any): Promise<string>;
+    getStatistics(): Promise<{
+        "Total orders": number;
+        "Total of orders made this day": number;
+        "Total of orders made this month": any[];
+        "Total of orders per companyId": any[];
+    }>;
 }

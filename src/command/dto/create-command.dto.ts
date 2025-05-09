@@ -112,6 +112,10 @@ export class CreateCommandDto {
   @IsOptional()
   isPickUp: boolean;
 
+  @IsBoolean()
+  @IsOptional()
+  IsConfirmedByClient: boolean;
+
   @ApiProperty({
     example: "true",
     required: false,

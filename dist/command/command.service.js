@@ -117,7 +117,9 @@ let CommandService = class CommandService {
             let query = {};
             console.log("I m here ");
             if (role == "admin") {
-                const allOrders = await this.commandModel.find();
+                const allOrders = await this.commandModel.find().populate({ path: "companyId", select: "companyName field" })
+                    .exec();
+                ;
                 return allOrders;
             }
             if (role == "client") {
@@ -126,7 +128,7 @@ let CommandService = class CommandService {
             else if (role == "company") {
                 query = { companyId: userId };
             }
-            const allOrders = await this.commandModel.find(query);
+            const allOrders = await this.commandModel.find(query).populate({ path: "companyId", select: "companyName field" }).exec();
             if (allOrders.length == 0) {
                 return "No order found";
             }
@@ -229,17 +231,15 @@ let CommandService = class CommandService {
                 runValidators: true,
             })
                 .exec();
-            if (updateCommandDto.status == "جاهزة للتسليم" && updatedCommand) {
-                let clientInfo = await this.userModel
-                    .findById(updatedCommand.clientId)
-                    .exec();
-                let companyInfo = await this.userModel
-                    .findById(updatedCommand.companyId)
-                    .exec();
-                if (clientInfo && clientInfo.expoPushToken) {
-                    let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, ` 🛎️ Talabek tbdel !`, `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `);
-                    console.log("Here's my notification sender: ", notificationSender);
-                }
+            let clientInfo = await this.userModel
+                .findById(updatedCommand.clientId)
+                .exec();
+            let companyInfo = await this.userModel
+                .findById(updatedCommand.companyId)
+                .exec();
+            if (clientInfo && clientInfo.expoPushToken) {
+                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, ` 🛎️ Talabek tbdel !`, `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `);
+                console.log("Here's my notification sender: ", notificationSender);
             }
             return updatedCommand;
         }
@@ -272,16 +272,23 @@ let CommandService = class CommandService {
                 .exec();
             let clientInfo = await this.userModel.findById(command.clientId).exec();
             let companyInfo = await this.userModel.findById(command.companyId).exec();
-            if (clientInfo && clientInfo.expoPushToken && result) {
-                let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, `📦Talabek wajed !`, `Salam ${clientInfo?.Fname} 👋, Ajiii Salit Talab dyalk wajed 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 `);
-                console.log("Here's my notification sender: ", notificationSender);
+            console.log("ohhh a result", result, data);
+            if (data.status == "جاهزة للتسليم") {
+                if (clientInfo && clientInfo.expoPushToken && result) {
+                    let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, `📦Talabek wajed !`, `Salam ${clientInfo?.Fname} 👋, Ajiii Salit Talab dyalk wajed 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 `);
+                    console.log("Here's my notification sender: ", notificationSender);
+                }
+            }
+            else if (data.status == "تم تسليم") {
+                if (clientInfo && clientInfo.expoPushToken && result) {
+                    let notificationSender = await this.notificationsService.sendPushNotification(clientInfo.expoPushToken, `🎉 Chokran ala ti9a dailk fina `, `Salaaam ${clientInfo?.Fname} 👋, chokran 7it khdemti b l'application dyalna, mansash tkhli lina review https://shorturl.at/s9Tc2🚀 `);
+                    console.log("Here's my notification sender: ", notificationSender);
+                }
             }
             return result;
         }
         catch (e) {
-            if (e instanceof common_1.NotFoundException ||
-                e instanceof common_1.ForbiddenException ||
-                e instanceof common_1.BadRequestException) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException) {
                 throw e;
             }
             throw new common_1.BadRequestException("Ops Something went wrong");
@@ -317,10 +324,7 @@ let CommandService = class CommandService {
         }
         catch (e) {
             console.log("opsss", e);
-            if (e instanceof common_1.NotFoundException ||
-                e instanceof common_1.ForbiddenException ||
-                e instanceof common_1.BadRequestException ||
-                e instanceof common_1.UnprocessableEntityException) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException || e instanceof common_1.BadRequestException || e instanceof common_1.UnprocessableEntityException) {
                 throw e;
             }
             throw new common_1.BadRequestException("Ops Something went wrong");
@@ -390,6 +394,97 @@ let CommandService = class CommandService {
                 throw e;
             }
             throw new common_1.BadRequestException("Try again");
+        }
+    }
+    async confirmDeliveryByClient(orderId, clientInfo, updateStatusConfirmation) {
+        console.log("Happy coding", orderId);
+        try {
+            let command = await this.commandModel.findById(orderId).exec();
+            if (!command) {
+                throw new common_1.NotFoundException("Command not found");
+            }
+            if ((command.clientId).toString() !== clientInfo.id) {
+                console.log("here are my id : ", command.clientId, clientInfo.id);
+                throw new common_1.ForbiddenException("You aren't allowed to update the status unless you are the client of this command");
+            }
+            let confirmDelivery = await this.commandModel.findByIdAndUpdate(orderId, updateStatusConfirmation, { new: true, runValidators: true }).exec();
+            if (confirmDelivery) {
+                return "Thank You for your feedback";
+            }
+        }
+        catch (e) {
+            if (e instanceof common_1.NotFoundException || e instanceof common_1.ForbiddenException) {
+                throw e;
+            }
+            console.log("there's an error", e);
+        }
+    }
+    async getStatistics() {
+        try {
+            let totalOrders = await this.commandModel.countDocuments();
+            let today = new Date();
+            let startOfDay = new Date(today.setUTCHours(0, 0, 0, 0));
+            let endOfDay = new Date(today.setUTCHours(24, 0, 0, 0));
+            let ordersOfDay = await this.commandModel.find({
+                createdAt: { $gte: startOfDay, $lte: endOfDay }
+            }).countDocuments();
+            let monthlyOrders = await this.commandModel.aggregate([
+                {
+                    $group: {
+                        _id: {
+                            $dateToString: { format: "%Y-%m", date: "$createdAt" },
+                        },
+                        count: { $sum: 1 },
+                    },
+                },
+                {
+                    $sort: { _id: 1 },
+                }
+            ]);
+            let ordersPerCompany = await this.commandModel.aggregate([
+                {
+                    $group: {
+                        _id: { companyId: "$companyId" },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "_id.companyId",
+                        foreignField: "_id",
+                        as: "company"
+                    }
+                },
+                {
+                    $unwind: "$company"
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        companyId: "$_id.companyId",
+                        companyName: "$company.companyName",
+                        field: "$company.field",
+                        count: 1
+                    }
+                },
+                {
+                    $sort: {
+                        companyId: 1
+                    }
+                }
+            ]);
+            let statistics = {
+                "Total orders": totalOrders,
+                "Total of orders made this day": ordersOfDay,
+                "Total of orders made this month": monthlyOrders,
+                "Total of orders per companyId": ordersPerCompany
+            };
+            return statistics;
+        }
+        catch (e) {
+            console.log("there's an error here", e);
+            throw new common_1.BadRequestException("Ops something went wrong");
         }
     }
 };
