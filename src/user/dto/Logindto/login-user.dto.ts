@@ -13,6 +13,7 @@ export class LoginUserDto {
 
 
     @ApiProperty({ example: '123456', required: true })
+    @Matches(/^\d{6}$/, {message: "The password must contain 6 numbers only"})
     @IsString()
     @IsNotEmpty()
     password:string

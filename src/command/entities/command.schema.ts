@@ -55,11 +55,8 @@ export class Command {
   @Prop({required:false})
   ChangeDateReason: string;
 
-
   @Prop({ required: false, default:null})
   newDate: Date;
-
-
 }
 
 export const CommandSchema = SchemaFactory.createForClass(Command);
