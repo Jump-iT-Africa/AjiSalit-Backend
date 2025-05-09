@@ -46,6 +46,12 @@ export declare class UserController {
     login(LoginUserDto: LoginUserDto): Promise<any>;
     getAllCompanies(): Promise<string | ResoponseCompanyInfoDto[]>;
     getAllClients(): Promise<string | import("./dto/ResponseDto/response-user.dto").ResponseUserDto[]>;
+    statistics(): Promise<{
+        "Total Users": number;
+        "Total clients": number;
+        "Total companies": number;
+        "Total admins": number;
+    }>;
     updatePocketBalance(companyId: string, updateBalance: UpdatePocketBalance): Promise<ResoponseCompanyInfoDto>;
     findOne(id: string, req: any): Promise<import("./dto/ResponseDto/response-user.dto").ResponseUserDto | ResoponseCompanyDto>;
     deleteAccount(id: string, req: any): Promise<string>;

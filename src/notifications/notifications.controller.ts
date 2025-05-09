@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UnauthorizedException, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UnauthorizedException, BadRequestException, NotFoundException, ForbiddenException, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -7,6 +7,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagg
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { sendNotificationDto } from './dto/send-notification.dto';
 import { ResponseNotificationZwbSocket } from './dto/response-websocket-notification.dto';
+import { IsAuthenticated } from '../user/guards/is-authentificated.guard';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -41,15 +42,26 @@ export class NotificationsController {
   @ApiBearerAuth()
 
   @Post('/send')
-  sendNotification(
+  async sendNotification(
     @Body() body: { expoPushToken: string; title: string; message: string; data?: any },
   ) {
-    return this.notificationsService.sendPushNotification(
+    return await this.notificationsService.sendPushNotification(
       body.expoPushToken,
       body.title,
       body.message,
       body.data,
     );
+  }
+
+
+  @Post('reminder')
+  @UseGuards(IsAuthenticated)
+  async sendReminderNotification(@Req() req){
+    try{
+      return await this.notificationsService.sendReminderNotification(req.user)
+    }catch(e){
+
+    }
   }
 
 

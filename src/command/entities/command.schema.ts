@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 
 
 export type CommandDocument = Command & mongoose.Document;
-@Schema()
+@Schema({ timestamps: true })
 
 export class Command {
   @Prop({type: mongoose.Schema.Types.ObjectId, ref:'User'})
@@ -48,6 +48,9 @@ export class Command {
 
   @Prop({required:false, default:false})
   isDateChanged: boolean;
+
+  @Prop({required:false, default:false})
+  IsConfirmedByClient: boolean;
 
   @Prop({required:false})
   ChangeDateReason: string;

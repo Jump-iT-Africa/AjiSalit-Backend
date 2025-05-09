@@ -72,6 +72,10 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Command.prototype, "isDateChanged", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ required: false, default: false }),
+    __metadata("design:type", Boolean)
+], Command.prototype, "IsConfirmedByClient", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ required: false }),
     __metadata("design:type", String)
 ], Command.prototype, "ChangeDateReason", void 0);
@@ -80,7 +84,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Command.prototype, "newDate", void 0);
 exports.Command = Command = __decorate([
-    (0, mongoose_1.Schema)()
+    (0, mongoose_1.Schema)({ timestamps: true })
 ], Command);
 exports.CommandSchema = mongoose_1.SchemaFactory.createForClass(Command);
 //# sourceMappingURL=command.schema.js.map

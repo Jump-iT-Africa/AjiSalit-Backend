@@ -14,4 +14,6 @@ export class ResoponseCompanyDto{
     role:string
     @Expose()
     socketId?:string
+    @Expose()
+    expoPushToken?:string
 }
