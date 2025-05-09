@@ -205,9 +205,8 @@ export class SiteinfoController {
     })
 
 
-    @Get(":id")
-
-    async showSiteInfo(@Param("id") id :string, @Req() req) {
+    @Get(":titre")
+    async showSiteInfo(@Param("titre") titre :string, @Req() req) {
         try {
             let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = validateJwt(token);
@@ -215,7 +214,7 @@ export class SiteinfoController {
             if (!infoUser) {
                 throw new UnauthorizedException("Ops you have to login again")
             }
-            return await this.siteinfoService.showSiteInfo(id)
+            return await this.siteinfoService.showSiteInfo(titre)
 
         } catch (e) {
             console.log("there's an error", e)
