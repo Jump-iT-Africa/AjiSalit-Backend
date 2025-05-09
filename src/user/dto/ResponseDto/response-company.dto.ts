@@ -1,6 +1,8 @@
 import { Expose } from "class-transformer";
 export class ResoponseCompanyDto{
     @Expose()
+    id:string
+    @Expose()
     name:string
     @Expose()
     phoneNumber:string
