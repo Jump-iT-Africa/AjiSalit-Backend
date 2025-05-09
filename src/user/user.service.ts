@@ -595,6 +595,28 @@ export class UserService {
     }
   }
 
+async getStatistics(){
+  try{
+    let totalUser = await this.userModel.countDocuments()
+    console.log("happy coding here's total",totalUser)
+    let totalClient = await this.userModel.find({role:'client'}).countDocuments()
+    console.log("happu client", totalClient)
+    let totalComapies = await this.userModel.find({role:'company'}).countDocuments()
+    console.log("total companies are", totalComapies)
+    let totalAdmins = await this.userModel.find({role:'admin'}).countDocuments()
+    console.log("Happy admins", totalAdmins)
+    return {
+      "Total Users": totalUser,
+      "Total clients": totalClient,
+      "Total companies": totalComapies,
+      "Total admins": totalAdmins
+    }
+  }catch(e){
+    console.log("Ops there's an error", e)
+    throw new BadRequestException("Ops something went wrong")
+  }
+}
+
 
 
 }

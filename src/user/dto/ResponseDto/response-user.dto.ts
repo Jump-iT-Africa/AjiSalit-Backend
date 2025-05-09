@@ -14,4 +14,6 @@ export class ResponseUserDto{
     role:string
     @Expose()
     socketId?:string
+    @Expose()
+    expoPushToken?:string
 }

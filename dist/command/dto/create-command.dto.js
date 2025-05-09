@@ -124,6 +124,11 @@ __decorate([
     __metadata("design:type", Boolean)
 ], CreateCommandDto.prototype, "isPickUp", void 0);
 __decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], CreateCommandDto.prototype, "IsConfirmedByClient", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({
         example: "true",
         required: false,

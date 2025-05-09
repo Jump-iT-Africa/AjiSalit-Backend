@@ -3,118 +3,127 @@ import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateCommandDto {
-    
-    @IsOptional()
-    @IsMongoId()
-    companyId?:Types.ObjectId
+  @IsOptional()
+  @IsMongoId()
+  companyId?: Types.ObjectId;
 
-    @IsOptional()
-    @IsMongoId()
-    userId?:Types.ObjectId
+  @IsOptional()
+  @IsMongoId()
+  userId?: Types.ObjectId;
 
-    @ApiProperty({
-        example: 8000,
-        required: true
-    })
-    @IsNotEmpty({message:"kindly add the price of this service"})
-    @IsNumber({},{message:"The price has to be a valid number "})
-    price:number
+  @ApiProperty({
+    example: 8000,
+    required: true,
+  })
+  @IsNotEmpty({ message: "kindly add the price of this service" })
+  @IsNumber({}, { message: "The price has to be a valid number " })
+  price: number;
 
-    @ApiProperty({
-        example: "تسبيق",
-        required: true
-    })
-    @IsNotEmpty({message:"you must add the situation"})
-    @IsEnum(["خالص", "غير خالص","تسبيق" ])
-    @Matches(/^(خالص|غير خالص|تسبيق)$/, { message: "The situation must be one of the following: خالص, غير خالص, تسبيق" })
-    situation:string
+  @ApiProperty({
+    example: "تسبيق",
+    required: true,
+  })
+  @IsNotEmpty({ message: "you must add the situation" })
+  @IsEnum(["خالص", "غير خالص", "تسبيق"])
+  @Matches(/^(خالص|غير خالص|تسبيق)$/, {
+    message:
+      "The situation must be one of the following: خالص, غير خالص, تسبيق",
+  })
+  situation: string;
 
-    @ApiProperty({
-        example: "جاهزة للتسليم",
-        required: true
-    })
-    @IsOptional()
-    @IsString()
-    @Matches(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم" })
-    @IsEnum(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"])
-    status:string
+  @ApiProperty({
+    example: "جاهزة للتسليم",
+    required: true,
+  })
+  @IsOptional()
+  @IsString()
+  @Matches(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, {
+    message:
+      "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم",
+  })
+  @IsEnum(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"])
+  status: string;
 
-    @ApiProperty({
-        example: 200,
-        required: false
-    })    
+  @ApiProperty({
+    example: 200,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: "The Advanced Amount has to be a valid number " })
+  advancedAmount: number;
 
-    @IsOptional()
-    @IsNumber({},{message:"The Advanced Amount has to be a valid number "})
-    advancedAmount:number
+  @ApiProperty({
+    example: "2025-10-26",
+    required: true,
+  })
+  @IsDateString({}, { message: "The date has to  be on this : YYYY-MM-DD" })
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "The date must be in the format YYYY-MM-DD",
+  })
+  deliveryDate: string;
 
+  @ApiProperty({
+    example: "2025-10-28",
+    required: true,
+  })
+  @IsDateString({}, { message: "The date has to  be on this : YYYY-MM-DD" })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "The date must be in the format YYYY-MM-DD",
+  })
+  @IsOptional()
+  pickupDate: string;
 
-    @ApiProperty({
-        example: "2025-10-26",
-        required: true
-    })
-    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
-    @IsNotEmpty({message: "The delivery Date is required"})
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
-    deliveryDate:string
+  @ApiProperty({
+    example: ["image1.jpg", "image2.jpg"],
+    description: "images URLs related to the service",
+    required: false,
+    type: [String],
+  })
+  @IsOptional()
+  @IsString({ each: true })
+  @IsArray()
+  images?: string[];
 
-    @ApiProperty({
-        example: "2025-10-28",
-        required: true
-    })
-    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
-    @IsOptional()
-    pickupDate:string
+  @ApiProperty({
+    example: "Hgdthej80000",
+    required: true,
+  })
+  @IsNotEmpty()
+  qrCode: string;
 
-    @ApiProperty({
-        example: ['image1.jpg', 'image2.jpg'],
-        description: 'images URLs related to the service',
-        required: false,
-        type: [String],
-    })
-    @IsOptional()
-    @IsString({ each: true })
-    @IsArray()
-    images?: string[]
+  @IsBoolean()
+  @IsOptional()
+  isFinished: boolean;
 
-    @ApiProperty({
-        example: "Hgdthej80000",
-        required: true
-    })
-    @IsNotEmpty()
-    qrCode:string
+  @IsBoolean()
+  @IsOptional()
+  isPickUp: boolean;
 
-    @IsBoolean()
-    @IsOptional()
-    isFinished:boolean
+  @IsBoolean()
+  @IsOptional()
+  IsConfirmedByClient: boolean;
 
-    @IsBoolean()
-    @IsOptional()
-    isPickUp:boolean
+  @ApiProperty({
+    example: "true",
+    required: false,
+  })
+  isDateChanged: boolean;
 
-    @IsBoolean()
-    @IsOptional()
-    IsConfirmedByClient:boolean;
+  @ApiProperty({
+    example: "sick",
+    required: false,
+  })
+  ChangeDateReason: string;
 
-    @ApiProperty({
-        example: "true",
-        required: false
-    })
-    isDateChanged:boolean
-
-    @ApiProperty({
-        example: "sick",
-        required: false
-    })
-    ChangeDateReason:string
-
-    @ApiProperty({
-        example: "2025-10-30",
-        required: true
-    })
-    @IsDateString({},{message:"The date has to  be on this : YYYY-MM-DD"})
-    @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" })
-    @IsOptional()
-    newDate:string
+  @ApiProperty({
+    example: "2025-10-30",
+    required: true,
+  })
+  @IsDateString({}, { message: "The date has to  be on this : YYYY-MM-DD" })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "The date must be in the format YYYY-MM-DD",
+  })
+  @IsOptional()
+  newDate: string;
 }
