@@ -1,16 +1,4 @@
-import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsEnum,
-  IsMongoId,
-  IsDateString,
-  IsArray,
-  Matches,
-  IsNumber,
-  IsBoolean,
-  MinLength,
-} from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray, Matches, IsNumber, IsBoolean, MinLength, isBoolean} from "class-validator";
 import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
 
