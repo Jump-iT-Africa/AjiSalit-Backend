@@ -51,7 +51,7 @@ let SiteinfoController = class SiteinfoController {
             }
         }
     }
-    async showSiteInfo(id, req) {
+    async showSiteInfo(titre, req) {
         try {
             let token = req.headers['authorization']?.split(" ")[1];
             let infoUser = (0, verifyJwt_1.validateJwt)(token);
@@ -59,7 +59,7 @@ let SiteinfoController = class SiteinfoController {
             if (!infoUser) {
                 throw new common_1.UnauthorizedException("Ops you have to login again");
             }
-            return await this.siteinfoService.showSiteInfo(id);
+            return await this.siteinfoService.showSiteInfo(titre);
         }
         catch (e) {
             console.log("there's an error", e);
@@ -262,8 +262,8 @@ __decorate([
             },
         },
     }),
-    (0, common_1.Get)(":id"),
-    __param(0, (0, common_1.Param)("id")),
+    (0, common_1.Get)(":titre"),
+    __param(0, (0, common_1.Param)("titre")),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),

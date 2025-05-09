@@ -14,7 +14,7 @@ export declare class SiteinfoController {
     }> & {
         __v: number;
     }>;
-    showSiteInfo(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./enitites/siteinfo.schema").SiteInfoDocument> & import("./enitites/siteinfo.schema").SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
+    showSiteInfo(titre: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./enitites/siteinfo.schema").SiteInfoDocument> & import("./enitites/siteinfo.schema").SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
