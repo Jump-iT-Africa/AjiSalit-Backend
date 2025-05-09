@@ -38,8 +38,8 @@ import { CompanyRoleGuard } from "../user/guards/company-role.guard";
 import { IsAuthenticated } from "../user/guards/is-authentificated.guard";
 import { ResponseCommandAndCompanyDTO } from "./dto/response-command-and-company.dto";
 import { updateStatusConfirmationDto } from "./dto/update-confirmdelivery.dto";
-import { ClientRoleGuard } from "src/user/guards/client-role.guard";
-import { AdminRoleGuard } from "src/user/guards/admin-role.guard";
+import { ClientRoleGuard } from "../user/guards/client-role.guard";
+import { AdminRoleGuard } from "../user/guards/admin-role.guard";
 
 @ApiTags("Orders ")
 @Controller("order")
