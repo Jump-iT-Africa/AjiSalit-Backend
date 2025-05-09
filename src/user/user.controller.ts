@@ -56,6 +56,33 @@ export class UserController {
               "error": "Bad Request",
               "statusCode": 400
             }
+          },
+          'The password contains Letters instead of digits': {
+            value: {
+              "message":  [
+                "The password must contain 6 numbers only"
+              ],
+              "error": "Bad Request",
+              "statusCode": 400
+            }
+          }, 
+          "Sending an empty body":{
+            value: {
+              "message": [
+                "Fname should not be empty",
+                "Fname must be a string",
+                "Lname should not be empty",
+                "Lname must be a string",
+                "phoneNumber should not be empty",
+                "phoneNumber must be a string",
+                "password should not be empty",
+                "The password must contain 6 numbers only",
+                "password must be a string"
+              ],
+              error: "Bad Request",
+              status: 400
+
+            }
           }
 
 
@@ -117,14 +144,36 @@ export class UserController {
               "statusCode": 400
             },
           },
-          'Phonenumber is not verified': {
+          "Password contains letters instead of digits or use more than 6 digits":{
+            value:{
+              "message": [
+                "The password must contain 6 numbers only"
+              ],
+              "error": "Bad Request",
+              "statusCode": 400
+            }
+          },
+          'Phone number is not verified': {
             value: {
               "message": "Phone number not verified",
               "error": "Bad Request",
               "statusCode": 400
             }
           },
-          'other Exceptions ': {
+          'Sending an empty body': {
+            value: {
+              "message": [
+                "phoneNumber should not be empty",
+                "phoneNumber must be a string",
+                "password should not be empty",
+                "password must be a string",
+                "The password must contain 6 numbers only"
+              ],
+              "error": "Bad Request",
+              "statusCode": 400
+            }
+          },
+          'Something crushed and caused the Exception': {
             value: {
               "message": "There was an error while login",
               "error": "Bad Request",
@@ -641,6 +690,7 @@ export class UserController {
   })
   @ApiBearerAuth()
   @Put(':id')
+  @UseGuards(IsAuthenticated)
   updateUserProfile(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req) {
   try {
     let token = req.headers['authorization']?.split(" ")[1];
