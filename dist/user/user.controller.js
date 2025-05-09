@@ -301,6 +301,32 @@ __decorate([
                             "error": "Bad Request",
                             "statusCode": 400
                         }
+                    },
+                    'The password contains Letters instead of digits': {
+                        value: {
+                            "message": [
+                                "The password must contain 6 numbers only"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                    "Sending an empty body": {
+                        value: {
+                            "message": [
+                                "Fname should not be empty",
+                                "Fname must be a string",
+                                "Lname should not be empty",
+                                "Lname must be a string",
+                                "phoneNumber should not be empty",
+                                "phoneNumber must be a string",
+                                "password should not be empty",
+                                "The password must contain 6 numbers only",
+                                "password must be a string"
+                            ],
+                            error: "Bad Request",
+                            status: 400
+                        }
                     }
                 }
             }
@@ -359,14 +385,36 @@ __decorate([
                             "statusCode": 400
                         },
                     },
-                    'Phonenumber is not verified': {
+                    "Password contains letters instead of digits or use more than 6 digits": {
+                        value: {
+                            "message": [
+                                "The password must contain 6 numbers only"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                    'Phone number is not verified': {
                         value: {
                             "message": "Phone number not verified",
                             "error": "Bad Request",
                             "statusCode": 400
                         }
                     },
-                    'other Exceptions ': {
+                    'Sending an empty body': {
+                        value: {
+                            "message": [
+                                "phoneNumber should not be empty",
+                                "phoneNumber must be a string",
+                                "password should not be empty",
+                                "password must be a string",
+                                "The password must contain 6 numbers only"
+                            ],
+                            "error": "Bad Request",
+                            "statusCode": 400
+                        }
+                    },
+                    'Something crushed and caused the Exception': {
                         value: {
                             "message": "There was an error while login",
                             "error": "Bad Request",
@@ -804,6 +852,7 @@ __decorate([
     }),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.Put)(':id'),
+    (0, common_1.UseGuards)(is_authentificated_guard_1.IsAuthenticated),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Req)()),
