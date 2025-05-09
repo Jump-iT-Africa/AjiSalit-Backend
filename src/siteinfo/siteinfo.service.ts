@@ -52,9 +52,9 @@ export class SiteinfoService {
         }
     }
 
-    async showSiteInfo(id){
+    async showSiteInfo(titre){
         try{
-            const siteInfo = await this.siteInfoModel.findById(id).exec();
+            const siteInfo = await this.siteInfoModel.findOne({title:titre}).exec();
             if (!siteInfo) {
               throw new NotFoundException("The site information that you are looking for, does not exist");
             }

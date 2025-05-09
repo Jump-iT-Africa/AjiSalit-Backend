@@ -11,7 +11,7 @@ export declare class SiteinfoService {
     }> & {
         __v: number;
     }>;
-    showSiteInfo(id: any): Promise<import("mongoose").Document<unknown, {}, SiteInfoDocument> & SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
+    showSiteInfo(titre: any): Promise<import("mongoose").Document<unknown, {}, SiteInfoDocument> & SiteInfo & import("mongoose").Document<unknown, any, any> & Required<{
         _id: unknown;
     }> & {
         __v: number;
