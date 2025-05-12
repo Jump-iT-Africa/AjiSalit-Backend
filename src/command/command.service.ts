@@ -137,83 +137,41 @@ export class CommandService {
   async findAll(userId: string, role: string) {
     try {
       let query = {};
+      let allOrders ;
+
       console.log("I m here ");
       if (role == "admin") {
         const allOrders = await this.commandModel.find().populate({ path: "companyId", select: "companyName field" })
-        .exec();;
+        .exec();
+        if(!allOrders || allOrders.length == 0){
+          throw new NotFoundException("No orders found")
+        }
         return allOrders;
       }
       if (role == "client") {
         query = { clientId: userId };
+        const allOrders = await this.commandModel.find(query).populate({ path: "companyId", select: "companyName field phoneNumber" }).exec();
+        console.log("there's an error", allOrders)
+        if(!allOrders || allOrders.length == 0){
+          throw new NotFoundException("No orders found")
+        }
+        return allOrders
       } else if (role == "company") {
         query = { companyId: userId };
+        const allOrders = await this.commandModel.find(query).populate({ path: "clientId", select: "Fname Lname phoneNumber" }).exec();
+        console.log("Here's all the orders", allOrders)
+        if(!allOrders || allOrders.length == 0 ){
+          throw new NotFoundException("No orders found")
+        }
+        
+        return allOrders
       }
-
-      const allOrders = await this.commandModel.find(query).populate({ path: "companyId", select: "companyName field" }).exec();
-
-      if (allOrders.length == 0) {
-        return "No order found";
-      }
-
-      const clientIds = [
-        ...new Set(
-          allOrders
-            .filter((order) => order.clientId)
-            .map((order) => order.clientId.toString())
-        ),
-      ];
-
-      const companyId = [
-        ...new Set(
-          allOrders
-            .filter((order) => order.companyId)
-            .map((order) => order.companyId.toString())
-        ),
-      ];
-
-      if (clientIds.length === 0 || companyId.length === 0) {
-        return allOrders;
-      }
-
-      const users = await this.userModel.find({
-        _id: { $in: clientIds.map((id) => new Types.ObjectId(id)) },
-      });
-
-      const companies = await this.userModel.find({
-        _id: { $in: companyId.map((id) => new Types.ObjectId(id)) },
-      });
-
-      const userMap = users.reduce((map, user) => {
-        map[user._id.toString()] = {
-          name: user.Fname || "عميل غير معروف",
-        };
-        return map;
-      }, {});
-
-      const companyMap = companies.reduce((map, company) => {
-        map[company._id.toString()] = {
-          field: company.field || "مجال غير معروف",
-        };
-        return map;
-      }, {});
-
-      const ordersWithCustomerNames = allOrders.map((order) => {
-        const clientId = order.clientId ? order.clientId.toString() : null;
-        const plainOrder = order.toObject();
-        const userData = clientId ? userMap[clientId] : null;
-        const companyId = order.companyId ? order.companyId.toString() : null;
-        const companyData = companyId ? companyMap[companyId] : null;
-
-        return {
-          ...plainOrder,
-          customerDisplayName: userData?.name || "عميل غير معروف",
-          customerField: companyData?.field || "مجال غير معروف",
-        };
-      });
-
-      return ordersWithCustomerNames;
+      console.log("here are the orders",allOrders)
     } catch (e) {
       console.log(e);
+      if(e instanceof NotFoundException){
+        throw e
+      }
       throw new BadRequestException("Please try again");
     }
   }
@@ -489,7 +447,6 @@ export class CommandService {
         console.log("here are my id : ",command.clientId , clientInfo.id)
         throw new ForbiddenException("You aren't allowed to update the status unless you are the client of this command")
       }
-
       let confirmDelivery = await this.commandModel.findByIdAndUpdate(orderId, updateStatusConfirmation, { new: true, runValidators: true }).exec()
       if(confirmDelivery){
         return "Thank You for your feedback"
