@@ -40,6 +40,7 @@ import { ResponseCommandAndCompanyDTO } from "./dto/response-command-and-company
 import { updateStatusConfirmationDto } from "./dto/update-confirmdelivery.dto";
 import { ClientRoleGuard } from "../user/guards/client-role.guard";
 import { AdminRoleGuard } from "../user/guards/admin-role.guard";
+import { isatty } from "tty";
 
 @ApiTags("Orders ")
 @Controller("order")
@@ -146,7 +147,12 @@ export class CommandController {
       return await this.commandService.create(createCommandDto, req.user.id);
     } catch (e) {
       console.log("ops new error", e);
-      if ( e instanceof JsonWebTokenError || e instanceof ForbiddenException || e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof ForbiddenException ||
+        e instanceof UnprocessableEntityException ||
+        e instanceof ConflictException ||
+        e instanceof HttpException
       )
         throw e;
       throw new BadRequestException("Ops smth went wrong", e);
@@ -279,133 +285,94 @@ export class CommandController {
     content: {
       "application/json": {
         examples: {
-          "There's some orders": {
-            value: [
-              {
-                IsConfirmedByClient: false,
-                _id: "681ccf37445f438d35056f3c",
-                companyId: {
-                  _id: "681b604799836f72f332ceb9",
-                  companyName: "deals",
-                  field: null,
+          "Fetching orders 'an order that has been scanned by user' and 'order that has null clientId'":
+            {
+              value: [
+                {
+                  _id: "6821d68bed9b91a5b2bc176d",
+                  companyId: "6821c62d479cfdf849cf5d24",
+                  clientId: null,
+                  situation: "تسبيق",
+                  status: "جاهزة للتسليم",
+                  isExpired: false,
+                  advancedAmount: 200,
+                  price: 8000,
+                  images: ["image1.jpg", "image2.jpg"],
+                  deliveryDate: "2025-10-26T00:00:00.000Z",
+                  pickupDate: "2025-10-28T00:00:00.000Z",
+                  qrCode: "WEEEEEEE",
+                  isFinished: false,
+                  isPickUp: false,
+                  isDateChanged: true,
+                  IsConfirmedByClient: false,
+                  ChangeDateReason: "sick",
+                  newDate: "2025-10-30T00:00:00.000Z",
+                  createdAt: "2025-05-12T11:07:55.605Z",
+                  updatedAt: "2025-05-12T11:07:55.605Z",
+                  __v: 0,
                 },
-                clientId: null,
-                situation: "تسبيق",
-                status: "في طور الانجاز",
-                isExpired: false,
-                advancedAmount: 999,
-                price: 4004030,
-                images: [],
-                pickupDate: null,
-                qrCode: "CatchMa44ca88ttt",
-                isFinished: false,
-                isPickUp: false,
-                isDateChanged: false,
-                newDate: null,
-                __v: 0,
-              },
-              {
-                IsConfirmedByClient: false,
-                _id: "681ccfa0445f438d35056f45",
-                companyId: {
-                  _id: "681b604799836f72f332ceb9",
-                  companyName: "deals",
-                  field: null,
+                {
+                  _id: "6821d6a2ed9b91a5b2bc1772",
+                  companyId: "6821c62d479cfdf849cf5d24",
+                  clientId: {
+                    _id: "681cdcbcfa4691bf1d997e99",
+                    Fname: "Salima ",
+                    Lname: "Bouhamidi",
+                    phoneNumber: "+212698878964",
+                  },
+                  situation: "تسبيق",
+                  status: "جاهزة للتسليم",
+                  isExpired: false,
+                  advancedAmount: 200,
+                  price: 22000,
+                  images: ["image1.jpg", "image2.jpg"],
+                  deliveryDate: "2025-10-26T00:00:00.000Z",
+                  pickupDate: "2025-10-28T00:00:00.000Z",
+                  qrCode: "TOKYOO",
+                  isFinished: false,
+                  isPickUp: false,
+                  isDateChanged: true,
+                  IsConfirmedByClient: false,
+                  ChangeDateReason: "sick",
+                  newDate: "2025-10-30T00:00:00.000Z",
+                  createdAt: "2025-05-12T11:08:18.738Z",
+                  updatedAt: "2025-05-12T11:08:18.738Z",
+                  __v: 0,
                 },
-                clientId: null,
-                situation: "تسبيق",
-                status: "جاهزة للتسليم",
-                isExpired: false,
-                advancedAmount: 999,
-                price: 4004030,
-                images: [],
-                pickupDate: null,
-                qrCode: "CatchMa4o4ca88ttt",
-                isFinished: false,
-                isPickUp: false,
-                isDateChanged: false,
-                newDate: null,
-                __v: 0,
-              },
-              {
-                IsConfirmedByClient: false,
-                _id: "681cd5ca94194668415379dd",
-                companyId: {
-                  _id: "681b604799836f72f332ceb9",
-                  companyName: "deals",
-                  field: null,
-                },
-                clientId: null,
-                situation: "تسبيق",
-                status: "في طور الانجاز",
-                isExpired: false,
-                advancedAmount: 999,
-                price: 4004030,
-                images: [],
-                pickupDate: null,
-                qrCode: "CatchMaqqttt",
-                isFinished: false,
-                isPickUp: false,
-                isDateChanged: false,
-                newDate: null,
-                __v: 0,
-              },
-              {
-                _id: "681d9f4ef11d7b32e8cb1b0c",
-                companyId: {
-                  _id: "681b604799836f72f332ceb9",
-                  companyName: "deals",
-                  field: null,
-                },
-                clientId: null,
-                situation: "تسبيق",
-                status: "في طور الانجاز",
-                isExpired: false,
-                advancedAmount: 999,
-                price: 4004030,
-                images: [],
-                pickupDate: null,
-                qrCode: "weee",
-                isFinished: false,
-                isPickUp: false,
-                isDateChanged: false,
-                IsConfirmedByClient: false,
-                newDate: null,
-                __v: 0,
-              },
-            ],
-          },
-          "there's no order": {
-            value: "No order found",
-          },
+              ],
+            },
         },
       },
     },
   })
+  @ApiResponse({
+    status: 404,
+    description: "Not Found: There's no order yet",
+    schema: {
+      example: {
+        statusCode: 404,
+        message: "No orders found",
+        error: "Not Found error",
+      },
+    },
+  })
+
+  @UseGuards(IsAuthenticated)
   async findAll(@Req() req) {
     try {
-      let token = req.headers["authorization"]?.split(" ")[1];
-
-      let infoUser = validateJwt(token);
-      // console.log(infoUser)
-      if (!infoUser || !token) {
-        throw new UnauthorizedException("Try to login again");
-      }
-      return await this.commandService.findAll(infoUser.id, infoUser.role);
+      return await this.commandService.findAll(req.user.id, req.user.role);
     } catch (e) {
       console.log(e);
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("Try to login again");
-      if (e instanceof UnauthorizedException) {
-        throw new UnauthorizedException("Try to login again");
+      if (e instanceof NotFoundException || e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof UnauthorizedException) {
+        throw e;
       }
       throw new BadRequestException("Try again");
     }
   }
 
-
   @ApiOperation({
-    summary: "Only admins can access: get statistics of orders (total, daily, monthly, per company)",
+    summary:
+      "Only admins can access: get statistics of orders (total, daily, monthly, per company)",
   })
   @ApiResponse({
     status: 200,
@@ -419,12 +386,12 @@ export class CommandController {
               "Total of orders made this day": 4,
               "Total of orders made this month": [
                 {
-                  "_id": null,
-                  "count": 2,
+                  _id: null,
+                  count: 2,
                 },
                 {
-                  "_id": "2025-05",
-                  "count": 4,
+                  _id: "2025-05",
+                  count: 4,
                 },
               ],
               "Total of orders per companyId": [
@@ -486,15 +453,18 @@ export class CommandController {
       },
     },
   })
-  
-
   @Get("statistics")
   @UseGuards(AdminRoleGuard)
   async statistics() {
     try {
       return await this.commandService.getStatistics();
     } catch (e) {
-      if ( e instanceof UnauthorizedException || e instanceof ForbiddenException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError || e instanceof BadRequestException
+      if (
+        e instanceof UnauthorizedException ||
+        e instanceof ForbiddenException ||
+        e instanceof UnauthorizedException ||
+        e instanceof JsonWebTokenError ||
+        e instanceof BadRequestException
       ) {
         throw e;
       }
@@ -646,7 +616,10 @@ export class CommandController {
       );
     } catch (e) {
       console.log(e);
-      if ( e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof ForbiddenException
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof TokenExpiredError ||
+        e instanceof ForbiddenException
       )
         throw e;
       throw new BadRequestException("Try again");
@@ -724,7 +697,11 @@ export class CommandController {
       return await this.commandService.deleteOrder(id, req.user.id);
     } catch (e) {
       console.log(e);
-      if ( e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof ForbiddenException || e instanceof UnauthorizedException
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof TokenExpiredError ||
+        e instanceof ForbiddenException ||
+        e instanceof UnauthorizedException
       )
         throw e;
 
@@ -879,7 +856,10 @@ export class CommandController {
       );
     } catch (e) {
       console.log("there's a problem oooo", e);
-      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof UnauthorizedException
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof UnauthorizedException
       ) {
         throw e;
       }
@@ -998,7 +978,12 @@ export class CommandController {
       );
     } catch (e) {
       console.log("there's a problem oooo", e);
-      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException || e instanceof UnauthorizedException
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException ||
+        e instanceof UnprocessableEntityException ||
+        e instanceof UnauthorizedException
       ) {
         throw e;
       }
@@ -1104,7 +1089,13 @@ export class CommandController {
       );
     } catch (e) {
       console.log("there's a problem oooo", e);
-      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException || e instanceof UnauthorizedException) {
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException ||
+        e instanceof UnprocessableEntityException ||
+        e instanceof UnauthorizedException
+      ) {
         throw e;
       }
       throw new BadRequestException("Ops Something went wrong");
