@@ -374,6 +374,8 @@ export class CommandController {
     summary:
       "Only admins can access: get statistics of orders (total, daily, monthly, per company)",
   })
+  @ApiBearerAuth()
+
   @ApiResponse({
     status: 200,
     description: "Statistics retrieved successfully",
@@ -459,13 +461,8 @@ export class CommandController {
     try {
       return await this.commandService.getStatistics();
     } catch (e) {
-      if (
-        e instanceof UnauthorizedException ||
-        e instanceof ForbiddenException ||
-        e instanceof UnauthorizedException ||
-        e instanceof JsonWebTokenError ||
-        e instanceof BadRequestException
-      ) {
+      if (e instanceof UnauthorizedException || e instanceof ForbiddenException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError || e instanceof BadRequestException)
+      {
         throw e;
       }
     }

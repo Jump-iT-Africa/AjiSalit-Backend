@@ -16,4 +16,6 @@ export class ResponseUserDto{
     socketId?:string
     @Expose()
     expoPushToken?:string
+    @Expose()
+    pocket:number
 }

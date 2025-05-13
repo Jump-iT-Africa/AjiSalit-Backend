@@ -4,6 +4,7 @@ import {
   NotFoundException,
   ForbiddenException,
   UnauthorizedException,
+  ConflictException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model, ObjectId } from "mongoose";
@@ -52,13 +53,16 @@ export class UserService {
         listRefs,
         pocket,
       } = createUserDto;
-      const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
 
+      createUserDto.phoneNumber = createUserDto.phoneNumber.trim().replace(/\s/g, "");
+      if (createUserDto.phoneNumber[4] == "0") {
+        createUserDto.phoneNumber = createUserDto.phoneNumber.replace(createUserDto.phoneNumber[4],"");
+      }
+      const existingUser = await this.userModel
+        .findOne({ phoneNumber: createUserDto.phoneNumber })
+        .exec();
       if (existingUser) {
-        return {
-          message:
-            "This number is already used, try to login or use another one",
-        };
+        throw new ConflictException("This number is already used, try to login or use another one")
       }
 
       const saltRounds = 10;
@@ -66,18 +70,20 @@ export class UserService {
       console.log("test", hashedPassword, password);
       const GeneratedRefCode = this.generateReferralCode();
 
-      console.log("the role check", createUserDto.role, createUserDto.pocket)
       if (createUserDto.role == "company") {
         createUserDto.pocket = 250;
       }
-      console.log("the role after change the pocket balance", createUserDto.role, createUserDto.pocket)
-
+      console.log(
+        "the role after change the pocket balance",
+        createUserDto.role,
+        createUserDto.pocket
+      );
 
       const newUser = new this.userModel({
         Fname,
         Lname,
         companyName,
-        phoneNumber,
+        phoneNumber: createUserDto.phoneNumber,
         role,
         password: hashedPassword,
         city,
@@ -124,6 +130,9 @@ export class UserService {
         token,
       };
     } catch (error) {
+      if(error instanceof ConflictException){
+        throw error
+      }
       console.error("Registration error:", error);
       return {
         ErrorMessage: error,
@@ -160,7 +169,17 @@ export class UserService {
 
   async login(LoginUserDto: LoginUserDto): Promise<any> {
     const { phoneNumber, password } = LoginUserDto;
-    const User = await this.userModel.findOne({ phoneNumber }).exec();
+    LoginUserDto.phoneNumber = phoneNumber.trim().replace(/\s/g, "");
+    if (LoginUserDto.phoneNumber[4] == "0") {
+      LoginUserDto.phoneNumber = LoginUserDto.phoneNumber.replace(
+        LoginUserDto.phoneNumber[4],
+        ""
+      );
+    }
+
+    const User = await this.userModel
+      .findOne({ phoneNumber: LoginUserDto.phoneNumber })
+      .exec();
 
     if (!User) {
       throw new BadRequestException("This User Does not exists");
@@ -248,7 +267,6 @@ export class UserService {
           excludeExtraneousValues: true,
           enableImplicitConversion: true,
         });
-        //  plainToInstance(ResponseUserDto,result)
         return data;
       }
     } catch (e) {
