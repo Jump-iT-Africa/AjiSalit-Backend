@@ -43,7 +43,7 @@ export declare class UserService {
     login(LoginUserDto: LoginUserDto): Promise<any>;
     updateAuthentifictaion(id: string, updateDto: any, authentificatedId: any): Promise<string>;
     findAll(): string;
-    findOne(userid: string | ObjectId): Promise<ResponseUserDto | ResoponseCompanyDto>;
+    findOne(userid: string | ObjectId): Promise<ResoponseCompanyDto | ResponseUserDto>;
     updateSocketId(userId: string, socketUserId: string): Promise<string>;
     deleteAccount(id: string, userId: any): Promise<string>;
     updateUserInfo(id: string, updateUserDto: UpdateUserDto): Promise<User>;

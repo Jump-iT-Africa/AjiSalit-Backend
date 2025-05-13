@@ -29,7 +29,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: 8000,
-        required: true,
+        required: true
     }),
     (0, class_validator_1.IsNotEmpty)({ message: "kindly add the price of this service" }),
     (0, class_validator_1.IsNumber)({}, { message: "The price has to be a valid number " }),
@@ -38,32 +38,28 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "تسبيق",
-        required: true,
+        required: true
     }),
     (0, class_validator_1.IsNotEmpty)({ message: "you must add the situation" }),
     (0, class_validator_1.IsEnum)(["خالص", "غير خالص", "تسبيق"]),
-    (0, class_validator_1.Matches)(/^(خالص|غير خالص|تسبيق)$/, {
-        message: "The situation must be one of the following: خالص, غير خالص, تسبيق",
-    }),
+    (0, class_validator_1.Matches)(/^(خالص|غير خالص|تسبيق)$/, { message: "The situation must be one of the following: خالص, غير خالص, تسبيق" }),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "situation", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "جاهزة للتسليم",
-        required: true,
+        required: true
     }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, {
-        message: "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم",
-    }),
+    (0, class_validator_1.Matches)(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, { message: "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم" }),
     (0, class_validator_1.IsEnum)(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"]),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: 200,
-        required: false,
+        required: false
     }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)({}, { message: "The Advanced Amount has to be a valid number " }),
@@ -72,31 +68,27 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "2025-10-26",
-        required: true,
+        required: true
     }),
     (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, {
-        message: "The date must be in the format YYYY-MM-DD",
-    }),
+    (0, class_validator_1.IsNotEmpty)({ message: "The delivery Date is required" }),
+    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" }),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "deliveryDate", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "2025-10-28",
-        required: true,
+        required: true
     }),
     (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
-    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, {
-        message: "The date must be in the format YYYY-MM-DD",
-    }),
+    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "pickupDate", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: ["image1.jpg", "image2.jpg"],
-        description: "images URLs related to the service",
+        example: ['image1.jpg', 'image2.jpg'],
+        description: 'images URLs related to the service',
         required: false,
         type: [String],
     }),
@@ -108,7 +100,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "Hgdthej80000",
-        required: true,
+        required: true
     }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
@@ -124,28 +116,31 @@ __decorate([
     __metadata("design:type", Boolean)
 ], CreateCommandDto.prototype, "isPickUp", void 0);
 __decorate([
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], CreateCommandDto.prototype, "IsConfirmedByClient", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({
         example: "true",
-        required: false,
+        required: false
     }),
     __metadata("design:type", Boolean)
 ], CreateCommandDto.prototype, "isDateChanged", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "sick",
-        required: false,
+        required: false
     }),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "ChangeDateReason", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "2025-10-30",
-        required: true,
+        required: true
     }),
     (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
-    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, {
-        message: "The date must be in the format YYYY-MM-DD",
-    }),
+    (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, { message: "The date must be in the format YYYY-MM-DD" }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "newDate", void 0);

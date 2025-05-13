@@ -35,6 +35,7 @@ export declare class CommandController {
         isFinished: false;
         isPickUp: false;
         isDateChanged: boolean;
+        IsConfirmedByClient: boolean;
         ChangeDateReason: string;
         newDate: Date;
         _id: unknown;
