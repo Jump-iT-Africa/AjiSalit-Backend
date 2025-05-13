@@ -302,11 +302,7 @@ export class UserController {
       let result = await this.userService.getAllCompanies();
       return result;
     } catch (e) {
-      if (
-        e instanceof NotFoundException ||
-        e instanceof UnauthorizedException ||
-        e instanceof JsonWebTokenError
-      ) {
+      if ( e instanceof NotFoundException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError) {
         throw e;
       }
       console.log("There's an error ", e);

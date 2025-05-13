@@ -54,15 +54,22 @@ export class UserService {
         pocket,
       } = createUserDto;
 
-      createUserDto.phoneNumber = createUserDto.phoneNumber.trim().replace(/\s/g, "");
+      createUserDto.phoneNumber = createUserDto.phoneNumber
+        .trim()
+        .replace(/\s/g, "");
       if (createUserDto.phoneNumber[4] == "0") {
-        createUserDto.phoneNumber = createUserDto.phoneNumber.replace(createUserDto.phoneNumber[4],"");
+        createUserDto.phoneNumber = createUserDto.phoneNumber.replace(
+          createUserDto.phoneNumber[4],
+          ""
+        );
       }
       const existingUser = await this.userModel
         .findOne({ phoneNumber: createUserDto.phoneNumber })
         .exec();
       if (existingUser) {
-        throw new ConflictException("This number is already used, try to login or use another one")
+        throw new ConflictException(
+          "This number is already used, try to login or use another one"
+        );
       }
 
       const saltRounds = 10;
@@ -130,8 +137,8 @@ export class UserService {
         token,
       };
     } catch (error) {
-      if(error instanceof ConflictException){
-        throw error
+      if (error instanceof ConflictException) {
+        throw error;
       }
       console.error("Registration error:", error);
       return {
@@ -569,13 +576,25 @@ export class UserService {
   async getAllCompanies() {
     try {
       let result = await this.userModel.find({ role: "company" }).exec();
+      const resultComp = await this.userModel.aggregate([
+        { $match: { role: "company" } },
+        {
+          $lookup: {
+            from: "commands",
+            localField: "_id",
+            foreignField: "companyId",
+            as: "commands",
+          },
+        },
+      ]);
+      console.log("here's the error", resultComp)
+
       if (!result) {
         throw new NotFoundException("Ops No result found");
       }
       if (result.length == 0) {
         return "No comapanies yet";
       }
-
       let dataCompanies = plainToClass(ResoponseCompanyInfoDto, result, {
         excludeExtraneousValues: true,
         enableImplicitConversion: true,
