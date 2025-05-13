@@ -462,7 +462,6 @@ export class CommandService {
   async getStatistics(){
     try{
       let totalOrders = await this.commandModel.countDocuments()
-      // console.log("Total of orders",totalOrders)
       let today = new Date()
       let startOfDay = new Date(today.setUTCHours(0, 0, 0, 0));
       let endOfDay = new Date(today.setUTCHours(24, 0, 0, 0));
@@ -470,7 +469,6 @@ export class CommandService {
         createdAt: { $gte: startOfDay, $lte: endOfDay }
       }).countDocuments()
 
-      // console.log("orders of day", ordersOfDay)
       let monthlyOrders = await this.commandModel.aggregate([
         {
           $group: {

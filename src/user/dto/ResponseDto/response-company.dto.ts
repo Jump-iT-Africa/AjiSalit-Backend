@@ -18,4 +18,6 @@ export class ResoponseCompanyDto{
     socketId?:string
     @Expose()
     expoPushToken?:string
+    @Expose()
+    pocket:number
 }
