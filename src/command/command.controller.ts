@@ -975,13 +975,7 @@ export class CommandController {
       );
     } catch (e) {
       console.log("there's a problem oooo", e);
-      if (
-        e instanceof NotFoundException ||
-        e instanceof ForbiddenException ||
-        e instanceof BadRequestException ||
-        e instanceof UnprocessableEntityException ||
-        e instanceof UnauthorizedException
-      ) {
+      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException || e instanceof UnauthorizedException) {
         throw e;
       }
       throw new BadRequestException("Ops Something went wrong");
@@ -1073,11 +1067,7 @@ export class CommandController {
   @ApiBearerAuth()
   @Patch("confirmdelivery/:orderId")
   @UseGuards(ClientRoleGuard)
-  async confirmDeliveryByClient(
-    @Param("orderId") orderId: string,
-    @Body() updateStatusConfirmation: updateStatusConfirmationDto,
-    @Req() req
-  ) {
+  async confirmDeliveryByClient(@Param("orderId") orderId: string,@Body() updateStatusConfirmation: updateStatusConfirmationDto,@Req() req) {
     try {
       return await this.commandService.confirmDeliveryByClient(
         orderId,
@@ -1086,13 +1076,7 @@ export class CommandController {
       );
     } catch (e) {
       console.log("there's a problem oooo", e);
-      if (
-        e instanceof NotFoundException ||
-        e instanceof ForbiddenException ||
-        e instanceof BadRequestException ||
-        e instanceof UnprocessableEntityException ||
-        e instanceof UnauthorizedException
-      ) {
+      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException || e instanceof UnauthorizedException) {
         throw e;
       }
       throw new BadRequestException("Ops Something went wrong");

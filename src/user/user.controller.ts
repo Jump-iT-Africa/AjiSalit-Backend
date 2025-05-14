@@ -236,7 +236,7 @@ export class UserController {
     }
   }
 
-  @ApiOperation({ summary: "The admin can preview all the company info" })
+  @ApiOperation({ summary: "The admin can preview all the company info and the number of their order" })
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
@@ -247,13 +247,16 @@ export class UserController {
           "Info of companies": {
             value: [
               {
-                companyName: "Salima's holding",
-                Lname: "BHMD",
-                Fname: "Salima",
-                phoneNumber: "+212698888311",
-                city: "rabat",
-                role: "company",
-                pocket: 250,
+                "_id": "6823886c36a5e048a4bcc32d",
+                "companyName": "les maitres",
+                "Lname": "Kissi",
+                "Fname": "mimoun",
+                "phoneNumber": "+212600660066",
+                "city": "وجدة",
+                "role": "company",
+                "pocket": 244,
+                "field": "الخياطة",
+                "commandCount": 6,
               },
             ],
           },
@@ -572,8 +575,7 @@ export class UserController {
               name: "client user test",
               phoneNumber: "+2126970428355",
               role: "client",
-              pocket : 0
-
+              pocket: 0,
             },
           },
           "Info of company owner": {
@@ -584,13 +586,12 @@ export class UserController {
               field: "خياط",
               ice: 78287383792883820,
               role: "company",
-              pocket : 300
+              pocket: 300,
             },
           },
         },
       },
     },
-
   })
   @ApiResponse({
     status: 401,
@@ -626,7 +627,7 @@ export class UserController {
       },
     },
   })
-  findOne( @Req() req) {
+  findOne(@Req() req) {
     try {
       return this.userService.findOne(req.user.id);
     } catch (e) {
