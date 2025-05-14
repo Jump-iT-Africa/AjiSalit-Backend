@@ -356,14 +356,18 @@ export class CommandController {
       },
     },
   })
-
   @UseGuards(IsAuthenticated)
   async findAll(@Req() req) {
     try {
       return await this.commandService.findAll(req.user.id, req.user.role);
     } catch (e) {
       console.log(e);
-      if (e instanceof NotFoundException || e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof UnauthorizedException) {
+      if (
+        e instanceof NotFoundException ||
+        e instanceof JsonWebTokenError ||
+        e instanceof TokenExpiredError ||
+        e instanceof UnauthorizedException
+      ) {
         throw e;
       }
       throw new BadRequestException("Try again");
@@ -375,7 +379,6 @@ export class CommandController {
       "Only admins can access: get statistics of orders (total, daily, monthly, per company)",
   })
   @ApiBearerAuth()
-
   @ApiResponse({
     status: 200,
     description: "Statistics retrieved successfully",
@@ -408,6 +411,38 @@ export class CommandController {
                   companyId: "681b604799836f72f332ceb9",
                   companyName: "deals",
                   field: null,
+                },
+              ],
+              "Total of orders of every single day": [
+                {
+                  date: "2024-05-13",
+                  commandCount: 1,
+                },
+                {
+                  date: "2025-04-14",
+                  commandCount: 1,
+                },
+                {
+                  date: "2025-05-13",
+                  commandCount: 21,
+                },
+                {
+                  date: "2025-05-14",
+                  commandCount: 3,
+                },
+              ],
+              "Total of orders of every single month": [
+                {
+                  date: "2024-05",
+                  commandCount: 1,
+                },
+                {
+                  date: "2025-04",
+                  commandCount: 1,
+                },
+                {
+                  date: "2025-05",
+                  commandCount: 24,
                 },
               ],
             },
@@ -461,8 +496,13 @@ export class CommandController {
     try {
       return await this.commandService.getStatistics();
     } catch (e) {
-      if (e instanceof UnauthorizedException || e instanceof ForbiddenException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError || e instanceof BadRequestException)
-      {
+      if (
+        e instanceof UnauthorizedException ||
+        e instanceof ForbiddenException ||
+        e instanceof UnauthorizedException ||
+        e instanceof JsonWebTokenError ||
+        e instanceof BadRequestException
+      ) {
         throw e;
       }
     }
@@ -975,7 +1015,13 @@ export class CommandController {
       );
     } catch (e) {
       console.log("there's a problem oooo", e);
-      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException || e instanceof UnauthorizedException) {
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException ||
+        e instanceof UnprocessableEntityException ||
+        e instanceof UnauthorizedException
+      ) {
         throw e;
       }
       throw new BadRequestException("Ops Something went wrong");
@@ -1067,7 +1113,11 @@ export class CommandController {
   @ApiBearerAuth()
   @Patch("confirmdelivery/:orderId")
   @UseGuards(ClientRoleGuard)
-  async confirmDeliveryByClient(@Param("orderId") orderId: string,@Body() updateStatusConfirmation: updateStatusConfirmationDto,@Req() req) {
+  async confirmDeliveryByClient(
+    @Param("orderId") orderId: string,
+    @Body() updateStatusConfirmation: updateStatusConfirmationDto,
+    @Req() req
+  ) {
     try {
       return await this.commandService.confirmDeliveryByClient(
         orderId,
@@ -1076,7 +1126,13 @@ export class CommandController {
       );
     } catch (e) {
       console.log("there's a problem oooo", e);
-      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException || e instanceof UnauthorizedException) {
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException ||
+        e instanceof UnprocessableEntityException ||
+        e instanceof UnauthorizedException
+      ) {
         throw e;
       }
       throw new BadRequestException("Ops Something went wrong");
