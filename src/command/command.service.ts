@@ -543,50 +543,54 @@ export class CommandService {
           },
         },
       ]);
+      let commandsByDay = await this.commandModel.aggregate([
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: { _id: 1 },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: "$_id", 
+            commandCount: "$count",
+          },
+        },
+      ]);
+            let commandsBymonth = await this.commandModel.aggregate([
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: "%Y-%m", date: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: { _id: 1 },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: "$_id", 
+            commandCount: "$count",
+          },
+        },
+      ]);
 
-      // const commandsByDay = await this.commandModel.aggregate([
-      //   {
-      //     $match: {
-      //       createdAt: { $gte: startOfDay, $lte: endOfDay },
-      //     },
-      //   },
-      //   {
-      //     $sort: { createdAt: 1 },
-      //   },
-      //   {
-      //     $group: {
-      //       _id: {
-      //         year: { $year: "$createdAt" },
-      //         month: { $month: "$createdAt" },
-      //         day: { $dayOfMonth: "$createdAt" },
-      //       },
-      //       date: { $first: "$createdAt" },
-      //       commands: { $push: "$$ROOT" },
-      //     },
-      //   },
-      //   {
-      //     $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
-      //   },
-      //   {
-      //     $addFields: {
-      //       commandCount: { $size: "$commands" },
-      //     },
-      //   },
-      //   {
-      //     $project: {
-      //       _id: 0,
-      //       date: 1,
-      //       commandCount: 1,
-      //     },
-      //   },
-      // ]);
-      // console.log("order by company", ordersPerCompany)
       let statistics = {
         "Total orders": totalOrders,
         "Total of orders made this day": ordersOfDay,
         "Total of orders made this month": monthlyOrders,
         "Total of orders per companyId": ordersPerCompany,
-        // "Total of orders per each single day": commandsByDay,
+        "Total of orders of every single day": commandsByDay,
+        "Total of orders of every single month":commandsBymonth
       };
       return statistics;
     } catch (e) {
