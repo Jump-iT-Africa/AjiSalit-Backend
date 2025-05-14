@@ -137,40 +137,51 @@ export class CommandService {
   async findAll(userId: string, role: string) {
     try {
       let query = {};
-      let allOrders ;
+      let allOrders;
 
       console.log("I m here ");
       if (role == "admin") {
-        const allOrders = await this.commandModel.find().populate({ path: "companyId", select: "companyName field" })
-        .exec();
-        if(!allOrders || allOrders.length == 0){
-          throw new NotFoundException("No orders found")
+        const allOrders = await this.commandModel
+          .find()
+          .populate({ path: "companyId", select: "companyName field" })
+          .exec();
+        if (!allOrders || allOrders.length == 0) {
+          throw new NotFoundException("No orders found");
         }
         return allOrders;
       }
       if (role == "client") {
         query = { clientId: userId };
-        const allOrders = await this.commandModel.find(query).populate({ path: "companyId", select: "companyName field phoneNumber" }).exec();
-        console.log("there's an error", allOrders)
-        if(!allOrders || allOrders.length == 0){
-          throw new NotFoundException("No orders found")
+        const allOrders = await this.commandModel
+          .find(query)
+          .populate({
+            path: "companyId",
+            select: "companyName field phoneNumber",
+          })
+          .exec();
+        console.log("there's an error", allOrders);
+        if (!allOrders || allOrders.length == 0) {
+          throw new NotFoundException("No orders found");
         }
-        return allOrders
+        return allOrders;
       } else if (role == "company") {
         query = { companyId: userId };
-        const allOrders = await this.commandModel.find(query).populate({ path: "clientId", select: "Fname Lname phoneNumber" }).exec();
-        console.log("Here's all the orders", allOrders)
-        if(!allOrders || allOrders.length == 0 ){
-          throw new NotFoundException("No orders found")
+        const allOrders = await this.commandModel
+          .find(query)
+          .populate({ path: "clientId", select: "Fname Lname phoneNumber" })
+          .exec();
+        console.log("Here's all the orders", allOrders);
+        if (!allOrders || allOrders.length == 0) {
+          throw new NotFoundException("No orders found");
         }
-        
-        return allOrders
+
+        return allOrders;
       }
-      console.log("here are the orders",allOrders)
+      console.log("here are the orders", allOrders);
     } catch (e) {
       console.log(e);
-      if(e instanceof NotFoundException){
-        throw e
+      if (e instanceof NotFoundException) {
+        throw e;
       }
       throw new BadRequestException("Please try again");
     }
@@ -195,7 +206,6 @@ export class CommandService {
       if (!order) {
         throw new NotFoundException("No order found");
       }
-      
 
       return order;
     } catch (e) {
@@ -232,22 +242,22 @@ export class CommandService {
           runValidators: true,
         })
         .exec();
-        let clientInfo = await this.userModel
-          .findById(updatedCommand.clientId)
-          .exec();
-        let companyInfo = await this.userModel
-          .findById(updatedCommand.companyId)
-          .exec();
+      let clientInfo = await this.userModel
+        .findById(updatedCommand.clientId)
+        .exec();
+      let companyInfo = await this.userModel
+        .findById(updatedCommand.companyId)
+        .exec();
 
-        if (clientInfo && clientInfo.expoPushToken) {
-          let notificationSender =
-            await this.notificationsService.sendPushNotification(
-              clientInfo.expoPushToken,
-              ` 🛎️ Talabek tbdel !`,
-              `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `
-            );
-          console.log("Here's my notification sender: ", notificationSender);
-        }
+      if (clientInfo && clientInfo.expoPushToken) {
+        let notificationSender =
+          await this.notificationsService.sendPushNotification(
+            clientInfo.expoPushToken,
+            ` 🛎️ Talabek tbdel !`,
+            `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `
+          );
+        console.log("Here's my notification sender: ", notificationSender);
+      }
       return updatedCommand;
     } catch (e) {
       console.log("error type:", e.constructor.name);
@@ -283,7 +293,7 @@ export class CommandService {
       let companyInfo = await this.userModel.findById(command.companyId).exec();
       // console.log(clientInfo)
       console.log("ohhh a result", result, data);
-      if(data.status == "جاهزة للتسليم"){
+      if (data.status == "جاهزة للتسليم") {
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(
@@ -293,7 +303,7 @@ export class CommandService {
             );
           console.log("Here's my notification sender: ", notificationSender);
         }
-      }else if (data.status == "تم تسليم"){
+      } else if (data.status == "تم تسليم") {
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(
@@ -307,7 +317,11 @@ export class CommandService {
 
       return result;
     } catch (e) {
-      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException) {
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException
+      ) {
         throw e;
       }
       throw new BadRequestException("Ops Something went wrong");
@@ -350,7 +364,11 @@ export class CommandService {
       return result;
     } catch (e) {
       console.log("opsss", e);
-      if ( e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof UnprocessableEntityException
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException ||
+        e instanceof UnprocessableEntityException
       ) {
         throw e;
       }
@@ -436,70 +454,79 @@ export class CommandService {
     }
   }
 
-  async confirmDeliveryByClient(orderId, clientInfo,updateStatusConfirmation){
-    console.log("Happy coding", orderId)
-    try{
-      let command = await this.commandModel.findById(orderId).exec()
-      if(!command){
-        throw new NotFoundException("Command not found")
+  async confirmDeliveryByClient(orderId, clientInfo, updateStatusConfirmation) {
+    console.log("Happy coding", orderId);
+    try {
+      let command = await this.commandModel.findById(orderId).exec();
+      if (!command) {
+        throw new NotFoundException("Command not found");
       }
-      if((command.clientId).toString() !== clientInfo.id){
-        console.log("here are my id : ",command.clientId , clientInfo.id)
-        throw new ForbiddenException("You aren't allowed to update the status unless you are the client of this command")
+      if (command.clientId.toString() !== clientInfo.id) {
+        console.log("here are my id : ", command.clientId, clientInfo.id);
+        throw new ForbiddenException(
+          "You aren't allowed to update the status unless you are the client of this command"
+        );
       }
-      let confirmDelivery = await this.commandModel.findByIdAndUpdate(orderId, updateStatusConfirmation, { new: true, runValidators: true }).exec()
-      if(confirmDelivery){
-        return "Thank You for your feedback"
+      let confirmDelivery = await this.commandModel
+        .findByIdAndUpdate(orderId, updateStatusConfirmation, {
+          new: true,
+          runValidators: true,
+        })
+        .exec();
+      if (confirmDelivery) {
+        return "Thank You for your feedback";
       }
-    }catch(e){
-      if(e instanceof NotFoundException || e instanceof ForbiddenException){
-        throw e 
+    } catch (e) {
+      if (e instanceof NotFoundException || e instanceof ForbiddenException) {
+        throw e;
       }
-      console.log("there's an error", e)
+      console.log("there's an error", e);
     }
   }
 
-  async getStatistics(){
-    try{
-      let totalOrders = await this.commandModel.countDocuments()
-      let today = new Date()
+  async getStatistics() {
+    try {
+      let totalOrders = await this.commandModel.countDocuments();
+      let today = new Date();
       let startOfDay = new Date(today.setUTCHours(0, 0, 0, 0));
       let endOfDay = new Date(today.setUTCHours(24, 0, 0, 0));
-      let ordersOfDay = await this.commandModel.find({
-        createdAt: { $gte: startOfDay, $lte: endOfDay }
-      }).countDocuments()
+      let ordersOfDay = await this.commandModel
+        .find({
+          createdAt: { $gte: startOfDay, $lte: endOfDay },
+        })
+        .countDocuments();
 
       let monthlyOrders = await this.commandModel.aggregate([
         {
           $group: {
             _id: {
-              $dateToString: { format: "%Y-%m", date: "$createdAt" }, 
+              $dateToString: { format: "%Y-%m", date: "$createdAt" },
             },
             count: { $sum: 1 },
           },
         },
         {
-          $sort: { _id: 1 }, 
-        }
+          $sort: { _id: 1 },
+        },
       ]);
 
       let ordersPerCompany = await this.commandModel.aggregate([
-        { 
-          $group: { 
-            _id: { companyId: "$companyId" }, 
-            count: { $sum: 1 } 
-          }
+        {
+          $group: {
+            _id: { companyId: "$companyId" },
+            count: { $sum: 1 },
+          },
         },
         {
           $lookup: {
-            from: "users", 
+            from: "users",
             localField: "_id.companyId",
             foreignField: "_id",
-            as: "company"
-          }
+            as: "company",
+          },
         },
         {
-          $unwind: "$company"
+          $unwind: "$company",
         },
         {
           $project: {
@@ -507,27 +534,64 @@ export class CommandService {
             companyId: "$_id.companyId",
             companyName: "$company.companyName",
             field: "$company.field",
-            count: 1
-          }
+            count: 1,
+          },
         },
-        { 
-          $sort: { 
-            companyId: 1 
-          }
-        }
-      ])
-      
-    // console.log("order by company", ordersPerCompany)  
-    let statistics = {
-      "Total orders": totalOrders,
-      "Total of orders made this day":ordersOfDay,
-      "Total of orders made this month": monthlyOrders,
-      "Total of orders per companyId": ordersPerCompany
-    }
-    return statistics
-    }catch(e){
-      console.log("there's an error here",e)
-      throw new BadRequestException("Ops something went wrong")
+        {
+          $sort: {
+            companyId: 1,
+          },
+        },
+      ]);
+
+      // const commandsByDay = await this.commandModel.aggregate([
+      //   {
+      //     $match: {
+      //       createdAt: { $gte: startOfDay, $lte: endOfDay },
+      //     },
+      //   },
+      //   {
+      //     $sort: { createdAt: 1 },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: {
+      //         year: { $year: "$createdAt" },
+      //         month: { $month: "$createdAt" },
+      //         day: { $dayOfMonth: "$createdAt" },
+      //       },
+      //       date: { $first: "$createdAt" },
+      //       commands: { $push: "$$ROOT" },
+      //     },
+      //   },
+      //   {
+      //     $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+      //   },
+      //   {
+      //     $addFields: {
+      //       commandCount: { $size: "$commands" },
+      //     },
+      //   },
+      //   {
+      //     $project: {
+      //       _id: 0,
+      //       date: 1,
+      //       commandCount: 1,
+      //     },
+      //   },
+      // ]);
+      // console.log("order by company", ordersPerCompany)
+      let statistics = {
+        "Total orders": totalOrders,
+        "Total of orders made this day": ordersOfDay,
+        "Total of orders made this month": monthlyOrders,
+        "Total of orders per companyId": ordersPerCompany,
+        // "Total of orders per each single day": commandsByDay,
+      };
+      return statistics;
+    } catch (e) {
+      console.log("there's an error here", e);
+      throw new BadRequestException("Ops something went wrong");
     }
   }
 }

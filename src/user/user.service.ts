@@ -29,6 +29,7 @@ import { isInstance, validate } from "class-validator";
 import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
 import { ResoponseCompanyInfoDto } from "./dto/ResponseDto/response-info-company.dto";
 import { hasSubscribers } from "diagnostics_channel";
+import { ResponseCompanyInfoForAdminDto } from "./dto/ResponseDto/response-all-companies.dto";
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -575,7 +576,6 @@ export class UserService {
 
   async getAllCompanies() {
     try {
-      let result = await this.userModel.find({ role: "company" }).exec();
       const resultComp = await this.userModel.aggregate([
         { $match: { role: "company" } },
         {
@@ -586,23 +586,44 @@ export class UserService {
             as: "commands",
           },
         },
+        {
+          $addFields: {
+            commandCount: { $size: "$commands" },
+          },
+        },
+        {
+          $project: {
+            Fname: 1,
+            Lname: 1,
+            companyName: 1,
+            role: 1,
+            phoneNumber: 1,
+            city: 1,
+            field: 1,
+            ice: 1,
+            ownRef: 1,
+            pocket: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            commandCount: 1,
+          },
+        },
       ]);
-      console.log("here's the error", resultComp)
+      console.log("result of companies", resultComp);
 
-      if (!result) {
+      if (!resultComp) {
         throw new NotFoundException("Ops No result found");
       }
-      if (result.length == 0) {
+      if (resultComp.length == 0) {
         return "No comapanies yet";
       }
-      let dataCompanies = plainToClass(ResoponseCompanyInfoDto, result, {
+      let dataCompanies = plainToClass(ResponseCompanyInfoForAdminDto, resultComp, {
         excludeExtraneousValues: true,
         enableImplicitConversion: true,
       });
       return dataCompanies;
     } catch (e) {
       console.log("there's an error", e);
-
       if (e instanceof NotFoundException) {
         throw e;
       }
