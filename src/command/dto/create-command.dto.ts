@@ -16,7 +16,7 @@ export class CreateCommandDto {
     required: true,
   })
   @IsNotEmpty({ message: "kindly add the price of this service" })
-  @IsNumber({}, { message: "The price has to be a valid number " })
+  // @IsNumber({}, { message: "The price has to be a valid number " })
   price: number;
 
   @ApiProperty({

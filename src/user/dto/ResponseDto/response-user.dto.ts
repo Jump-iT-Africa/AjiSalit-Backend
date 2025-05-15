@@ -13,9 +13,11 @@ export class ResponseUserDto{
     @Expose()
     role:string
     @Expose()
-    socketId?:string
-    @Expose()
     expoPushToken?:string
     @Expose()
     pocket:number
+    @Expose()
+    ownRef?: string
+    @Expose()
+    socketId?: string
 }
