@@ -81,27 +81,20 @@ export class CommandService {
 
   async create(createCommandDto: CreateCommandDto, authentificatedId: string, images) {
     const session = await this.connection.startSession();
-
     try {
       session.startTransaction();
-      let companyOwner = await this.userModel
-        .findById(authentificatedId)
-        .session(session)
-        .exec();
+      let companyOwner = await this.userModel.findById(authentificatedId).session(session).exec();
       if (companyOwner?.pocket <= 0) {
         throw new HttpException(
           "Ops you are poor, your balance is zero",
           HttpStatus.PAYMENT_REQUIRED
         );
       }
-      const existingOrder = await this.commandModel
-        .findOne({ qrCode: createCommandDto.qrCode })
-        .exec();
+      const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
 
       if (existingOrder) {
         throw new ConflictException("This code is already used");
       }
-
       if (images && images.length > 0) {
         const imageUrls: string[] = [];
         for (const file of images) {
@@ -112,7 +105,7 @@ export class CommandService {
             console.error('Image upload failed:', error);
           }
         }
-                createCommandDto.images = imageUrls;
+      createCommandDto.images = imageUrls;
       }
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
@@ -136,11 +129,7 @@ export class CommandService {
       }
     } catch (e) {
       await session.abortTransaction();
-      if (
-        e instanceof UnprocessableEntityException ||
-        e instanceof ConflictException ||
-        e instanceof HttpException
-      ) {
+      if ( e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException) {
         throw e;
       }
       console.log("ops new wonderful error", e);
@@ -260,7 +249,7 @@ export class CommandService {
         .findOne(query)
         .populate({ path: "companyId", select: "companyName field" })
         .exec();
-      console.log("there's an order", order);
+      // console.log("there's an order", order);
       if (!order) {
         throw new NotFoundException("No order found");
       }

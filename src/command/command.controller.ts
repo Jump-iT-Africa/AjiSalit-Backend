@@ -45,6 +45,7 @@ import { ClientRoleGuard } from "../user/guards/client-role.guard";
 import { AdminRoleGuard } from "../user/guards/admin-role.guard";
 import { isatty } from "tty";
 import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
+import { CommandInterceptor } from "./interceptors/command.interceptor";
 
 @ApiTags("Orders ")
 @Controller("order")
@@ -52,6 +53,7 @@ export class CommandController {
   constructor(private readonly commandService: CommandService) {}
   @ApiOperation({ summary: "Give the company the ability to add new order" })
   @ApiBearerAuth()
+  
   @ApiConsumes("multipart/form-data")
   @ApiResponse({
     status: 201,
@@ -147,10 +149,11 @@ export class CommandController {
   })
   @Post()
   @UseGuards(CompanyRoleGuard)
+  @UseInterceptors(CommandInterceptor)
   @UseInterceptors(FilesInterceptor("images"))
   async create(@Body() createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
     try {
-      console.log(createCommandDto, images)
+      // console.log(createCommandDto, images)
       return await this.commandService.create(createCommandDto, req.user.id,images);
     } catch (e) {
       console.log("ops new error", e);
