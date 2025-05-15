@@ -16,7 +16,7 @@ export class CreateCommandDto {
     required: true,
   })
   @IsNotEmpty({ message: "kindly add the price of this service" })
-  // @IsNumber({}, { message: "The price has to be a valid number " })
+  @IsNumber({}, { message: "The price has to be a valid number " })
   price: number;
 
   @ApiProperty({
@@ -74,12 +74,7 @@ export class CreateCommandDto {
   @IsOptional()
   pickupDate: string;
 
-  @ApiProperty({
-    example: ["image1.jpg", "image2.jpg"],
-    description: "images URLs related to the service",
-    required: false,
-    type: [String],
-  })
+  @ApiProperty({ type: 'string', format: 'binary', isArray: true , required:false})
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
