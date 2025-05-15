@@ -4,6 +4,7 @@ import {
   NotFoundException,
   ForbiddenException,
   UnauthorizedException,
+  ConflictException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model, ObjectId } from "mongoose";
@@ -28,6 +29,7 @@ import { isInstance, validate } from "class-validator";
 import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
 import { ResoponseCompanyInfoDto } from "./dto/ResponseDto/response-info-company.dto";
 import { hasSubscribers } from "diagnostics_channel";
+import { ResponseCompanyInfoForAdminDto } from "./dto/ResponseDto/response-all-companies.dto";
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -52,13 +54,23 @@ export class UserService {
         listRefs,
         pocket,
       } = createUserDto;
-      const existingUser = await this.userModel.findOne({ phoneNumber }).exec();
 
+      createUserDto.phoneNumber = createUserDto.phoneNumber
+        .trim()
+        .replace(/\s/g, "");
+      if (createUserDto.phoneNumber[4] == "0") {
+        createUserDto.phoneNumber = createUserDto.phoneNumber.replace(
+          createUserDto.phoneNumber[4],
+          ""
+        );
+      }
+      const existingUser = await this.userModel
+        .findOne({ phoneNumber: createUserDto.phoneNumber })
+        .exec();
       if (existingUser) {
-        return {
-          message:
-            "This number is already used, try to login or use another one",
-        };
+        throw new ConflictException(
+          "This number is already used, try to login or use another one"
+        );
       }
 
       const saltRounds = 10;
@@ -66,18 +78,20 @@ export class UserService {
       console.log("test", hashedPassword, password);
       const GeneratedRefCode = this.generateReferralCode();
 
-      console.log("the role check", createUserDto.role, createUserDto.pocket)
       if (createUserDto.role == "company") {
         createUserDto.pocket = 250;
       }
-      console.log("the role after change the pocket balance", createUserDto.role, createUserDto.pocket)
-
+      console.log(
+        "the role after change the pocket balance",
+        createUserDto.role,
+        createUserDto.pocket
+      );
 
       const newUser = new this.userModel({
         Fname,
         Lname,
         companyName,
-        phoneNumber,
+        phoneNumber: createUserDto.phoneNumber,
         role,
         password: hashedPassword,
         city,
@@ -124,6 +138,9 @@ export class UserService {
         token,
       };
     } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       console.error("Registration error:", error);
       return {
         ErrorMessage: error,
@@ -160,7 +177,17 @@ export class UserService {
 
   async login(LoginUserDto: LoginUserDto): Promise<any> {
     const { phoneNumber, password } = LoginUserDto;
-    const User = await this.userModel.findOne({ phoneNumber }).exec();
+    LoginUserDto.phoneNumber = phoneNumber.trim().replace(/\s/g, "");
+    if (LoginUserDto.phoneNumber[4] == "0") {
+      LoginUserDto.phoneNumber = LoginUserDto.phoneNumber.replace(
+        LoginUserDto.phoneNumber[4],
+        ""
+      );
+    }
+
+    const User = await this.userModel
+      .findOne({ phoneNumber: LoginUserDto.phoneNumber })
+      .exec();
 
     if (!User) {
       throw new BadRequestException("This User Does not exists");
@@ -248,7 +275,6 @@ export class UserService {
           excludeExtraneousValues: true,
           enableImplicitConversion: true,
         });
-        //  plainToInstance(ResponseUserDto,result)
         return data;
       }
     } catch (e) {
@@ -550,22 +576,54 @@ export class UserService {
 
   async getAllCompanies() {
     try {
-      let result = await this.userModel.find({ role: "company" }).exec();
-      if (!result) {
+      const resultComp = await this.userModel.aggregate([
+        { $match: { role: "company" } },
+        {
+          $lookup: {
+            from: "commands",
+            localField: "_id",
+            foreignField: "companyId",
+            as: "commands",
+          },
+        },
+        {
+          $addFields: {
+            commandCount: { $size: "$commands" },
+          },
+        },
+        {
+          $project: {
+            Fname: 1,
+            Lname: 1,
+            companyName: 1,
+            role: 1,
+            phoneNumber: 1,
+            city: 1,
+            field: 1,
+            ice: 1,
+            ownRef: 1,
+            pocket: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            commandCount: 1,
+          },
+        },
+      ]);
+      console.log("result of companies", resultComp);
+
+      if (!resultComp) {
         throw new NotFoundException("Ops No result found");
       }
-      if (result.length == 0) {
+      if (resultComp.length == 0) {
         return "No comapanies yet";
       }
-
-      let dataCompanies = plainToClass(ResoponseCompanyInfoDto, result, {
+      let dataCompanies = plainToClass(ResponseCompanyInfoForAdminDto, resultComp, {
         excludeExtraneousValues: true,
         enableImplicitConversion: true,
       });
       return dataCompanies;
     } catch (e) {
       console.log("there's an error", e);
-
       if (e instanceof NotFoundException) {
         throw e;
       }

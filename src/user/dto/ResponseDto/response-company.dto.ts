@@ -3,7 +3,13 @@ export class ResoponseCompanyDto{
     @Expose()
     id:string
     @Expose()
-    name:string
+    Fname:string
+    @Expose()
+    Lname:string
+    @Expose()
+    companyName:string
+    @Expose()
+    city:string
     @Expose()
     phoneNumber:string
     @Expose()
@@ -15,7 +21,9 @@ export class ResoponseCompanyDto{
     @Expose()
     role:string
     @Expose()
-    socketId?:string
-    @Expose()
     expoPushToken?:string
+    @Expose()
+    pocket:number
+    @Expose()
+    socketId?: string
 }

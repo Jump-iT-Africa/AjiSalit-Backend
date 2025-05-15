@@ -15,7 +15,7 @@ export class Command {
   
   @Prop({required: true, default: "غير خالص", enum: ["خالص", "غير خالص","تسبيق"]})
   situation:string;
-
+   
   @Prop({ required: true, default:"في طور الانجاز", enum: ["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"] })
   status: string;
 
