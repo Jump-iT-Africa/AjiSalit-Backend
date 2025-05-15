@@ -25,6 +25,7 @@ import { Connection } from "mongoose";
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { lastValueFrom } from "rxjs";
+import axios from "axios";
 
 @Injectable()
 export class CommandService {
@@ -39,58 +40,61 @@ export class CommandService {
     private readonly notificationsGateway: NotificationsGateway,
     private notificationsService: NotificationsService,
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
-
- async uploadImageToBunny(file: Buffer, filename: string): Promise<string> {
-  console.log("i m in uplaodddd")
-    const storageZone = this.configService.get<string>('BUNNY_STORAGE_ZONE');
-    const accessKey = this.configService.get<string>('BUNNY_ACCESS_KEY');
-    const storageUrl = this.configService.get<string>('BUNNY_STORAGE_URL');
-      const uniqueFilename = `${Date.now()}-${filename.replace(/\s/g, '_')}`;
+  async uploadImageToBunny(file: Buffer, filename: string): Promise<string> {
+    console.log("i m in uplaodddd");
+    const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
+    const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
+    const storageUrl = this.configService.get<string>("BUNNY_STORAGE_URL");
+    const uniqueFilename = `${Date.now()}-${filename.replace(/\s/g, "_")}`;
     const url = `${storageUrl}/${storageZone}/${uniqueFilename}`;
 
-    console.log("here's the storage zone", storageZone)
-    
+    console.log("here's the storage zone", storageZone);
+
     try {
       const response = await lastValueFrom(
-        this.httpService.put(
-          url,
-          file,
-          {
-            headers: {
-              'AccessKey': accessKey,
-              'Content-Type': 'application/octet-stream',
-            },
-          }
-        )
+        this.httpService.put(url, file, {
+          headers: {
+            AccessKey: accessKey,
+            "Content-Type": "application/octet-stream",
+          },
+        })
       );
-      
+
       if (response.status === 201) {
         return `https://${storageZone}.b-cdn.net/${uniqueFilename}`;
       } else {
         throw new Error(`Failed to upload to Bunny CDN: ${response.status}`);
       }
     } catch (error) {
-      console.error('Error uploading to Bunny CDN:', error);
+      console.error("Error uploading to Bunny CDN:", error);
       throw new Error(`Bunny CDN upload failed: ${error.message}`);
     }
   }
-  
 
-  async create(createCommandDto: CreateCommandDto, authentificatedId: string, images) {
+  async create(
+    createCommandDto: CreateCommandDto,
+    authentificatedId: string,
+    images
+  ) {
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
-      let companyOwner = await this.userModel.findById(authentificatedId).session(session).exec();
+      let companyOwner = await this.userModel
+        .findById(authentificatedId)
+        .session(session)
+        .exec();
       if (companyOwner?.pocket <= 0) {
         throw new HttpException(
           "Ops you are poor, your balance is zero",
           HttpStatus.PAYMENT_REQUIRED
         );
       }
-      const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
+      const existingOrder = await this.commandModel
+        .findOne({ qrCode: createCommandDto.qrCode })
+        .exec();
 
       if (existingOrder) {
         throw new ConflictException("This code is already used");
@@ -99,13 +103,16 @@ export class CommandService {
         const imageUrls: string[] = [];
         for (const file of images) {
           try {
-            const imageUrl = await this.uploadImageToBunny(file.buffer, file.originalname);
+            const imageUrl = await this.uploadImageToBunny(
+              file.buffer,
+              file.originalname
+            );
             imageUrls.push(imageUrl);
           } catch (error) {
-            console.error('Image upload failed:', error);
+            console.error("Image upload failed:", error);
           }
         }
-      createCommandDto.images = imageUrls;
+        createCommandDto.images = imageUrls;
       }
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
@@ -129,7 +136,11 @@ export class CommandService {
       }
     } catch (e) {
       await session.abortTransaction();
-      if ( e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException) {
+      if (
+        e instanceof UnprocessableEntityException ||
+        e instanceof ConflictException ||
+        e instanceof HttpException
+      ) {
         throw e;
       }
       console.log("ops new wonderful error", e);
@@ -422,6 +433,35 @@ export class CommandService {
       throw new BadRequestException("Ops Something went wrong");
     }
   }
+  extractFileNameFromCDN(url: string): string | null {
+    try {
+      const parts = url.split("/");
+      return parts[parts.length - 1];
+    } catch(e) {
+      console.log("there's an error in extractfilename", e)
+      return null;
+    }
+  }
+
+  async deleteBunnyImage(fileName: string): Promise<void> {
+    const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
+    const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
+    const url = `https://storage.bunnycdn.com/${storageZone}/${fileName}`;
+
+    try {
+      await axios.delete(url, {
+        headers: {
+          AccessKey: accessKey,
+          "Content-Type": "application/octet-stream",
+        },
+      });
+    } catch (error) {
+      console.error(
+        `failed to delete Bunny image: ${fileName}`,
+        error.response?.data || error.message
+      );
+    }
+  }
 
   async deleteOrder(id: string, userId) {
     try {
@@ -432,6 +472,18 @@ export class CommandService {
       if (order.companyId.toString() !== userId) {
         throw new ForbiddenException("You can't delete this order");
       }
+      if (order.images && order.images.length > 0) {
+        for (const imageObj of order.images) {
+          const imageUrl =
+            typeof imageObj === "string" ? imageObj : imageObj.toString?.();
+          if (imageUrl) {
+            const fileName = this.extractFileNameFromCDN(imageUrl);
+            if (fileName) {
+              await this.deleteBunnyImage(fileName);
+            }
+          }
+        }
+      }
       let deleteOrder = await this.commandModel.findByIdAndDelete(id).exec();
       return {
         message: "The order was deleted successfully",
@@ -441,11 +493,9 @@ export class CommandService {
       if (e.name === "CastError") {
         throw new BadRequestException("The id of this order is not correct");
       }
-      if (e instanceof NotFoundException) {
-        throw new NotFoundException("The order is not found");
-      }
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You can't delete this order");
+
+      if (e instanceof ForbiddenException || e instanceof NotFoundException) {
+        throw e
       }
       throw new BadRequestException("Try again");
     }
