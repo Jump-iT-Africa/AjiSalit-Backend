@@ -22,19 +22,64 @@ import { NotificationsGateway } from "../notifications/notifications.gateway";
 import { NotificationsService } from "../notifications/notifications.service";
 import { validationPickUpdate } from "../services/validationPickUpdate";
 import { Connection } from "mongoose";
+import { HttpService } from "@nestjs/axios";
+import { ConfigService } from "@nestjs/config";
+import { lastValueFrom } from "rxjs";
 
 @Injectable()
 export class CommandService {
+  private readonly bunnyStorageUrl: string;
+  private readonly bunnyAccessKey: string;
+  private readonly bunnyStorageZone: string;
   constructor(
     @InjectConnection() private readonly connection: Connection,
     @InjectModel(Command.name) private commandModel: Model<CommandDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject(forwardRef(() => NotificationsGateway))
     private readonly notificationsGateway: NotificationsGateway,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async create(createCommandDto: CreateCommandDto, authentificatedId: string) {
+
+ async uploadImageToBunny(file: Buffer, filename: string): Promise<string> {
+  console.log("i m in uplaodddd")
+    const storageZone = this.configService.get<string>('BUNNY_STORAGE_ZONE');
+    const accessKey = this.configService.get<string>('BUNNY_ACCESS_KEY');
+    const storageUrl = this.configService.get<string>('BUNNY_STORAGE_URL');
+      const uniqueFilename = `${Date.now()}-${filename.replace(/\s/g, '_')}`;
+    const url = `${storageUrl}/${storageZone}/${uniqueFilename}`;
+
+    console.log("here's the storage zone", storageZone)
+    
+    try {
+      const response = await lastValueFrom(
+        this.httpService.put(
+          url,
+          file,
+          {
+            headers: {
+              'AccessKey': accessKey,
+              'Content-Type': 'application/octet-stream',
+            },
+          }
+        )
+      );
+      
+      if (response.status === 201) {
+        return `https://${storageZone}.b-cdn.net/${uniqueFilename}`;
+      } else {
+        throw new Error(`Failed to upload to Bunny CDN: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error uploading to Bunny CDN:', error);
+      throw new Error(`Bunny CDN upload failed: ${error.message}`);
+    }
+  }
+  
+
+  async create(createCommandDto: CreateCommandDto, authentificatedId: string, images) {
     const session = await this.connection.startSession();
 
     try {
@@ -55,6 +100,19 @@ export class CommandService {
 
       if (existingOrder) {
         throw new ConflictException("This code is already used");
+      }
+
+      if (images && images.length > 0) {
+        const imageUrls: string[] = [];
+        for (const file of images) {
+          try {
+            const imageUrl = await this.uploadImageToBunny(file.buffer, file.originalname);
+            imageUrls.push(imageUrl);
+          } catch (error) {
+            console.error('Image upload failed:', error);
+          }
+        }
+                createCommandDto.images = imageUrls;
       }
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
@@ -558,12 +616,12 @@ export class CommandService {
         {
           $project: {
             _id: 0,
-            date: "$_id", 
+            date: "$_id",
             commandCount: "$count",
           },
         },
       ]);
-            let commandsBymonth = await this.commandModel.aggregate([
+      let commandsBymonth = await this.commandModel.aggregate([
         {
           $group: {
             _id: {
@@ -578,7 +636,7 @@ export class CommandService {
         {
           $project: {
             _id: 0,
-            date: "$_id", 
+            date: "$_id",
             commandCount: "$count",
           },
         },
@@ -590,7 +648,7 @@ export class CommandService {
         "Total of orders made this month": monthlyOrders,
         "Total of orders per companyId": ordersPerCompany,
         "Total of orders of every single day": commandsByDay,
-        "Total of orders of every single month":commandsBymonth
+        "Total of orders of every single month": commandsBymonth,
       };
       return statistics;
     } catch (e) {

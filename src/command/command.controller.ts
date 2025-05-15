@@ -16,6 +16,8 @@ import {
   UnprocessableEntityException,
   UseGuards,
   HttpException,
+  UseInterceptors,
+  UploadedFiles,
 } from "@nestjs/common";
 import { CommandService } from "./command.service";
 import { CreateCommandDto } from "./dto/create-command.dto";
@@ -28,6 +30,7 @@ import {
   ApiBody,
   ApiParam,
   ApiBearerAuth,
+  ApiConsumes,
 } from "@nestjs/swagger";
 import ResponseDto from "./dto/response-command.dto";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
@@ -41,6 +44,7 @@ import { updateStatusConfirmationDto } from "./dto/update-confirmdelivery.dto";
 import { ClientRoleGuard } from "../user/guards/client-role.guard";
 import { AdminRoleGuard } from "../user/guards/admin-role.guard";
 import { isatty } from "tty";
+import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 
 @ApiTags("Orders ")
 @Controller("order")
@@ -48,6 +52,7 @@ export class CommandController {
   constructor(private readonly commandService: CommandService) {}
   @ApiOperation({ summary: "Give the company the ability to add new order" })
   @ApiBearerAuth()
+  @ApiConsumes("multipart/form-data")
   @ApiResponse({
     status: 201,
     description: "the response returns the details of the Order ",
@@ -142,18 +147,14 @@ export class CommandController {
   })
   @Post()
   @UseGuards(CompanyRoleGuard)
-  async create(@Body() createCommandDto: CreateCommandDto, @Req() req) {
+  @UseInterceptors(FilesInterceptor("images"))
+  async create(@Body() createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
     try {
-      return await this.commandService.create(createCommandDto, req.user.id);
+      console.log(createCommandDto, images)
+      return await this.commandService.create(createCommandDto, req.user.id,images);
     } catch (e) {
       console.log("ops new error", e);
-      if (
-        e instanceof JsonWebTokenError ||
-        e instanceof ForbiddenException ||
-        e instanceof UnprocessableEntityException ||
-        e instanceof ConflictException ||
-        e instanceof HttpException
-      )
+      if (e instanceof JsonWebTokenError ||e instanceof ForbiddenException ||e instanceof UnprocessableEntityException ||e instanceof ConflictException ||e instanceof HttpException)
         throw e;
       throw new BadRequestException("Ops smth went wrong", e);
     }

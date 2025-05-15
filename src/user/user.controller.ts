@@ -236,7 +236,10 @@ export class UserController {
     }
   }
 
-  @ApiOperation({ summary: "The admin can preview all the company info and the number of their order" })
+  @ApiOperation({
+    summary:
+      "The admin can preview all the company info and the number of their order",
+  })
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
@@ -247,16 +250,16 @@ export class UserController {
           "Info of companies": {
             value: [
               {
-                "_id": "6823886c36a5e048a4bcc32d",
-                "companyName": "les maitres",
-                "Lname": "Kissi",
-                "Fname": "mimoun",
-                "phoneNumber": "+212600660066",
-                "city": "وجدة",
-                "role": "company",
-                "pocket": 244,
-                "field": "الخياطة",
-                "commandCount": 6,
+                _id: "6823886c36a5e048a4bcc32d",
+                companyName: "les maitres",
+                Lname: "Kissi",
+                Fname: "mimoun",
+                phoneNumber: "+212600660066",
+                city: "وجدة",
+                role: "company",
+                pocket: 244,
+                field: "الخياطة",
+                commandCount: 6,
               },
             ],
           },
@@ -305,7 +308,11 @@ export class UserController {
       let result = await this.userService.getAllCompanies();
       return result;
     } catch (e) {
-      if ( e instanceof NotFoundException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError) {
+      if (
+        e instanceof NotFoundException ||
+        e instanceof UnauthorizedException ||
+        e instanceof JsonWebTokenError
+      ) {
         throw e;
       }
       console.log("There's an error ", e);
@@ -572,21 +579,28 @@ export class UserController {
         examples: {
           "Info of user ": {
             value: {
-              name: "client user test",
-              phoneNumber: "+2126970428355",
+              id: "6825afe8f3533a1ef38e6167",
+              Fname: "salimmaaaa",
+              Lname: "salimmaaaa",
+              city: "marrakech",
+              phoneNumber: "+212697542868",
               role: "client",
               pocket: 0,
+              ownRef: "80B53078",
             },
           },
           "Info of company owner": {
             value: {
-              name: "Company user test",
-              phoneNumber: "+212697042835",
-              fullAddress: "Rabat jump it",
-              field: "خياط",
-              ice: 78287383792883820,
+              id: "6825ad7382e37a3d07b4ea59",
+              Fname: "BOUHAMIDI",
+              Lname: "BOUHAMIDI",
+              companyName: "Aji Salit",
+              city: "marrakech",
+              phoneNumber: "+212697043768",
+              field: "pressing",
+              ice: 12345678930423,
               role: "company",
-              pocket: 300,
+              pocket: 250,
             },
           },
         },

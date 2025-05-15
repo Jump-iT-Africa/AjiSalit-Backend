@@ -131,11 +131,26 @@ export class NotificationsService {
         throw new NotFoundException("Expo push notification of this user not found");
       }
       console.log("here's the user", user);
+      if(infoUser.role == "client"){
       notificationReminder = await this.sendPushNotification(
         expotoken,
         `🕖  Mazal Makhditi talab dyalk !`,
         `Salam 👋, bghina gha nfkrouk Talab dailk kaytsnak  🚀 Dkhl l’app bash tchouf ljadid `
       );
+            console.log("Happy notification clien", notificationReminder);
+
+      }else if(infoUser == "company"){
+      console.log("tessssssssssst from company", user);
+
+        notificationReminder = await this.sendPushNotification(
+          expotoken,
+          `🕖 Petit rappel 😊 !`,
+          `Salam 👋, tlab li 3andek f l’app tsala délai. B9a ghir tbdl status dyalo bach nkemlou l’process b naja7 ✅. Matnsach, l’image dyalek katsb9ek 😉 `
+      );
+            console.log("Happy notification com", notificationReminder);
+
+      }
+
       console.log("Happy notification", notificationReminder);
 
       return notificationReminder;
