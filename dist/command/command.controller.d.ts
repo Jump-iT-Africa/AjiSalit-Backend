@@ -1,4 +1,4 @@
-import { CommandService } from './command.service';
+cimport { CommandService } from './command.service';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { UpdateStatusCommandDto } from './dto/update-status-command.dto';

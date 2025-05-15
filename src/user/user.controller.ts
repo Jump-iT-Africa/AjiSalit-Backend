@@ -9,7 +9,6 @@ import { validateJwt } from "../services/verifyJwt"
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import { RoleValidationPipe } from './pipes/RoleValidationPipe'
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, refs, ApiExtraModels,ApiBearerAuth } from '@nestjs/swagger';
-import { log } from 'console';
 import {VerifyNumberDto} from "./dto/Logindto/VerifyPhoneNumber.dto"
 import { UpdateFirstNameDto } from './dto/UpdatesDtos/update-user-first-name.dto';
 import { UpdateLastNameDto } from './dto/UpdatesDtos/update-user-last-name.dto';
@@ -56,6 +55,33 @@ export class UserController {
               "message": 'Registration failed',
               "error": "Bad Request",
               "statusCode": 400
+            }
+          },
+          'The password contains Letters instead of digits': {
+            value: {
+              "message":  [
+                "The password must contain 6 numbers only"
+              ],
+              "error": "Bad Request",
+              "statusCode": 400
+            }
+          }, 
+          "Sending an empty body":{
+            value: {
+              "message": [
+                "Fname should not be empty",
+                "Fname must be a string",
+                "Lname should not be empty",
+                "Lname must be a string",
+                "phoneNumber should not be empty",
+                "phoneNumber must be a string",
+                "password should not be empty",
+                "The password must contain 6 numbers only",
+                "password must be a string"
+              ],
+              error: "Bad Request",
+              status: 400
+
             }
           }
 
@@ -118,14 +144,36 @@ export class UserController {
               "statusCode": 400
             },
           },
-          'Phonenumber is not verified': {
+          "Password contains letters instead of digits or use more than 6 digits":{
+            value:{
+              "message": [
+                "The password must contain 6 numbers only"
+              ],
+              "error": "Bad Request",
+              "statusCode": 400
+            }
+          },
+          'Phone number is not verified': {
             value: {
               "message": "Phone number not verified",
               "error": "Bad Request",
               "statusCode": 400
             }
           },
-          'other Exceptions ': {
+          'Sending an empty body': {
+            value: {
+              "message": [
+                "phoneNumber should not be empty",
+                "phoneNumber must be a string",
+                "password should not be empty",
+                "password must be a string",
+                "The password must contain 6 numbers only"
+              ],
+              "error": "Bad Request",
+              "statusCode": 400
+            }
+          },
+          'Something crushed and caused the Exception': {
             value: {
               "message": "There was an error while login",
               "error": "Bad Request",
@@ -290,6 +338,80 @@ export class UserController {
       }
       console.log("There's an error ", e)
       throw new   BadRequestException("Ops try again")
+    }
+  }
+
+  @ApiOperation({
+    summary: "Only admins can access: get global user statistics (users, clients, companies, admins)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "User statistics retrieved successfully",
+    content: {
+      "application/json": {
+        examples: {
+          success: {
+            value: {
+              "Total Users": 18,
+              "Total clients": 10,
+              "Total companies": 6,
+              "Total admins": 2,
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Bad Request: Something went wrong during the process",
+    content: {
+      "application/json": {
+        examples: {
+          "Generic Error": {
+            value: {
+              message: "Ops something went wrong",
+              error: "Bad Request",
+              statusCode: 400,
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Unauthorized: Token is missing, invalid, or expired",
+    schema: {
+      example: {
+        statusCode: 401,
+        message: "kindly try to login again",
+        error: "Unauthorized",
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden: User is not an admin",
+    schema: {
+      example: {
+        statusCode: 403,
+        message: "Ops only admins can access to this route",
+        error: "Forbidden",
+      },
+    },
+  })
+  
+  @Get("statistics")
+  @UseGuards(AdminRoleGuard)
+  async statistics() {
+    try {
+      return await this.userService.getStatistics();
+    } catch (e) {
+      if ( e instanceof UnauthorizedException || e instanceof ForbiddenException || e instanceof UnauthorizedException || e instanceof JsonWebTokenError || e instanceof BadRequestException
+      ) {
+        throw e;
+      }
     }
   }
 
@@ -568,6 +690,7 @@ export class UserController {
   })
   @ApiBearerAuth()
   @Put(':id')
+  @UseGuards(IsAuthenticated)
   updateUserProfile(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Req() req) {
   try {
     let token = req.headers['authorization']?.split(" ")[1];
