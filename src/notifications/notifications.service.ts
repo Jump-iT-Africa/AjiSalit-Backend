@@ -153,7 +153,7 @@ export class NotificationsService {
 
       console.log("Happy notification", notificationReminder);
 
-      return notificationReminder;
+      return notificationReminder; 
     } catch (e) {
       if (e instanceof NotFoundException ) {
         throw e;
