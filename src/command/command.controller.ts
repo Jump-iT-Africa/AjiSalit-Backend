@@ -53,7 +53,7 @@ export class CommandController {
   constructor(private readonly commandService: CommandService) {}
   @ApiOperation({ summary: "Give the company the ability to add new order" })
   @ApiBearerAuth()
-  
+
   @ApiConsumes("multipart/form-data")
   @ApiResponse({
     status: 201,
@@ -738,12 +738,7 @@ export class CommandController {
       return await this.commandService.deleteOrder(id, req.user.id);
     } catch (e) {
       console.log(e);
-      if (
-        e instanceof JsonWebTokenError ||
-        e instanceof TokenExpiredError ||
-        e instanceof ForbiddenException ||
-        e instanceof UnauthorizedException
-      )
+      if (e instanceof JsonWebTokenError ||e instanceof TokenExpiredError ||e instanceof ForbiddenException ||e instanceof UnauthorizedException || e instanceof NotFoundException)
         throw e;
 
       throw new BadRequestException("Try again");
