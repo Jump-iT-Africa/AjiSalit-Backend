@@ -141,7 +141,6 @@ export class NotificationsService {
 
       }
       if(infoUser.role == "company"){
-      console.log("tessssssssssst from company", expotoken, {tag:'WAAAA3RAA SALIMA'});
         notificationReminder = await this.sendPushNotification(
           expotoken,
           `🕖 Petit rappel 😊 !`,
