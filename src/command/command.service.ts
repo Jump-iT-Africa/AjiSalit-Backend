@@ -285,7 +285,6 @@ export class CommandService {
 
       const command = await this.commandModel.findById(id).exec();
       console.log(id, command);
-
       if (!command) {
         throw new NotFoundException("The order not found");
       }
@@ -343,15 +342,16 @@ export class CommandService {
       if (command.companyId.toString() !== userId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-
+      let isFinished = true
+      data = {...data, isFinished}
       let result = await this.commandModel
         .findByIdAndUpdate(orderId, data, { new: true })
         .exec();
       let clientInfo = await this.userModel.findById(command.clientId).exec();
       let companyInfo = await this.userModel.findById(command.companyId).exec();
-      // console.log(clientInfo)
       console.log("ohhh a result", result, data);
       if (data.status == "جاهزة للتسليم") {
+
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(
