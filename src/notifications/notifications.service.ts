@@ -52,7 +52,6 @@ export class NotificationsService {
         );
       }
       const recevier = await this.userService.findOne(recevierId);
-      // console.log("receiverrrrrr",recevier)
       if (!recevier) {
         throw new NotFoundException("the reciever is not found");
       }
@@ -150,7 +149,6 @@ export class NotificationsService {
 
       }
 
-      // console.log("Happy notification", notificationReminder);
 
       return notificationReminder; 
     } catch (e) {
