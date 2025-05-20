@@ -260,7 +260,6 @@ export class UserService {
   async findOne(userid: string | ObjectId) {
     try {
       let result = await this.userModel.findById({ _id: userid }).exec();
-      console.log("there;s an error ");
       if (!result) {
         throw new NotFoundException("The account not found");
       }

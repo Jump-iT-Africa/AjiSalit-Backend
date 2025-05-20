@@ -26,7 +26,11 @@ import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { lastValueFrom } from "rxjs";
 import axios from "axios";
-
+interface Client {
+  _id: string;
+  role: string;
+  expoPushToken: string;
+}
 @Injectable()
 export class CommandService {
   private readonly bunnyStorageUrl: string;
@@ -342,8 +346,9 @@ export class CommandService {
       if (command.companyId.toString() !== userId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-      let isFinished = true
-      data = {...data, isFinished}
+      let isFinished = true;
+      data = { ...data, isFinished };
+      console.log("the data logic");
       let result = await this.commandModel
         .findByIdAndUpdate(orderId, data, { new: true })
         .exec();
@@ -351,7 +356,6 @@ export class CommandService {
       let companyInfo = await this.userModel.findById(command.companyId).exec();
       console.log("ohhh a result", result, data);
       if (data.status == "جاهزة للتسليم") {
-
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(
@@ -437,8 +441,8 @@ export class CommandService {
     try {
       const parts = url.split("/");
       return parts[parts.length - 1];
-    } catch(e) {
-      console.log("there's an error in extractfilename", e)
+    } catch (e) {
+      console.log("there's an error in extractfilename", e);
       return null;
     }
   }
@@ -495,7 +499,7 @@ export class CommandService {
       }
 
       if (e instanceof ForbiddenException || e instanceof NotFoundException) {
-        throw e
+        throw e;
       }
       throw new BadRequestException("Try again");
     }
@@ -693,6 +697,61 @@ export class CommandService {
     } catch (e) {
       console.log("there's an error here", e);
       throw new BadRequestException("Ops something went wrong");
+    }
+  }
+
+  async commandClientReminder() {
+    try {
+      const localNow = new Date();
+      const localYear = localNow.getFullYear();
+      const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
+      const localDay = String(localNow.getDate()).padStart(2, "0");
+      const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
+      let commandPendinf = await this.commandModel.find({ isFinished: true, isPickUp: false, deliveryDate: { $lt: todayDate }})
+        .populate({ path: "clientId", select: "_id role expoPushToken" });
+      for (const command of commandPendinf) {
+        if (command.clientId) {
+
+          return await this.notificationsService.sendReminderNotification(
+            command.clientId
+          );
+        }
+      }
+    } catch (e) {
+      console.log("there's an error", e);
+    }
+  }
+  async commandCompanyReminder() {
+    try {
+      const localNow = new Date();
+      const localYear = localNow.getFullYear();
+      const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
+      const localDay = String(localNow.getDate()).padStart(2, "0");
+      const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
+      let commands = await this.commandModel
+        .find({
+          deliveryDate: { $lt: todayDate },
+          isFinished: false,
+        })
+        .populate({ path: "companyId", select: "_id role expoPushToken" });
+
+      commands.forEach(async (command) => {
+        if (command.newDate == null && command.isFinished == false) {
+          if (command.companyId)
+            await this.notificationsService.sendReminderNotification(
+              command.companyId
+            );
+        } else if (
+          command.newDate < new Date(todayDate) &&
+          command.isFinished == false
+        ) {
+          await this.notificationsService.sendReminderNotification(
+            command.companyId
+          );
+        }
+      });
+    } catch (e) {
+      console.log("there's an error", e);
     }
   }
 }
