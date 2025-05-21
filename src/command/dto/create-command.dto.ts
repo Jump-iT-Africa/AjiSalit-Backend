@@ -16,7 +16,7 @@ export class CreateCommandDto {
     required: true,
   })
   @IsNotEmpty({ message: "kindly add the price of this service" })
-  // @IsNumber({}, { message: "The price has to be a valid number " })
+  @IsNumber({}, { message: "The price has to be a valid number " })
   price: number;
 
   @ApiProperty({
@@ -54,7 +54,7 @@ export class CreateCommandDto {
 
   @ApiProperty({
     example: "2025-10-26",
-    required: true,
+    required: false,
   })
   @IsDateString({}, { message: "The date has to  be on this : YYYY-MM-DD" })
   @IsOptional()
@@ -65,7 +65,8 @@ export class CreateCommandDto {
 
   @ApiProperty({
     example: "2025-10-28",
-    required: true,
+    required: false,
+
   })
   @IsDateString({}, { message: "The date has to  be on this : YYYY-MM-DD" })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
@@ -74,27 +75,24 @@ export class CreateCommandDto {
   @IsOptional()
   pickupDate: string;
 
-  @ApiProperty({
-    example: ["image1.jpg", "image2.jpg"],
-    description: "images URLs related to the service",
-    required: false,
-    type: [String],
-  })
+  @ApiProperty({ type: 'string', format: 'binary', required:false})
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
   images?: string[];
 
   @ApiProperty({
-    example: "Hgdthej80000",
+    example: "Poco Loco",
     required: true,
   })
   @IsNotEmpty()
   qrCode: string;
 
+
   @IsBoolean()
   @IsOptional()
   isFinished: boolean;
+
 
   @IsBoolean()
   @IsOptional()

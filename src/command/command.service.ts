@@ -25,7 +25,12 @@ import { Connection } from "mongoose";
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { lastValueFrom } from "rxjs";
-
+import axios from "axios";
+interface Client {
+  _id: string;
+  role: string;
+  expoPushToken: string;
+}
 @Injectable()
 export class CommandService {
   private readonly bunnyStorageUrl: string;
@@ -39,49 +44,38 @@ export class CommandService {
     private readonly notificationsGateway: NotificationsGateway,
     private notificationsService: NotificationsService,
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
-
- async uploadImageToBunny(file: Buffer, filename: string): Promise<string> {
-  console.log("i m in uplaodddd")
-    const storageZone = this.configService.get<string>('BUNNY_STORAGE_ZONE');
-    const accessKey = this.configService.get<string>('BUNNY_ACCESS_KEY');
-    const storageUrl = this.configService.get<string>('BUNNY_STORAGE_URL');
-      const uniqueFilename = `${Date.now()}-${filename.replace(/\s/g, '_')}`;
+  async uploadImageToBunny(file: Buffer, filename: string): Promise<string> {
+    const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
+    const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
+    const storageUrl = this.configService.get<string>("BUNNY_STORAGE_URL");
+    const uniqueFilename = `${Date.now()}-${filename.replace(/\s/g, "_")}`;
     const url = `${storageUrl}/${storageZone}/${uniqueFilename}`;
-
-    console.log("here's the storage zone", storageZone)
-    
     try {
       const response = await lastValueFrom(
-        this.httpService.put(
-          url,
-          file,
-          {
-            headers: {
-              'AccessKey': accessKey,
-              'Content-Type': 'application/octet-stream',
-            },
-          }
-        )
+        this.httpService.put(url, file, {
+          headers: {
+            AccessKey: accessKey,
+            "Content-Type": "application/octet-stream",
+          },
+        })
       );
-      
+
       if (response.status === 201) {
         return `https://${storageZone}.b-cdn.net/${uniqueFilename}`;
       } else {
         throw new Error(`Failed to upload to Bunny CDN: ${response.status}`);
       }
     } catch (error) {
-      console.error('Error uploading to Bunny CDN:', error);
+      console.error("Error uploading to Bunny CDN:", error);
       throw new Error(`Bunny CDN upload failed: ${error.message}`);
     }
   }
-  
 
-  async create(createCommandDto: CreateCommandDto, authentificatedId: string, images) {
+  async create( createCommandDto: CreateCommandDto, authentificatedId: string, images) {
     const session = await this.connection.startSession();
-
     try {
       session.startTransaction();
       let companyOwner = await this.userModel
@@ -94,25 +88,25 @@ export class CommandService {
           HttpStatus.PAYMENT_REQUIRED
         );
       }
-      const existingOrder = await this.commandModel
-        .findOne({ qrCode: createCommandDto.qrCode })
-        .exec();
+      const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
 
       if (existingOrder) {
         throw new ConflictException("This code is already used");
       }
-
       if (images && images.length > 0) {
         const imageUrls: string[] = [];
         for (const file of images) {
           try {
-            const imageUrl = await this.uploadImageToBunny(file.buffer, file.originalname);
+            const imageUrl = await this.uploadImageToBunny(
+              file.buffer,
+              file.originalname
+            );
             imageUrls.push(imageUrl);
           } catch (error) {
-            console.error('Image upload failed:', error);
+            console.error("Image upload failed:", error);
           }
         }
-                createCommandDto.images = imageUrls;
+        createCommandDto.images = imageUrls;
       }
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
@@ -165,18 +159,7 @@ export class CommandService {
           { qrCode: qrcode },
           { clientId: userId },
           { new: true }
-        )
-        .exec();
-      if (companyData.expoPushToken) {
-        let message = `Your qrCode has been was scanned successfully by ${username}`;
-        let notificationSender =
-          await this.notificationsService.sendPushNotification(
-            companyData.expoPushToken,
-            "AjiSalit",
-            message
-          );
-        console.log("ohhhhh la laa", notificationSender);
-      }
+        ).exec();
       return "Congratulation the qrCode has been scanned successfully";
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -256,11 +239,7 @@ export class CommandService {
         query.companyId = infoUser.id;
       }
 
-      let order = await this.commandModel
-        .findOne(query)
-        .populate({ path: "companyId", select: "companyName field" })
-        .exec();
-      console.log("there's an order", order);
+      let order = await this.commandModel.findOne(query).populate({ path: "companyId", select: "companyName field" }).exec();
       if (!order) {
         throw new NotFoundException("No order found");
       }
@@ -284,8 +263,7 @@ export class CommandService {
       }
 
       const command = await this.commandModel.findById(id).exec();
-      console.log(id, command);
-
+      // console.log(id, command);
       if (!command) {
         throw new NotFoundException("The order not found");
       }
@@ -343,13 +321,14 @@ export class CommandService {
       if (command.companyId.toString() !== userId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-
+      let isFinished = true;
+      data = { ...data, isFinished };
+      console.log("the data logic");
       let result = await this.commandModel
         .findByIdAndUpdate(orderId, data, { new: true })
         .exec();
       let clientInfo = await this.userModel.findById(command.clientId).exec();
       let companyInfo = await this.userModel.findById(command.companyId).exec();
-      // console.log(clientInfo)
       console.log("ohhh a result", result, data);
       if (data.status == "جاهزة للتسليم") {
         if (clientInfo && clientInfo.expoPushToken && result) {
@@ -433,6 +412,35 @@ export class CommandService {
       throw new BadRequestException("Ops Something went wrong");
     }
   }
+  extractFileNameFromCDN(url: string): string | null {
+    try {
+      const parts = url.split("/");
+      return parts[parts.length - 1];
+    } catch (e) {
+      console.log("there's an error in extractfilename", e);
+      return null;
+    }
+  }
+
+  async deleteBunnyImage(fileName: string): Promise<void> {
+    const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
+    const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
+    const url = `https://storage.bunnycdn.com/${storageZone}/${fileName}`;
+
+    try {
+      await axios.delete(url, {
+        headers: {
+          AccessKey: accessKey,
+          "Content-Type": "application/octet-stream",
+        },
+      });
+    } catch (error) {
+      console.error(
+        `failed to delete Bunny image: ${fileName}`,
+        error.response?.data || error.message
+      );
+    }
+  }
 
   async deleteOrder(id: string, userId) {
     try {
@@ -443,6 +451,18 @@ export class CommandService {
       if (order.companyId.toString() !== userId) {
         throw new ForbiddenException("You can't delete this order");
       }
+      if (order.images && order.images.length > 0) {
+        for (const imageObj of order.images) {
+          const imageUrl =
+            typeof imageObj === "string" ? imageObj : imageObj.toString?.();
+          if (imageUrl) {
+            const fileName = this.extractFileNameFromCDN(imageUrl);
+            if (fileName) {
+              await this.deleteBunnyImage(fileName);
+            }
+          }
+        }
+      }
       let deleteOrder = await this.commandModel.findByIdAndDelete(id).exec();
       return {
         message: "The order was deleted successfully",
@@ -452,11 +472,9 @@ export class CommandService {
       if (e.name === "CastError") {
         throw new BadRequestException("The id of this order is not correct");
       }
-      if (e instanceof NotFoundException) {
-        throw new NotFoundException("The order is not found");
-      }
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You can't delete this order");
+
+      if (e instanceof ForbiddenException || e instanceof NotFoundException) {
+        throw e;
       }
       throw new BadRequestException("Try again");
     }
@@ -654,6 +672,61 @@ export class CommandService {
     } catch (e) {
       console.log("there's an error here", e);
       throw new BadRequestException("Ops something went wrong");
+    }
+  }
+
+  async commandClientReminder() {
+    try {
+      const localNow = new Date();
+      const localYear = localNow.getFullYear();
+      const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
+      const localDay = String(localNow.getDate()).padStart(2, "0");
+      const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
+      let commandPendinf = await this.commandModel.find({ isFinished: true, isPickUp: false, deliveryDate: { $lt: todayDate }})
+        .populate({ path: "clientId", select: "_id role expoPushToken" });
+      for (const command of commandPendinf) {
+        if (command.clientId) {
+
+          return await this.notificationsService.sendReminderNotification(
+            command.clientId
+          );
+        }
+      }
+    } catch (e) {
+      console.log("there's an error", e);
+    }
+  }
+  async commandCompanyReminder() {
+    try {
+      const localNow = new Date();
+      const localYear = localNow.getFullYear();
+      const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
+      const localDay = String(localNow.getDate()).padStart(2, "0");
+      const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
+      let commands = await this.commandModel
+        .find({
+          deliveryDate: { $lt: todayDate },
+          isFinished: false,
+        })
+        .populate({ path: "companyId", select: "_id role expoPushToken" });
+
+      commands.forEach(async (command) => {
+        if (command.newDate == null && command.isFinished == false) {
+          if (command.companyId)
+            await this.notificationsService.sendReminderNotification(
+              command.companyId
+            );
+        } else if (
+          command.newDate < new Date(todayDate) &&
+          command.isFinished == false
+        ) {
+          await this.notificationsService.sendReminderNotification(
+            command.companyId
+          );
+        }
+      });
+    } catch (e) {
+      console.log("there's an error", e);
     }
   }
 }

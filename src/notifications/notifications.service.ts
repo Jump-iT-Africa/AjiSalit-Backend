@@ -52,7 +52,6 @@ export class NotificationsService {
         );
       }
       const recevier = await this.userService.findOne(recevierId);
-      // console.log("receiverrrrrr",recevier)
       if (!recevier) {
         throw new NotFoundException("the reciever is not found");
       }
@@ -125,7 +124,6 @@ export class NotificationsService {
         throw new NotFoundException("the user not found");
       }
       let notificationReminder;
-      console.log("woooooo", user);
       let expotoken = user?.expoPushToken;
       if (!expotoken) {
         throw new NotFoundException("Expo push notification of this user not found");
@@ -139,21 +137,19 @@ export class NotificationsService {
       );
             console.log("Happy notification clien", notificationReminder);
 
-      }else if(infoUser == "company"){
-      console.log("tessssssssssst from company", user);
-
+      }
+      if(infoUser.role == "company"){
         notificationReminder = await this.sendPushNotification(
           expotoken,
           `🕖 Petit rappel 😊 !`,
           `Salam 👋, tlab li 3andek f l’app tsala délai. B9a ghir tbdl status dyalo bach nkemlou l’process b naja7 ✅. Matnsach, l’image dyalek katsb9ek 😉 `
       );
-            console.log("Happy notification com", notificationReminder);
+      console.log("Happy notification com", notificationReminder);
 
       }
 
-      console.log("Happy notification", notificationReminder);
 
-      return notificationReminder;
+      return notificationReminder; 
     } catch (e) {
       if (e instanceof NotFoundException ) {
         throw e;

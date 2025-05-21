@@ -97,7 +97,7 @@ export class NotificationsController {
     },
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description:
       "The notification was send successfully, The response comes from expo Push Notification Tool",
     schema: {
@@ -117,6 +117,17 @@ export class NotificationsController {
         statusCode: 400,
         message: "Ops Notification Not sent, something bad happend",
         error: "BadRequestExcepetion",
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: "The user is not authentificated",
+    schema: {
+      example: {
+        message: "Try to login again",
+        error: "Unauthorized",
+        statusCode: 401,
       },
     },
   })

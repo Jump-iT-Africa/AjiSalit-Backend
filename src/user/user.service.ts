@@ -260,7 +260,6 @@ export class UserService {
   async findOne(userid: string | ObjectId) {
     try {
       let result = await this.userModel.findById({ _id: userid }).exec();
-      console.log("there;s an error ");
       if (!result) {
         throw new NotFoundException("The account not found");
       }
@@ -406,8 +405,14 @@ export class UserService {
           .join(", ");
         throw new BadRequestException(`Validation failed: ${validationErrors}`);
       }
+      verifyNumberDto.phoneNumber = phoneNumber.trim().replace(/\s/g, "");
+      if (verifyNumberDto.phoneNumber[4] == "0") {
+        verifyNumberDto.phoneNumber = verifyNumberDto.phoneNumber.replace(
+          verifyNumberDto.phoneNumber[4], ""
+        );
+      }
 
-      const user = await this.userModel.findOne({ phoneNumber }).exec();
+      const user = await this.userModel.findOne({ phoneNumber: verifyNumberDto.phoneNumber}).exec();
       console.log(user);
 
       if (user) {
@@ -617,10 +622,14 @@ export class UserService {
       if (resultComp.length == 0) {
         return "No comapanies yet";
       }
-      let dataCompanies = plainToClass(ResponseCompanyInfoForAdminDto, resultComp, {
-        excludeExtraneousValues: true,
-        enableImplicitConversion: true,
-      });
+      let dataCompanies = plainToClass(
+        ResponseCompanyInfoForAdminDto,
+        resultComp,
+        {
+          excludeExtraneousValues: true,
+          enableImplicitConversion: true,
+        }
+      );
       return dataCompanies;
     } catch (e) {
       console.log("there's an error", e);

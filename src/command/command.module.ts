@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [MongooseModule.forFeature([
     {name: Command.name, schema: CommandSchema},
     { name: User.name, schema: UserSchema }]), forwardRef(() => NotificationsModule),    HttpModule,
-    ConfigModule,],
+    ConfigModule],
   controllers: [CommandController],
   providers: [CommandService],
   exports:[CommandService]

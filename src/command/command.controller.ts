@@ -45,6 +45,8 @@ import { ClientRoleGuard } from "../user/guards/client-role.guard";
 import { AdminRoleGuard } from "../user/guards/admin-role.guard";
 import { isatty } from "tty";
 import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
+import { CommandInterceptor } from "./interceptors/command.interceptor";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @ApiTags("Orders ")
 @Controller("order")
@@ -52,6 +54,7 @@ export class CommandController {
   constructor(private readonly commandService: CommandService) {}
   @ApiOperation({ summary: "Give the company the ability to add new order" })
   @ApiBearerAuth()
+
   @ApiConsumes("multipart/form-data")
   @ApiResponse({
     status: 201,
@@ -147,10 +150,10 @@ export class CommandController {
   })
   @Post()
   @UseGuards(CompanyRoleGuard)
+  @UseInterceptors(CommandInterceptor)
   @UseInterceptors(FilesInterceptor("images"))
   async create(@Body() createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
     try {
-      console.log(createCommandDto, images)
       return await this.commandService.create(createCommandDto, req.user.id,images);
     } catch (e) {
       console.log("ops new error", e);
@@ -735,12 +738,7 @@ export class CommandController {
       return await this.commandService.deleteOrder(id, req.user.id);
     } catch (e) {
       console.log(e);
-      if (
-        e instanceof JsonWebTokenError ||
-        e instanceof TokenExpiredError ||
-        e instanceof ForbiddenException ||
-        e instanceof UnauthorizedException
-      )
+      if (e instanceof JsonWebTokenError ||e instanceof TokenExpiredError ||e instanceof ForbiddenException ||e instanceof UnauthorizedException || e instanceof NotFoundException)
         throw e;
 
       throw new BadRequestException("Try again");
@@ -777,7 +775,7 @@ export class CommandController {
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again");
       }
-      console.log("asds", infoUser.id);
+      // console.log("asds", infoUser.id);
 
       return this.commandService.getCommandByQrCode(
         qrCode,
@@ -1139,4 +1137,25 @@ export class CommandController {
       throw new BadRequestException("Ops Something went wrong");
     }
   }
+
+  @ApiOperation({summary:"The reminder Notification sent to the client to after the order is done to get his order"})
+  @Cron(CronExpression.EVERY_DAY_AT_3PM )
+  async clientReminderNorification(){
+    try{
+      return await this.commandService.commandClientReminder()
+    }catch(e){
+      throw e 
+    }
+  }
+
+  @ApiOperation({summary:"The reminder Notification sent to the company in case the company does not deliver after the deadline"})
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
+  async companyReminderNotification(){
+    try{
+      return await this.commandService.commandCompanyReminder()
+    }catch(e){
+      throw e 
+    }
+  }
+
 }

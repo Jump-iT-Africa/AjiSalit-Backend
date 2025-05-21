@@ -6,6 +6,9 @@ import { UserModule } from './user/user.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { SiteinfoModule } from './siteinfo/siteinfo.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { FlagModule } from './flag/flag.module';
+
 
 
 @Module({
@@ -18,6 +21,8 @@ import { SiteinfoModule } from './siteinfo/siteinfo.module';
     UserModule,
     NotificationsModule,
     SiteinfoModule,
+    ScheduleModule.forRoot(),
+    FlagModule
   ],
   providers:[
     NotificationsGateway
