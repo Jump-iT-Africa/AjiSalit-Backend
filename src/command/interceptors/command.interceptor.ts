@@ -22,34 +22,33 @@ export class CommandInterceptor implements NestInterceptor {
       if (typeof body.advancedAmount === "string") {
         body.advancedAmount = Number(body.advancedAmount);
       }
-      if (typeof body.isExpired === "string") {
-        if (body.isExpired == "true") {
-          body.isExpired = true;
-        } else {
-          body.isExpired = false;
-        }
+    }
+    if (typeof body.isExpired === "string") {
+      if (body.isExpired == "true") {
+        body.isExpired = true;
+      } else {
+        body.isExpired = false;
       }
-      if (typeof body.isFinished === "string") {
-        if (body.isFinished == "true") {
-          body.isFinished = true;
-        } else {
-          body.isFinished = false;
-        }
+    }
+    if (typeof body.isFinished === "string") {
+      if (body.isFinished == "true") {
+        body.isFinished = true;
+      } else {
+        body.isFinished = false;
       }
-      if (typeof body.isPickUp === "string") {
-        if (body.isPickUp == "true") {
-          body.isPickUp = true;
-        } else {
-          body.isPickUp = false;
-        }
-        body.isPickUp = Boolean(body.isPickUp);
+    }
+    if (typeof body.isPickUp === "string") {
+      if (body.isPickUp == "true") {
+        body.isPickUp = true;
+      } else {
+        body.isPickUp = false;
       }
-      if (typeof body.isDateChanged === "string") {
-        if (body.isDateChanged == "true") {
-          body.isDateChanged = true;
-        } else {
-          body.isDateChanged = false;
-        }
+    }
+    if (typeof body.isDateChanged === "string") {
+      if (body.isDateChanged == "true") {
+        body.isDateChanged = true;
+      } else {
+        body.isDateChanged = false;
       }
     }
     console.log("Modified body", body);
