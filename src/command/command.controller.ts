@@ -154,7 +154,6 @@ export class CommandController {
   @UseInterceptors(FilesInterceptor("images"))
   async create(@Body() createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
     try {
-      // console.log(createCommandDto, images)
       return await this.commandService.create(createCommandDto, req.user.id,images);
     } catch (e) {
       console.log("ops new error", e);

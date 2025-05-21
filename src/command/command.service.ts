@@ -48,15 +48,11 @@ export class CommandService {
   ) {}
 
   async uploadImageToBunny(file: Buffer, filename: string): Promise<string> {
-    console.log("i m in uplaodddd");
     const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
     const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
     const storageUrl = this.configService.get<string>("BUNNY_STORAGE_URL");
     const uniqueFilename = `${Date.now()}-${filename.replace(/\s/g, "_")}`;
     const url = `${storageUrl}/${storageZone}/${uniqueFilename}`;
-
-    console.log("here's the storage zone", storageZone);
-
     try {
       const response = await lastValueFrom(
         this.httpService.put(url, file, {
@@ -78,11 +74,7 @@ export class CommandService {
     }
   }
 
-  async create(
-    createCommandDto: CreateCommandDto,
-    authentificatedId: string,
-    images
-  ) {
+  async create( createCommandDto: CreateCommandDto, authentificatedId: string, images) {
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
@@ -96,9 +88,7 @@ export class CommandService {
           HttpStatus.PAYMENT_REQUIRED
         );
       }
-      const existingOrder = await this.commandModel
-        .findOne({ qrCode: createCommandDto.qrCode })
-        .exec();
+      const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
 
       if (existingOrder) {
         throw new ConflictException("This code is already used");
@@ -169,18 +159,7 @@ export class CommandService {
           { qrCode: qrcode },
           { clientId: userId },
           { new: true }
-        )
-        .exec();
-      if (companyData.expoPushToken) {
-        let message = `Your qrCode has been was scanned successfully by ${username}`;
-        let notificationSender =
-          await this.notificationsService.sendPushNotification(
-            companyData.expoPushToken,
-            "AjiSalit",
-            message
-          );
-        console.log("ohhhhh la laa", notificationSender);
-      }
+        ).exec();
       return "Congratulation the qrCode has been scanned successfully";
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -260,11 +239,7 @@ export class CommandService {
         query.companyId = infoUser.id;
       }
 
-      let order = await this.commandModel
-        .findOne(query)
-        .populate({ path: "companyId", select: "companyName field" })
-        .exec();
-      // console.log("there's an order", order);
+      let order = await this.commandModel.findOne(query).populate({ path: "companyId", select: "companyName field" }).exec();
       if (!order) {
         throw new NotFoundException("No order found");
       }
@@ -288,7 +263,7 @@ export class CommandService {
       }
 
       const command = await this.commandModel.findById(id).exec();
-      console.log(id, command);
+      // console.log(id, command);
       if (!command) {
         throw new NotFoundException("The order not found");
       }
