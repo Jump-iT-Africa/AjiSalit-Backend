@@ -125,7 +125,6 @@ export class NotificationsService {
       }
       let notificationReminder;
       let expotoken = user?.expoPushToken;
-      console.log("hooooooooooooooooo", expotoken)
       if (!expotoken) {
         throw new NotFoundException("Expo push notification of this user not found");
       }
