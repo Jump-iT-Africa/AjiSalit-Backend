@@ -19,6 +19,18 @@ export class CommandInterceptor implements NestInterceptor {
     if (typeof body.advancedAmount === "string") {
       body.advancedAmount = Number(body.advancedAmount);
     }
+    if(typeof body.isExpired === 'string'){
+      body.isExpired = Boolean(body.isExpired)
+    }
+    if(typeof body.isFinished === 'string'){
+      body.isFinished = Boolean(body.isFinished)
+    }
+      if(typeof body.isPickUp === 'string'){
+      body.isPickUp = Boolean(body.isPickUp)
+    }
+    if(typeof body.isDateChanged === 'string'){
+      body.isDateChanged = Boolean(body.isDateChanged)
+    }
     }
     console.log("Modified body", body);
 

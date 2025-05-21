@@ -46,6 +46,7 @@ import { AdminRoleGuard } from "../user/guards/admin-role.guard";
 import { isatty } from "tty";
 import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { CommandInterceptor } from "./interceptors/command.interceptor";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @ApiTags("Orders ")
 @Controller("order")
@@ -153,7 +154,6 @@ export class CommandController {
   @UseInterceptors(FilesInterceptor("images"))
   async create(@Body() createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
     try {
-      // console.log(createCommandDto, images)
       return await this.commandService.create(createCommandDto, req.user.id,images);
     } catch (e) {
       console.log("ops new error", e);
@@ -1137,4 +1137,25 @@ export class CommandController {
       throw new BadRequestException("Ops Something went wrong");
     }
   }
+
+  @ApiOperation({summary:"The reminder Notification sent to the client to after the order is done to get his order"})
+  @Cron(CronExpression.EVERY_DAY_AT_3PM )
+  async clientReminderNorification(){
+    try{
+      return await this.commandService.commandClientReminder()
+    }catch(e){
+      throw e 
+    }
+  }
+
+  @ApiOperation({summary:"The reminder Notification sent to the company in case the company does not deliver after the deadline"})
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
+  async companyReminderNotification(){
+    try{
+      return await this.commandService.commandCompanyReminder()
+    }catch(e){
+      throw e 
+    }
+  }
+
 }
