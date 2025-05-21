@@ -64,7 +64,9 @@ export class CommandService {
       );
 
       if (response.status === 201) {
-        return `https://${storageZone}.b-cdn.net/${uniqueFilename}`;
+        const cdnUrl = `https://${storageZone}.b-cdn.net/${uniqueFilename}`;
+        console.log("Successfully uploaded image to Bunny CDN:", cdnUrl);
+        return cdnUrl;
       } else {
         throw new Error(`Failed to upload to Bunny CDN: ${response.status}`);
       }
@@ -73,6 +75,8 @@ export class CommandService {
       throw new Error(`Bunny CDN upload failed: ${error.message}`);
     }
   }
+
+  
 
   async create( createCommandDto: CreateCommandDto, authentificatedId: string, images) {
     const session = await this.connection.startSession();

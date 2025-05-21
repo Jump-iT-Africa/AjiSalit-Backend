@@ -1,22 +1,18 @@
-import { Model, ObjectId } from 'mongoose';
-import { User, UserDocument } from './entities/user.schema';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/Logindto/login-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Model, ObjectId } from "mongoose";
+import { User, UserDocument } from "./entities/user.schema";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { LoginUserDto } from "./dto/Logindto/login-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 import { ResoponseCompanyDto } from "./dto/ResponseDto/response-company.dto";
-import { ResponseUserDto } from './dto/ResponseDto/response-user.dto';
-import { ResponseLoginDto } from './dto/ResponseDto/response-login.dto';
+import { ResponseUserDto } from "./dto/ResponseDto/response-user.dto";
+import { ResponseLoginDto } from "./dto/ResponseDto/response-login.dto";
 import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
-import { ResoponseCompanyInfoDto } from './dto/ResponseDto/response-info-company.dto';
+import { ResoponseCompanyInfoDto } from "./dto/ResponseDto/response-info-company.dto";
+import { ResponseCompanyInfoForAdminDto } from "./dto/ResponseDto/response-all-companies.dto";
 export declare class UserService {
     private userModel;
     constructor(userModel: Model<UserDocument>);
     register(createUserDto: CreateUserDto): Promise<{
-        message: string;
-        user?: undefined;
-        token?: undefined;
-        ErrorMessage?: undefined;
-    } | {
         user: {
             id: unknown;
             Fname: string;
@@ -31,11 +27,9 @@ export declare class UserService {
             listRefs: string[];
         };
         token: string;
-        message?: undefined;
         ErrorMessage?: undefined;
     } | {
         ErrorMessage: any;
-        message?: undefined;
         user?: undefined;
         token?: undefined;
     }>;
@@ -65,8 +59,14 @@ export declare class UserService {
     UpdateCityName(userId: any, updateCityNameDto: any): Promise<ResponseLoginDto>;
     UpdateCompanyName(userId: any, updateCompanyNameDto: any): Promise<ResponseLoginDto>;
     UpdateField(userId: any, updateFieldDto: any): Promise<ResponseLoginDto>;
-    getAllCompanies(): Promise<"No comapanies yet" | ResoponseCompanyInfoDto[]>;
+    getAllCompanies(): Promise<"No comapanies yet" | ResponseCompanyInfoForAdminDto[]>;
     getAllClients(): Promise<"No clients yet" | ResponseUserDto[]>;
     updatePocketBalance(companyId: any, updateBalance: any): Promise<ResoponseCompanyInfoDto>;
     updatePassword(updatePasswordDto: any, userId: string): Promise<string>;
+    getStatistics(): Promise<{
+        "Total Users": number;
+        "Total clients": number;
+        "Total companies": number;
+        "Total admins": number;
+    }>;
 }

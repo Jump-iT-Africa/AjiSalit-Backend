@@ -16,23 +16,37 @@ let Command = class Command {
 };
 exports.Command = Command;
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose.Schema.Types.ObjectId, ref: 'User' }),
+    (0, mongoose_1.Prop)({ type: mongoose.Schema.Types.ObjectId, ref: "User", index: true }),
     __metadata("design:type", String)
 ], Command.prototype, "companyId", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, default: null }),
+    (0, mongoose_1.Prop)({
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false,
+        default: null,
+        index: true,
+    }),
     __metadata("design:type", String)
 ], Command.prototype, "clientId", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: "غير خالص", enum: ["خالص", "غير خالص", "تسبيق"] }),
+    (0, mongoose_1.Prop)({
+        required: true,
+        default: "غير خالص",
+        enum: ["خالص", "غير خالص", "تسبيق"],
+    }),
     __metadata("design:type", String)
 ], Command.prototype, "situation", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: "في طور الانجاز", enum: ["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"] }),
+    (0, mongoose_1.Prop)({
+        required: true,
+        default: "في طور الانجاز",
+        enum: ["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"],
+    }),
     __metadata("design:type", String)
 ], Command.prototype, "status", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: false }),
+    (0, mongoose_1.Prop)({ required: true, default: false, index: true }),
     __metadata("design:type", Boolean)
 ], Command.prototype, "isExpired", void 0);
 __decorate([
@@ -48,11 +62,11 @@ __decorate([
     __metadata("design:type", Array)
 ], Command.prototype, "images", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: false }),
+    (0, mongoose_1.Prop)({ required: false, index: true }),
     __metadata("design:type", Date)
 ], Command.prototype, "deliveryDate", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: false, default: null }),
+    (0, mongoose_1.Prop)({ required: false, default: null, index: true }),
     __metadata("design:type", Date)
 ], Command.prototype, "pickupDate", void 0);
 __decorate([
@@ -60,7 +74,7 @@ __decorate([
     __metadata("design:type", String)
 ], Command.prototype, "qrCode", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: false }),
+    (0, mongoose_1.Prop)({ required: true, default: false, index: true }),
     __metadata("design:type", Boolean)
 ], Command.prototype, "isFinished", void 0);
 __decorate([
@@ -80,11 +94,20 @@ __decorate([
     __metadata("design:type", String)
 ], Command.prototype, "ChangeDateReason", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: false, default: null }),
+    (0, mongoose_1.Prop)({ required: false, default: null, index: true }),
     __metadata("design:type", Date)
 ], Command.prototype, "newDate", void 0);
 exports.Command = Command = __decorate([
-    (0, mongoose_1.Schema)()
+    (0, mongoose_1.Schema)({ timestamps: true })
 ], Command);
 exports.CommandSchema = mongoose_1.SchemaFactory.createForClass(Command);
+exports.CommandSchema.index({
+    companyId: 1,
+    clientId: 1,
+    isFinished: 1,
+    isPickUp: 1,
+    pickupDate: 1,
+    deliveryDate: 1,
+    newDate: 1
+});
 //# sourceMappingURL=command.schema.js.map
