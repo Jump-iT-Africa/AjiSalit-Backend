@@ -26,4 +26,6 @@ export class ResoponseCompanyDto{
     pocket:number
     @Expose()
     socketId?: string
+    @Expose()
+    image:string
 }

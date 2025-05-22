@@ -5,6 +5,8 @@ import {
   ForbiddenException,
   UnauthorizedException,
   ConflictException,
+  Inject,
+  forwardRef,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose, { Model, ObjectId } from "mongoose";
@@ -30,12 +32,16 @@ import { VerifyNumberDto } from "./dto/Logindto/VerifyPhoneNumber.dto";
 import { ResoponseCompanyInfoDto } from "./dto/ResponseDto/response-info-company.dto";
 import { hasSubscribers } from "diagnostics_channel";
 import { ResponseCompanyInfoForAdminDto } from "./dto/ResponseDto/response-all-companies.dto";
+import { CommandService } from "../command/command.service";
+
 
 const secretKey = process.env.JWT_SECRET;
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel("User") private userModel: Model<UserDocument>) {}
+  constructor(@InjectModel("User") private userModel: Model<UserDocument>,
+    @Inject(forwardRef(() => CommandService)) 
+    private readonly commandService: CommandService,) {}
 
   async register(createUserDto: CreateUserDto) {
     try {
@@ -243,9 +249,8 @@ export class UserService {
           "You aren't authorized to perform this task"
         );
       }
-      const updateAuthentificator = await this.userModel
-        .findByIdAndUpdate(id, updateDto, { new: true })
-        .exec();
+
+      const updateAuthentificator = await this.userModel.findByIdAndUpdate(id, updateDto, { new: true }).exec();
       return "The account created successfully";
     } catch (e) {
       console.log(e);
@@ -335,31 +340,43 @@ export class UserService {
     }
   }
 
-  async updateUserInfo(
-    id: string,
-    updateUserDto: UpdateUserDto
-  ): Promise<User> {
+  async updateUserInfo(id: string,updateUserDto: UpdateUserDto,imageFile: Express.Multer.File): Promise<User> {
     try {
-      // console.log("teeeeeeeeest")
       const toUpdate = await this.userModel.findById(id);
-
       if (!toUpdate) {
         throw new NotFoundException("the user not found ");
       }
-
+      if (toUpdate.image === null && imageFile) {
+        console.log("we go here for image", toUpdate.image)
+        try {
+          const imageUrl = await this.commandService.uploadImageToBunny(
+            imageFile.buffer,
+            imageFile.originalname
+          );
+          toUpdate.image = imageUrl;
+        } catch (error) {
+          console.error("Image upload failed:", error);
+          throw new BadRequestException("Failed to upload image");
+        }
+      }else if(toUpdate.image && imageFile){
+          const deleteImage = await this.commandService.deleteBunnyImage(toUpdate.image)
+          console.log(deleteImage)
+          const imageUrl = await this.commandService.uploadImageToBunny(
+            imageFile.buffer,
+            imageFile.originalname
+          );
+          toUpdate.image = imageUrl;
+      }
       const originalRefBy = toUpdate.refBy;
 
-      // hadi galik a sidi bhal chi pipe you remove what you want to innclude chof had code
-      //https://github.com/lujakob/nestjs-realworld-example-app/blob/master/src/user/user.service.ts
+
       delete updateUserDto.password;
       delete updateUserDto.ownRef;
 
       const newRefBy = updateUserDto.refBy;
 
       if (newRefBy && newRefBy !== originalRefBy) {
-        const newReferrer = await this.userModel
-          .findOne({ ownRef: newRefBy })
-          .exec();
+      const newReferrer = await this.userModel.findOne({ ownRef: newRefBy }).exec();
 
         if (newReferrer) {
           await this.userModel.findByIdAndUpdate(
@@ -368,7 +385,6 @@ export class UserService {
             { new: true }
           );
         }
-
         if (originalRefBy) {
           const originalReferrer = await this.userModel
             .findOne({ ownRef: originalRefBy })
