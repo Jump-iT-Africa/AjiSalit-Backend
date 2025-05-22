@@ -20,4 +20,6 @@ export class ResponseUserDto{
     ownRef?: string
     @Expose()
     socketId?: string
+    @Expose()
+    image:string
 }

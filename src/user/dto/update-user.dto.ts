@@ -2,10 +2,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString, Matches, IsEnum, IsOptional,IsArray, IsNumber,IsBoolean } from "class-validator";
 
 export class UpdateUserDto {
-
-
-
-
     @ApiProperty({ example: 'Test test', required: false })
     @IsString()
     @IsOptional()  
@@ -15,6 +11,11 @@ export class UpdateUserDto {
     @IsString()
     @IsOptional()  
     Lname?: string;
+
+    @ApiProperty({ example: 'image.jpg', required: false })
+    @IsString()
+    @IsOptional()
+    image?: string;
     
     @ApiProperty({ example: 'Alee', required: false })
     @IsString()
