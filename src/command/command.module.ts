@@ -9,12 +9,17 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [MongooseModule.forFeature([
-    {name: Command.name, schema: CommandSchema},
-    { name: User.name, schema: UserSchema }]), forwardRef(() => NotificationsModule),    HttpModule,
-    ConfigModule],
+  imports: [
+    MongooseModule.forFeature([
+      {name: Command.name, schema: CommandSchema},
+      { name: User.name, schema: UserSchema }
+    ]),
+    forwardRef(() => NotificationsModule),
+    HttpModule,
+    ConfigModule
+  ],
   controllers: [CommandController],
   providers: [CommandService],
-  exports:[CommandService]
+  exports: [CommandService]
 })
 export class CommandModule {}

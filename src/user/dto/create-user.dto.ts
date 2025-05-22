@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform, TransformFnParams } from "class-transformer";
 import {
   IsNotEmpty,
   IsString,
@@ -92,3 +93,4 @@ export class CreateUserDto {
   @IsOptional()
   pocket: number;
 }
+

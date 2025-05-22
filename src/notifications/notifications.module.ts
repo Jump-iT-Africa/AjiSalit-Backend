@@ -12,7 +12,7 @@ import { CommandModule } from '../command/command.module';
     MongooseModule.forFeature([
       {name: Notification.name, schema: NotificationSchema}
     ]),
-    UserModule, 
+    UserModule,
     forwardRef(() => CommandModule)
   ],
   controllers: [NotificationsController],

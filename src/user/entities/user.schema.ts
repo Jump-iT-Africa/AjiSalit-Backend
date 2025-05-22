@@ -17,6 +17,9 @@ export class User {
   @Prop({required: true, type: String})
   role: string;
 
+  @Prop({ required: false, default:null })
+  image:string;
+
   @Prop({ required: true, unique: true, type: String })
   phoneNumber: string;
 

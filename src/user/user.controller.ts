@@ -15,6 +15,9 @@ import {
   ForbiddenException,
   UseGuards,
   ConflictException,
+  UploadedFiles,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -47,6 +50,8 @@ import { UpdatePocketBalance } from "./dto/UpdatesDtos/update-pocket.dto";
 import { ResoponseCompanyInfoDto } from "./dto/ResponseDto/response-info-company.dto";
 import { UpdatePassword } from "./dto/UpdatesDtos/update-password.dto";
 import { IsAuthenticated } from "./guards/is-authentificated.guard";
+import { SanitizePipe } from "../common/pipes/sanitize.pipe";
+import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 
 ApiTags("User");
 @Controller("user")
@@ -133,7 +138,7 @@ export class UserController {
       },
     },
   })
-  async register(@Body(ValidationPipe) CreateUserDto: CreateUserDto) {
+  async register(@Body(new SanitizePipe()) CreateUserDto: CreateUserDto) {
     return this.userService.register(CreateUserDto);
   }
 
@@ -224,7 +229,7 @@ export class UserController {
       },
     },
   })
-  async login(@Body(ValidationPipe) LoginUserDto: LoginUserDto) {
+  async login(@Body(new SanitizePipe()) LoginUserDto: LoginUserDto) {
     try {
       return this.userService.login(LoginUserDto);
     } catch (e) {
@@ -543,10 +548,7 @@ export class UserController {
   })
   @Patch("pocket/:companyId")
   @UseGuards(AdminRoleGuard)
-  async updatePocketBalance(
-    @Param("companyId") companyId: string,
-    @Body() updateBalance: UpdatePocketBalance
-  ) {
+  async updatePocketBalance( @Param("companyId") companyId: string, @Body() updateBalance: UpdatePocketBalance) {
     try {
       return await this.userService.updatePocketBalance(
         companyId,
@@ -587,6 +589,7 @@ export class UserController {
               role: "client",
               pocket: 0,
               ownRef: "80B53078",
+              image: "https://storage-images-ajisalit.b-cdn.net/1747931573503-20221023_194903.jpg"
             },
           },
           "Info of company owner": {
@@ -601,6 +604,7 @@ export class UserController {
               ice: 12345678930423,
               role: "company",
               pocket: 250,
+              image: "https://storage-images-ajisalit.b-cdn.net/1747931573503-20221023_194903.jpg"
             },
           },
         },
@@ -760,31 +764,16 @@ export class UserController {
   @ApiBearerAuth()
   @Put(":id")
   @UseGuards(IsAuthenticated)
-  updateUserProfile(
-    @Param("id") id: string,
-    @Body() updateUserDto: UpdateUserDto,
-    @Req() req
-  ) {
+  @UseInterceptors(FileInterceptor('image'))
+  updateUserProfile( @Param("id") id: string, @Body() updateUserDto: UpdateUserDto, @Req() req, @UploadedFile() image) {
     try {
-      let token = req.headers["authorization"]?.split(" ")[1];
-      let infoUser = validateJwt(token);
-
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again");
-      }
-
-      if (id !== infoUser.id) {
+      if (id !== req.user.id) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-
-      return this.userService.updateUserInfo(id, updateUserDto);
+      return this.userService.updateUserInfo(id, updateUserDto,image);
     } catch (e) {
-      console.log(e);
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("try to login again");
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You are not allowed to update this oder");
-      }
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError ||  e instanceof UnauthorizedException || e instanceof ForbiddenException)
+        throw e
       throw new BadRequestException("Please try again");
     }
   }

@@ -8,6 +8,7 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
 import { SiteinfoModule } from './siteinfo/siteinfo.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FlagModule } from './flag/flag.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 
 
@@ -22,7 +23,15 @@ import { FlagModule } from './flag/flag.module';
     NotificationsModule,
     SiteinfoModule,
     ScheduleModule.forRoot(),
-    FlagModule
+    FlagModule,
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
   ],
   providers:[
     NotificationsGateway

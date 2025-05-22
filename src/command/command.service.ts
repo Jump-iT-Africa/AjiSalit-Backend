@@ -51,7 +51,8 @@ export class CommandService {
     const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
     const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
     const storageUrl = this.configService.get<string>("BUNNY_STORAGE_URL");
-    const uniqueFilename = `${Date.now()}-${filename.replace(/\s/g, "_")}`;
+    const safeFilename = filename || 'uploaded-image';
+    const uniqueFilename = `${Date.now()}-${safeFilename.replace(/\s/g, "_")}`;
     const url = `${storageUrl}/${storageZone}/${uniqueFilename}`;
     try {
       const response = await lastValueFrom(
@@ -82,10 +83,7 @@ export class CommandService {
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
-      let companyOwner = await this.userModel
-        .findById(authentificatedId)
-        .session(session)
-        .exec();
+      let companyOwner = await this.userModel.findById(authentificatedId).session(session).exec();
       if (companyOwner?.pocket <= 0) {
         throw new HttpException(
           "Ops you are poor, your balance is zero",
@@ -294,7 +292,7 @@ export class CommandService {
           await this.notificationsService.sendPushNotification(
             clientInfo.expoPushToken,
             ` 🛎️ Talabek tbdel !`,
-            `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l’app bash tchouf ljadid `
+            `Salam ${clientInfo?.Fname} 👋, Talab dyalk Tbdel mn 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 Dkhl l'app bash tchouf ljadid `
           );
         console.log("Here's my notification sender: ", notificationSender);
       }
@@ -426,25 +424,27 @@ export class CommandService {
     }
   }
 
-  async deleteBunnyImage(fileName: string): Promise<void> {
-    const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
-    const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
-    const url = `https://storage.bunnycdn.com/${storageZone}/${fileName}`;
+async deleteBunnyImage(fileUrl: string): Promise<void> {
+  const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
+  const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
+  const fileName = fileUrl.split('/').pop();
+  
+  const url = `https://storage.bunnycdn.com/${storageZone}/${fileName}`;
 
-    try {
-      await axios.delete(url, {
-        headers: {
-          AccessKey: accessKey,
-          "Content-Type": "application/octet-stream",
-        },
-      });
-    } catch (error) {
-      console.error(
-        `failed to delete Bunny image: ${fileName}`,
-        error.response?.data || error.message
-      );
-    }
+  try {
+    await axios.delete(url, {
+      headers: {
+        AccessKey: accessKey,
+        "Content-Type": "application/octet-stream",
+      },
+    });
+  } catch (error) {
+    console.error(
+      `failed to delete image from bunny: ${fileUrl}`,
+      error.response?.data || error.message
+    );
   }
+}
 
   async deleteOrder(id: string, userId) {
     try {
