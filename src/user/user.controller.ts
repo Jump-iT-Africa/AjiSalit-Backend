@@ -138,7 +138,7 @@ export class UserController {
       },
     },
   })
-  async register(@Body(new SanitizePipe()) CreateUserDto: CreateUserDto) {
+  async register(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) CreateUserDto: CreateUserDto) {
     return this.userService.register(CreateUserDto);
   }
 
@@ -229,7 +229,7 @@ export class UserController {
       },
     },
   })
-  async login(@Body(new SanitizePipe()) LoginUserDto: LoginUserDto) {
+  async login(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) LoginUserDto: LoginUserDto) {
     try {
       return this.userService.login(LoginUserDto);
     } catch (e) {
@@ -765,14 +765,14 @@ export class UserController {
   @Put(":id")
   @UseGuards(IsAuthenticated)
   @UseInterceptors(FileInterceptor('image'))
-  updateUserProfile( @Param("id") id: string, @Body() updateUserDto: UpdateUserDto, @Req() req, @UploadedFile() image) {
+  async updateUserProfile(@Param("id") id: string, @Body(new SanitizePipe(),new ValidationPipe({ whitelist: true })) updateUserDto: UpdateUserDto, @Req() req, @UploadedFile() image) {
     try {
       if (id !== req.user.id) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-      return this.userService.updateUserInfo(id, updateUserDto,image);
+      return await this.userService.updateUserInfo(id, updateUserDto,image);
     } catch (e) {
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError ||  e instanceof UnauthorizedException || e instanceof ForbiddenException)
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError ||  e instanceof UnauthorizedException || e instanceof ForbiddenException || e instanceof BadRequestException)
         throw e
       throw new BadRequestException("Please try again");
     }
@@ -796,35 +796,26 @@ export class UserController {
     schema: {
       example: {
         message:
-          "Validation failed: Phone number must be in international format (e.g., +212697042868)",
+          "the phone number is not valid it has to be like +212697042868 or like +2120697042868",
         error: "Bad Request",
         statusCode: 400,
       },
     },
   })
-  @ApiResponse({
-    status: 401,
-    description: "Unauthorized - Invalid or expired token",
+    @ApiResponse({
+    status: 409,
+    description: "The user is already have an account with this number",
     schema: {
       example: {
-        message: "حاول تسجل مرة أخرى",
-        error: "Unauthorized",
-        statusCode: 401,
+          statusCode: 409,
+          isExist: false,
+          UserName: "Ousss",
+          role: "client",
+          message: "Phone number already exists"
       },
     },
   })
-  @ApiResponse({
-    status: 404,
-    description: " Invalid User",
-    schema: {
-      example: {
-        message: "the user not found ",
-        error: "Not Found",
-        statusCode: 404,
-      },
-    },
-  })
-  async verifyPhone(@Body() verifyNumberDto: VerifyNumberDto) {
+  async verifyPhone(@Body(new SanitizePipe()) verifyNumberDto: VerifyNumberDto) {
     try {
       return this.userService.VerifyNumber(
         verifyNumberDto.phoneNumber,
@@ -834,6 +825,7 @@ export class UserController {
       console.log(e);
     }
   }
+
 
   @ApiOperation({
     summary: "This method allows users to change their first names",
@@ -899,7 +891,7 @@ export class UserController {
   })
   @Patch("firstname")
   async updateFirstName(
-    @Body() updateFirstName: UpdateFirstNameDto,
+    @Body(new SanitizePipe()) updateFirstName: UpdateFirstNameDto,
     @Req() req
   ) {
     try {
@@ -993,7 +985,7 @@ export class UserController {
   })
   @Patch("lastname")
   async updateLastName(
-    @Body() updateLastNameDto: UpdateLastNameDto,
+    @Body(new SanitizePipe()) updateLastNameDto: UpdateLastNameDto,
     @Req() req
   ) {
     try {
@@ -1084,7 +1076,7 @@ export class UserController {
     },
   })
   @Patch("city")
-  async updateCityName(@Body() updateCityNameDto: UpdateCityDto, @Req() req) {
+  async updateCityName(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateCityNameDto: UpdateCityDto, @Req() req) {
     try {
       let token = req.headers["authorization"]?.split(" ")[1];
       let infoUser = validateJwt(token);
@@ -1175,19 +1167,14 @@ export class UserController {
     },
   })
   @Patch("companyname")
+  @UseGuards(IsAuthenticated)
   async updatecompanyName(
-    @Body() updateCompanyNameDto: UpdateCompanyNameDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateCompanyNameDto: UpdateCompanyNameDto,
     @Req() req
   ) {
     try {
-      let token = req.headers["authorization"]?.split(" ")[1];
-      let infoUser = validateJwt(token);
-
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again");
-      }
       let result = await this.userService.UpdateCompanyName(
-        infoUser.id,
+        req.user.id,
         updateCompanyNameDto
       );
       return result;
@@ -1247,11 +1234,17 @@ export class UserController {
   @ApiResponse({
     status: 401,
     description: "Unauthorized - Invalid or expired token",
-    schema: {
-      example: {
-        message: "Try to login again",
-        error: "Unauthorized",
-        statusCode: 401,
+    content: {
+      "application/json": {
+        examples: {
+          "The user is not logged in": {
+            value: {
+              message: "Try to login again",
+              error: "Unauthorized",
+              statusCode: 401,
+            },
+          },
+        },
       },
     },
   })
@@ -1267,16 +1260,12 @@ export class UserController {
     },
   })
   @Patch("field")
-  async updateField(@Body() updateFieldDto: UpdateFieldDto, @Req() req) {
+  @UseGuards(IsAuthenticated)
+  async updateField(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateFieldDto: UpdateFieldDto, @Req() req) {
     try {
-      let token = req.headers["authorization"]?.split(" ")[1];
-      let infoUser = validateJwt(token);
 
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again");
-      }
       let result = await this.userService.UpdateField(
-        infoUser.id,
+        req.user.id,
         updateFieldDto
       );
       return result;
@@ -1386,7 +1375,7 @@ export class UserController {
   })
   @Patch("password")
   @UseGuards(IsAuthenticated)
-  async updatePassword(@Body() updatePasswordDto: UpdatePassword, @Req() req) {
+  async updatePassword(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updatePasswordDto: UpdatePassword, @Req() req) {
     try {
       return await this.userService.updatePassword(
         updatePasswordDto,

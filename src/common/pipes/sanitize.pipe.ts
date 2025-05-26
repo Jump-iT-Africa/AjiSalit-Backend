@@ -4,8 +4,6 @@ const sanitizeHtml = require('sanitize-html');
 @Injectable()
 export class SanitizePipe implements PipeTransform {
   transform(value: any) {
-    console.log("I m hereeee");
-    console.log("Value to sanitize", value);
     
     if (typeof value === 'string') {
       return sanitizeHtml(value, {
@@ -33,7 +31,6 @@ export class SanitizePipe implements PipeTransform {
       }
     }
     
-    console.log("Sanitized value", value);
     return value;
   }
 }

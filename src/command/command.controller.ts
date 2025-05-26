@@ -18,6 +18,7 @@ import {
   HttpException,
   UseInterceptors,
   UploadedFiles,
+  ValidationPipe,
 } from "@nestjs/common";
 import { CommandService } from "./command.service";
 import { CreateCommandDto } from "./dto/create-command.dto";
@@ -47,6 +48,7 @@ import { isatty } from "tty";
 import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { CommandInterceptor } from "./interceptors/command.interceptor";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { SanitizePipe } from "../common/pipes/sanitize.pipe";
 
 @ApiTags("Orders ")
 @Controller("order")
@@ -152,13 +154,14 @@ export class CommandController {
   @UseGuards(CompanyRoleGuard)
   @UseInterceptors(CommandInterceptor)
   @UseInterceptors(FilesInterceptor("images"))
-  async create(@Body() createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
+  async create(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
     try {
       return await this.commandService.create(createCommandDto, req.user.id,images);
     } catch (e) {
-      console.log("ops new error", e);
+
       if (e instanceof JsonWebTokenError ||e instanceof ForbiddenException ||e instanceof UnprocessableEntityException ||e instanceof ConflictException ||e instanceof HttpException)
         throw e;
+      
       throw new BadRequestException("Ops smth went wrong", e);
     }
   }
@@ -646,7 +649,7 @@ export class CommandController {
   @ApiBearerAuth()
   async update(
     @Param("id") id: string,
-    @Body() updateCommandDto: UpdateCommandDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateCommandDto: UpdateCommandDto,
     @Req() req
   ) {
     try {
@@ -881,7 +884,7 @@ export class CommandController {
   @UseGuards(CompanyRoleGuard)
   async updateStatusToDone(
     @Param("orderId") orderId: string,
-    @Body() updatestatusDTo: UpdateStatusCommandDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updatestatusDTo: UpdateStatusCommandDto,
     @Req() req
   ) {
     try {
@@ -1003,7 +1006,7 @@ export class CommandController {
   @UseGuards(CompanyRoleGuard)
   async updatepickUpDate(
     @Param("orderId") orderId: string,
-    @Body() updatepickUpDateDTo: UpdatepickUpDateCommandDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updatepickUpDateDTo: UpdatepickUpDateCommandDto,
     @Req() req
   ) {
     try {
@@ -1114,7 +1117,7 @@ export class CommandController {
   @UseGuards(ClientRoleGuard)
   async confirmDeliveryByClient(
     @Param("orderId") orderId: string,
-    @Body() updateStatusConfirmation: updateStatusConfirmationDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateStatusConfirmation: updateStatusConfirmationDto,
     @Req() req
   ) {
     try {

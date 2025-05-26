@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateFlagDtos{
     @ApiProperty({
@@ -8,6 +8,7 @@ export class CreateFlagDtos{
     })
 
     @IsString({message: "The title suppose to be string"})
+    @IsNotEmpty({message: "The title shouldn't be empty "})
     title:string;
     @ApiProperty({
         example: true,

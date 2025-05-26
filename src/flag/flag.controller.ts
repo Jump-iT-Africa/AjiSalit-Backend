@@ -13,6 +13,7 @@ import {
   UnauthorizedException,
   UseGuards,
   UseInterceptors,
+  ValidationPipe,
 } from "@nestjs/common";
 import { FlagService } from "./flag.service";
 import { AdminRoleGuard } from "../user/guards/admin-role.guard";
@@ -21,6 +22,7 @@ import { UpdateFlagDto } from "./dtos/update-flag.dto";
 import { FlagInterceptor } from "./interceptors/flag.interceptor";
 import { useContainer } from "class-validator";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { SanitizePipe } from "../common/pipes/sanitize.pipe";
 
 @Controller("flag")
 export class FlagController {
@@ -94,7 +96,7 @@ export class FlagController {
   })
   @Post()
   @UseGuards(AdminRoleGuard)
-  async createFlag(@Body() createFlagDto: CreateFlagDtos, @Req() req) {
+  async createFlag(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) createFlagDto: CreateFlagDtos, @Req() req) {
     try {
       return await this.flagService.createFlag(createFlagDto, req.user.id);
     } catch (e) {
@@ -192,7 +194,7 @@ export class FlagController {
   @UseGuards(AdminRoleGuard)
   async updateFlag(
     @Param("id") id: string,
-    @Body() updateFlagDto: UpdateFlagDto
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateFlagDto: UpdateFlagDto
   ) {
     try {
       return await this.flagService.updateFlag(updateFlagDto, id);
