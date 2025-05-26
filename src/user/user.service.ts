@@ -386,9 +386,7 @@ export class UserService {
           );
         }
         if (originalRefBy) {
-          const originalReferrer = await this.userModel
-            .findOne({ ownRef: originalRefBy })
-            .exec();
+          const originalReferrer = await this.userModel.findOne({ ownRef: originalRefBy }).exec();
           if (originalReferrer) {
             await this.userModel.findByIdAndUpdate(
               originalReferrer._id,
@@ -401,10 +399,11 @@ export class UserService {
 
       Object.assign(toUpdate, updateUserDto);
       await toUpdate.save();
-
       return toUpdate;
     } catch (error) {
-      console.error("Error updating user profile:", error);
+      if (error.name === 'ValidationError') {
+        throw new BadRequestException(error.errors); 
+      }
       throw new BadRequestException("Ops something went wrong ");
     }
   }
@@ -427,7 +426,6 @@ export class UserService {
           verifyNumberDto.phoneNumber[4], ""
         );
       }
-
       const user = await this.userModel.findOne({ phoneNumber: verifyNumberDto.phoneNumber}).exec();
       console.log(user);
 
