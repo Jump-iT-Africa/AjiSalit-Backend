@@ -3,8 +3,7 @@ const sanitizeHtml = require('sanitize-html');
 
 @Injectable()
 export class SanitizePipe implements PipeTransform {
-  transform(value: any) {
-    
+  transform(value: any) {    
     if (typeof value === 'string') {
       return sanitizeHtml(value, {
         allowedTags: [],

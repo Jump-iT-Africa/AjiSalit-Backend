@@ -51,7 +51,8 @@ import { ResoponseCompanyInfoDto } from "./dto/ResponseDto/response-info-company
 import { UpdatePassword } from "./dto/UpdatesDtos/update-password.dto";
 import { IsAuthenticated } from "./guards/is-authentificated.guard";
 import { SanitizePipe } from "../common/pipes/sanitize.pipe";
-import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
+import { FileInterceptor } from "@nest-lab/fastify-multer";
+// import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 
 ApiTags("User");
 @Controller("user")
@@ -691,22 +692,14 @@ export class UserController {
       },
     },
   })
+  @UseGuards(IsAuthenticated)
   deleteAccount(@Param("id") id: string, @Req() req) {
     try {
-      let token = req.headers["authorization"]?.split(" ")[1];
-
-      let infoUser = validateJwt(token);
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again");
-      }
-      return this.userService.deleteAccount(id, infoUser.id);
+      return this.userService.deleteAccount(id, req.user);
     } catch (e) {
       console.log(e);
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("Try to login again");
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You are not allowed to update this oder");
-      }
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError || e instanceof UnauthorizedException || e instanceof ForbiddenException)
+        throw e 
       throw new BadRequestException("Try again");
     }
   }
@@ -772,7 +765,7 @@ export class UserController {
       }
       return await this.userService.updateUserInfo(id, updateUserDto,image);
     } catch (e) {
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError ||  e instanceof UnauthorizedException || e instanceof ForbiddenException || e instanceof BadRequestException)
+      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError ||  e instanceof UnauthorizedException || e instanceof ForbiddenException || e instanceof BadRequestException || e instanceof NotFoundException)
         throw e
       throw new BadRequestException("Please try again");
     }
