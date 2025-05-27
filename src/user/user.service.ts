@@ -33,6 +33,7 @@ import { ResoponseCompanyInfoDto } from "./dto/ResponseDto/response-info-company
 import { hasSubscribers } from "diagnostics_channel";
 import { ResponseCompanyInfoForAdminDto } from "./dto/ResponseDto/response-all-companies.dto";
 import { CommandService } from "../command/command.service";
+import { ResoponseAdminDto } from "./dto/ResponseDto/response-admin.dto";
 
 
 const secretKey = process.env.JWT_SECRET;
@@ -280,6 +281,12 @@ export class UserService {
           enableImplicitConversion: true,
         });
         return data;
+      } else if (result.role == "admin"){
+        let data = plainToClass(ResoponseAdminDto, result, {
+          excludeExtraneousValues: true,
+          enableImplicitConversion:true
+        })
+        return data;
       }
     } catch (e) {
       console.log("there's an error", e);
@@ -320,22 +327,18 @@ export class UserService {
       if (!account) {
         throw new NotFoundException("The account not found");
       }
-      if (account._id.toString() !== userId) {
+      if(userId.role !== "admin"){
+      if (account._id.toString() !== userId.id) {
         throw new ForbiddenException(
-          "You aren't authorized to perform this task تمسح هاد الحساب"
+          "You aren't authorized to delete this account"
         );
+      }
       }
       let deleteAccount = await this.userModel.findByIdAndDelete(id).exec();
       return "The account was deleted successfully";
     } catch (e) {
-      if (
-        e instanceof jwt.JsonWebTokenError ||
-        e instanceof jwt.TokenExpiredError
-      )
-        throw new UnauthorizedException("Try to login again");
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException("You are not allowed to update this oder");
-      }
+      if ( e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError || e instanceof UnauthorizedException || e instanceof ForbiddenException)
+        throw e 
       throw new BadRequestException("Try again");
     }
   }
@@ -344,7 +347,7 @@ export class UserService {
     try {
       const toUpdate = await this.userModel.findById(id);
       if (!toUpdate) {
-        throw new NotFoundException("the user not found ");
+        throw new NotFoundException("the user not found");
       }
       if (toUpdate.image === null && imageFile) {
         console.log("we go here for image", toUpdate.image)
@@ -401,8 +404,12 @@ export class UserService {
       await toUpdate.save();
       return toUpdate;
     } catch (error) {
+      console.log("there's an error", error)
       if (error.name === 'ValidationError') {
         throw new BadRequestException(error.errors); 
+      }
+      if(error instanceof NotFoundException){
+        throw error
       }
       throw new BadRequestException("Ops something went wrong ");
     }
@@ -432,7 +439,7 @@ export class UserService {
       if (user) {
         return {
           statusCode: 409,
-          isExist,
+          isExist : true,
           UserName: user.Fname,
           role: user.role,
           message: "Phone number already exists",
@@ -440,7 +447,7 @@ export class UserService {
       } else {
         return {
           statusCode: 200,
-          isExist: true,
+          isExist: false,
           message: "Phone number is valid",
         };
       }

@@ -9,6 +9,7 @@ import { SiteinfoModule } from './siteinfo/siteinfo.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FlagModule } from './flag/flag.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { QuizzModule } from './quizz/quizz.module';
 
 
 
@@ -32,6 +33,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         },
       ],
     }),
+    QuizzModule,
   ],
   providers:[
     NotificationsGateway

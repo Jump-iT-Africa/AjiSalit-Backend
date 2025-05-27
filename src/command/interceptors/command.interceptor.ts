@@ -12,9 +12,7 @@ export class CommandInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler<any>
   ): Observable<any> {
-    console.log("here we are trying interceptors");
     const body = context.switchToHttp().getRequest().body;
-    console.log("here's the body of my request", body);
     if (typeof body.price === "string") {
       body.price = Number(body.price);
     }
@@ -51,8 +49,6 @@ export class CommandInterceptor implements NestInterceptor {
         body.isDateChanged = false;
       }
     }
-    console.log("Modified body", body);
-
     return next.handle();
   }
 }

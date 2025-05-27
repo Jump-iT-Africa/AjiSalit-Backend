@@ -49,7 +49,7 @@ export class Command {
   @Prop({ required: false, default: null, index:true })
   pickupDate: Date;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true,index: true})
   qrCode: string;
 
   @Prop({ required: true, default: false, index: true })
@@ -80,5 +80,6 @@ CommandSchema.index({
   isPickUp: 1,
   pickupDate:1,
   deliveryDate:1,
-  newDate:1
+  newDate:1,
+  qrCode:1
 });

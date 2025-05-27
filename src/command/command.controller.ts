@@ -45,10 +45,11 @@ import { updateStatusConfirmationDto } from "./dto/update-confirmdelivery.dto";
 import { ClientRoleGuard } from "../user/guards/client-role.guard";
 import { AdminRoleGuard } from "../user/guards/admin-role.guard";
 import { isatty } from "tty";
-import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
+// import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { CommandInterceptor } from "./interceptors/command.interceptor";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { SanitizePipe } from "../common/pipes/sanitize.pipe";
+import { FilesInterceptor } from "@nest-lab/fastify-multer";
 
 @ApiTags("Orders ")
 @Controller("order")
@@ -56,7 +57,6 @@ export class CommandController {
   constructor(private readonly commandService: CommandService) {}
   @ApiOperation({ summary: "Give the company the ability to add new order" })
   @ApiBearerAuth()
-
   @ApiConsumes("multipart/form-data")
   @ApiResponse({
     status: 201,
@@ -154,14 +154,28 @@ export class CommandController {
   @UseGuards(CompanyRoleGuard)
   @UseInterceptors(CommandInterceptor)
   @UseInterceptors(FilesInterceptor("images"))
-  async create(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) createCommandDto: CreateCommandDto, @Req() req, @UploadedFiles() images) {
+  async create(
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true }))
+    createCommandDto: CreateCommandDto,
+    @Req() req,
+    @UploadedFiles() images
+  ) {
     try {
-      return await this.commandService.create(createCommandDto, req.user.id,images);
+      return await this.commandService.create(
+        createCommandDto,
+        req.user.id,
+        images
+      );
     } catch (e) {
-
-      if (e instanceof JsonWebTokenError ||e instanceof ForbiddenException ||e instanceof UnprocessableEntityException ||e instanceof ConflictException ||e instanceof HttpException)
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof ForbiddenException ||
+        e instanceof UnprocessableEntityException ||
+        e instanceof ConflictException ||
+        e instanceof HttpException
+      )
         throw e;
-      
+
       throw new BadRequestException("Ops smth went wrong", e);
     }
   }
@@ -227,37 +241,28 @@ export class CommandController {
     },
   })
   @ApiBearerAuth()
+  @UseGuards(IsAuthenticated)
   scanedUserId(@Param("qrcode") qrcode: string, @Req() req) {
     try {
-      let token = req.headers["authorization"]?.split(" ")[1];
-      let infoUser = validateJwt(token);
-      if (!infoUser || !token) {
-        throw new UnauthorizedException("Try to login again");
-      }
-      if (infoUser.role !== "client" && infoUser.role !== "admin") {
+      if (req.user.role !== "client" && req.user.role !== "admin") {
         throw new ForbiddenException(
           "You can't scan this qrCode unless you have the client role"
         );
       }
       return this.commandService.scanedUserId(
         qrcode,
-        infoUser.id,
-        infoUser.username
+        req.user.id,
+        req.user.username
       );
     } catch (e) {
-      if (e instanceof ForbiddenException) {
-        throw new ForbiddenException(
-          "You can't scan this qrCode unless you have the client role"
-        );
-      }
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("Try to login again");
-      if (e instanceof UnauthorizedException) {
-        throw new UnauthorizedException("Try to login again");
-      }
-      if (e instanceof ConflictException) {
-        throw new ConflictException("The qrCode is already scanned");
-      }
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof TokenExpiredError ||
+        e instanceof UnauthorizedException ||
+        e instanceof ConflictException ||
+        e instanceof ForbiddenException
+      )
+        throw e;
       throw new BadRequestException("ops smth went wrong");
     }
   }
@@ -649,7 +654,8 @@ export class CommandController {
   @ApiBearerAuth()
   async update(
     @Param("id") id: string,
-    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateCommandDto: UpdateCommandDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true }))
+    updateCommandDto: UpdateCommandDto,
     @Req() req
   ) {
     try {
@@ -663,7 +669,7 @@ export class CommandController {
       if (
         e instanceof JsonWebTokenError ||
         e instanceof TokenExpiredError ||
-        e instanceof ForbiddenException
+        e instanceof ForbiddenException || e instanceof BadRequestException
       )
         throw e;
       throw new BadRequestException("Try again");
@@ -741,7 +747,13 @@ export class CommandController {
       return await this.commandService.deleteOrder(id, req.user.id);
     } catch (e) {
       console.log(e);
-      if (e instanceof JsonWebTokenError ||e instanceof TokenExpiredError ||e instanceof ForbiddenException ||e instanceof UnauthorizedException || e instanceof NotFoundException)
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof TokenExpiredError ||
+        e instanceof ForbiddenException ||
+        e instanceof UnauthorizedException ||
+        e instanceof NotFoundException
+      )
         throw e;
 
       throw new BadRequestException("Try again");
@@ -778,8 +790,6 @@ export class CommandController {
       if (!infoUser) {
         throw new UnauthorizedException("Try to login again");
       }
-      // console.log("asds", infoUser.id);
-
       return this.commandService.getCommandByQrCode(
         qrCode,
         infoUser.id,
@@ -884,7 +894,8 @@ export class CommandController {
   @UseGuards(CompanyRoleGuard)
   async updateStatusToDone(
     @Param("orderId") orderId: string,
-    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updatestatusDTo: UpdateStatusCommandDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true }))
+    updatestatusDTo: UpdateStatusCommandDto,
     @Req() req
   ) {
     try {
@@ -1006,7 +1017,8 @@ export class CommandController {
   @UseGuards(CompanyRoleGuard)
   async updatepickUpDate(
     @Param("orderId") orderId: string,
-    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updatepickUpDateDTo: UpdatepickUpDateCommandDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true }))
+    updatepickUpDateDTo: UpdatepickUpDateCommandDto,
     @Req() req
   ) {
     try {
@@ -1117,7 +1129,8 @@ export class CommandController {
   @UseGuards(ClientRoleGuard)
   async confirmDeliveryByClient(
     @Param("orderId") orderId: string,
-    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateStatusConfirmation: updateStatusConfirmationDto,
+    @Body(new SanitizePipe(), new ValidationPipe({ whitelist: true }))
+    updateStatusConfirmation: updateStatusConfirmationDto,
     @Req() req
   ) {
     try {
@@ -1141,24 +1154,29 @@ export class CommandController {
     }
   }
 
-  @ApiOperation({summary:"The reminder Notification sent to the client to after the order is done to get his order"})
-  @Cron(CronExpression.EVERY_DAY_AT_3PM )
-  async clientReminderNorification(){
-    try{
-      return await this.commandService.commandClientReminder()
-    }catch(e){
-      throw e 
+  @ApiOperation({
+    summary:
+      "The reminder Notification sent to the client to after the order is done to get his order",
+  })
+  @Cron(CronExpression.EVERY_DAY_AT_3PM)
+  async clientReminderNorification() {
+    try {
+      return await this.commandService.commandClientReminder();
+    } catch (e) {
+      throw e;
     }
   }
 
-  @ApiOperation({summary:"The reminder Notification sent to the company in case the company does not deliver after the deadline"})
+  @ApiOperation({
+    summary:
+      "The reminder Notification sent to the company in case the company does not deliver after the deadline",
+  })
   @Cron(CronExpression.EVERY_DAY_AT_9AM)
-  async companyReminderNotification(){
-    try{
-      return await this.commandService.commandCompanyReminder()
-    }catch(e){
-      throw e 
+  async companyReminderNotification() {
+    try {
+      return await this.commandService.commandCompanyReminder();
+    } catch (e) {
+      throw e;
     }
   }
-
 }
