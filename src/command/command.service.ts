@@ -131,12 +131,12 @@ export class CommandService {
       if (
         e instanceof UnprocessableEntityException ||
         e instanceof ConflictException ||
-        e instanceof HttpException
+        e instanceof HttpException || e instanceof BadRequestException
       ) {
         throw e;
       }
       console.log("ops new wonderful error", e);
-      throw new BadRequestException(e.message);
+      throw new BadRequestException("Ops error in creating and here we go", e);
     } finally {
       session.endSession();
     }

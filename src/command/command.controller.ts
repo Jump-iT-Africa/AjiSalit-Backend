@@ -167,16 +167,9 @@ export class CommandController {
         images
       );
     } catch (e) {
-      if (
-        e instanceof JsonWebTokenError ||
-        e instanceof ForbiddenException ||
-        e instanceof UnprocessableEntityException ||
-        e instanceof ConflictException ||
-        e instanceof HttpException
-      )
+      if ( e instanceof JsonWebTokenError || e instanceof ForbiddenException || e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException || e instanceof BadRequestException)
         throw e;
-
-      throw new BadRequestException("Ops smth went wrong", e);
+      throw new BadRequestException("Ops error in creating and here we go", e);
     }
   }
 
