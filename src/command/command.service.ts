@@ -76,10 +76,23 @@ export class CommandService {
   }
 
   async create( createCommandDto: CreateCommandDto, authentificatedId: string, images) {
+      let imageUrls = [];
+      if (images?.length > 0) {
+        try {
+          const uploadPromises = images.map(file =>
+            this.uploadImageToBunny(file.buffer, file.originalname)
+          );
+          imageUrls = await Promise.all(uploadPromises);
+        } catch (error) {
+          throw new BadRequestException("Image upload failed.");
+        }
+      }
+
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
-      let companyOwner = await this.userModel.findById(authentificatedId).session(session).exec();
+      createCommandDto.images = imageUrls;
+      let companyOwner = await this.userModel.findById(authentificatedId, 'pocket').session(session).exec();
       if (companyOwner?.pocket <= 0) {
         throw new HttpException(
           "Ops you are poor, your balance is zero",
@@ -91,21 +104,7 @@ export class CommandService {
       if (existingOrder) {
         throw new ConflictException("This code is already used");
       }
-      if (images && images.length > 0) {
-        const imageUrls: string[] = [];
-        for (const file of images) {
-          try {
-            const imageUrl = await this.uploadImageToBunny(
-              file.buffer,
-              file.originalname
-            );
-            imageUrls.push(imageUrl);
-          } catch (error) {
-            console.error("Image upload failed:", error);
-          }
-        }
-        createCommandDto.images = imageUrls;
-      }
+ 
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
       let resultValidation = ValidationOrder(newOrder);
@@ -113,7 +112,7 @@ export class CommandService {
         throw new UnprocessableEntityException(resultValidation);
       }
 
-      let savingOrder = newOrder.save({ session });
+      let savingOrder = await newOrder.save({ session });
       if (!savingOrder) {
         return "try again";
       }
@@ -135,8 +134,11 @@ export class CommandService {
       ) {
         throw e;
       }
-      console.log("ops new wonderful error", e);
-      throw new BadRequestException("Ops error in creating and here we go", e);
+      console.error("here's the error of creation", e);
+      throw new BadRequestException({
+          message: "Ops error in creating and here we go",
+          error: e?.message || e,
+      });
     } finally {
       session.endSession();
     }
