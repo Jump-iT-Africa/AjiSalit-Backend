@@ -3,10 +3,11 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
 import { join } from 'path';
 import { NotificationsGateway } from './notifications/notifications.gateway';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import fastifyMultipart from '@fastify/multipart';
 
 
 
@@ -14,9 +15,12 @@ dotenv.config();
 
 async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
   app.use('/swagger', express.static(join(__dirname, '..', 'node_modules', 'swagger-ui-dist')));
-  app.useStaticAssets('public');
+  app.useStaticAssets({
+    root: join(__dirname, '..', 'public'),
+    prefix: '/public/', 
+  });
 
   app.useGlobalPipes(new ValidationPipe());
   const options = new DocumentBuilder()
@@ -41,7 +45,7 @@ async function bootstrap() {
     origin: '*', 
     credentials: true,
   });
-  
+  await app.register(fastifyMultipart);
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 
 }

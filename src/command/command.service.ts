@@ -265,7 +265,6 @@ export class CommandService {
       }
 
       const command = await this.commandModel.findById(id).exec();
-      // console.log(id, command);
       if (!command) {
         throw new NotFoundException("The order not found");
       }
@@ -273,7 +272,23 @@ export class CommandService {
       if (command.companyId.toString() !== authentificatedId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
+    console.log("heeeere we aree",command.price, updateCommandDto.price, updateCommandDto.advancedAmount);
 
+      if(command.price && updateCommandDto.price == undefined && updateCommandDto.advancedAmount){
+        if(updateCommandDto.advancedAmount > command.price){
+          throw new BadRequestException("The amount of advance should be less than the price, make sure you check your price")
+        }
+      }
+      if(updateCommandDto.price && updateCommandDto.advancedAmount){
+        if(updateCommandDto.advancedAmount > updateCommandDto.price){
+          throw new BadRequestException("The amount of advance should be less than the price, make sure you check your price")
+        }
+      }
+      if(updateCommandDto.price && updateCommandDto.advancedAmount == undefined && command.advancedAmount){
+        if(command.advancedAmount > updateCommandDto.price){
+          throw new BadRequestException("The amount of advance should be less than the price, make sure you check your price")
+        }
+      }
       const updatedCommand = await this.commandModel
         .findByIdAndUpdate(id, updateCommandDto, {
           new: true,
@@ -304,10 +319,7 @@ export class CommandService {
       if (e.name === "CastError" || e.name === "ValidationError") {
         throw new BadRequestException("The id of this order is not correct");
       }
-      if (e instanceof NotFoundException) {
-        throw e;
-      }
-      if (e instanceof ForbiddenException) {
+      if (e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException) {
         throw e;
       }
       throw new BadRequestException(`try again : ${e.message}`);
