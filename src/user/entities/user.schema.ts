@@ -52,7 +52,6 @@ export class User {
 
   @Prop({required:false, default:0})
   pocket:number
-  
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
