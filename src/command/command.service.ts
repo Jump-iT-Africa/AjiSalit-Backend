@@ -51,7 +51,7 @@ export class CommandService {
     const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
     const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
     const storageUrl = this.configService.get<string>("BUNNY_STORAGE_URL");
-    const safeFilename = filename || 'uploaded-image';
+    const safeFilename = filename || "uploaded-image";
     const uniqueFilename = `${Date.now()}-${safeFilename.replace(/\s/g, "_")}`;
     const url = `${storageUrl}/${storageZone}/${uniqueFilename}`;
     try {
@@ -77,38 +77,46 @@ export class CommandService {
     }
   }
 
-  
 
-  async create( createCommandDto: CreateCommandDto, authentificatedId: string, images) {
-      let imageUrls = [];
-      if (images?.length > 0) {
-        try {
-          const uploadPromises = images.map(file =>
-            this.uploadImageToBunny(file.buffer, file.originalname)
-          );
-          imageUrls = await Promise.all(uploadPromises);
-        } catch (error) {
-          throw new BadRequestException("Image upload failed.");
-        }
+  async create(
+    createCommandDto: CreateCommandDto,
+    authentificatedId: string,
+    images
+  ) {
+    let imageUrls = [];
+    if (Array.isArray(images) && images.length > 0) {
+      try {
+        const uploadPromises = images.map((file) =>
+          this.uploadImageToBunny(file.buffer, file.originalname)
+        );
+        imageUrls = await Promise.all(uploadPromises);
+      } catch (error) {
+        throw new BadRequestException("Image upload failed.");
       }
+    }
 
     const session = await this.connection.startSession();
     try {
       session.startTransaction();
       createCommandDto.images = imageUrls;
-      let companyOwner = await this.userModel.findById(authentificatedId, 'pocket').session(session).exec();
+      let companyOwner = await this.userModel
+        .findById(authentificatedId, "pocket")
+        .session(session)
+        .exec();
       if (companyOwner?.pocket <= 0) {
         throw new HttpException(
           "Ops you are poor, your balance is zero",
           HttpStatus.PAYMENT_REQUIRED
         );
       }
-      const existingOrder = await this.commandModel.findOne({ qrCode: createCommandDto.qrCode }).exec();
+      const existingOrder = await this.commandModel
+        .findOne({ qrCode: createCommandDto.qrCode })
+        .exec();
 
       if (existingOrder) {
         throw new ConflictException("This code is already used");
       }
- 
+
       createCommandDto.companyId = new Types.ObjectId(authentificatedId);
       let newOrder = new this.commandModel(createCommandDto);
       let resultValidation = ValidationOrder(newOrder);
@@ -134,14 +142,15 @@ export class CommandService {
       if (
         e instanceof UnprocessableEntityException ||
         e instanceof ConflictException ||
-        e instanceof HttpException || e instanceof BadRequestException
+        e instanceof HttpException ||
+        e instanceof BadRequestException
       ) {
         throw e;
       }
       console.error("here's the error of creation", e);
       throw new BadRequestException({
-          message: "Ops error in creating and here we go",
-          error: e?.message || e,
+        message: "Ops error in creating and here we go",
+        error: e?.message || e,
       });
     } finally {
       session.endSession();
@@ -163,7 +172,8 @@ export class CommandService {
           { qrCode: qrcode },
           { clientId: userId },
           { new: true }
-        ).exec();
+        )
+        .exec();
       return "Congratulation the qrCode has been scanned successfully";
     } catch (e) {
       if (e instanceof NotFoundException) {
@@ -243,7 +253,10 @@ export class CommandService {
         query.companyId = infoUser.id;
       }
 
-      let order = await this.commandModel.findOne(query).populate({ path: "companyId", select: "companyName field" }).exec();
+      let order = await this.commandModel
+        .findOne(query)
+        .populate({ path: "companyId", select: "companyName field" })
+        .exec();
       if (!order) {
         throw new NotFoundException("No order found");
       }
@@ -274,21 +287,40 @@ export class CommandService {
       if (command.companyId.toString() !== authentificatedId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-    console.log("heeeere we aree",command.price, updateCommandDto.price, updateCommandDto.advancedAmount);
+      console.log(
+        "heeeere we aree",
+        command.price,
+        updateCommandDto.price,
+        updateCommandDto.advancedAmount
+      );
 
-      if(command.price && updateCommandDto.price == undefined && updateCommandDto.advancedAmount){
-        if(updateCommandDto.advancedAmount > command.price){
-          throw new BadRequestException("The amount of advance should be less than the price, make sure you check your price")
+      if (
+        command.price &&
+        updateCommandDto.price == undefined &&
+        updateCommandDto.advancedAmount
+      ) {
+        if (updateCommandDto.advancedAmount > command.price) {
+          throw new BadRequestException(
+            "The amount of advance should be less than the price, make sure you check your price"
+          );
         }
       }
-      if(updateCommandDto.price && updateCommandDto.advancedAmount){
-        if(updateCommandDto.advancedAmount > updateCommandDto.price){
-          throw new BadRequestException("The amount of advance should be less than the price, make sure you check your price")
+      if (updateCommandDto.price && updateCommandDto.advancedAmount) {
+        if (updateCommandDto.advancedAmount > updateCommandDto.price) {
+          throw new BadRequestException(
+            "The amount of advance should be less than the price, make sure you check your price"
+          );
         }
       }
-      if(updateCommandDto.price && updateCommandDto.advancedAmount == undefined && command.advancedAmount){
-        if(command.advancedAmount > updateCommandDto.price){
-          throw new BadRequestException("The amount of advance should be less than the price, make sure you check your price")
+      if (
+        updateCommandDto.price &&
+        updateCommandDto.advancedAmount == undefined &&
+        command.advancedAmount
+      ) {
+        if (command.advancedAmount > updateCommandDto.price) {
+          throw new BadRequestException(
+            "The amount of advance should be less than the price, make sure you check your price"
+          );
         }
       }
       const updatedCommand = await this.commandModel
@@ -321,7 +353,11 @@ export class CommandService {
       if (e.name === "CastError" || e.name === "ValidationError") {
         throw new BadRequestException("The id of this order is not correct");
       }
-      if (e instanceof NotFoundException || e instanceof ForbiddenException || e instanceof BadRequestException) {
+      if (
+        e instanceof NotFoundException ||
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException
+      ) {
         throw e;
       }
       throw new BadRequestException(`try again : ${e.message}`);
@@ -438,27 +474,27 @@ export class CommandService {
     }
   }
 
-async deleteBunnyImage(fileUrl: string): Promise<void> {
-  const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
-  const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
-  const fileName = fileUrl.split('/').pop();
-  
-  const url = `https://storage.bunnycdn.com/${storageZone}/${fileName}`;
+  async deleteBunnyImage(fileUrl: string): Promise<void> {
+    const storageZone = this.configService.get<string>("BUNNY_STORAGE_ZONE");
+    const accessKey = this.configService.get<string>("BUNNY_ACCESS_KEY");
+    const fileName = fileUrl.split("/").pop();
 
-  try {
-    await axios.delete(url, {
-      headers: {
-        AccessKey: accessKey,
-        "Content-Type": "application/octet-stream",
-      },
-    });
-  } catch (error) {
-    console.error(
-      `failed to delete image from bunny: ${fileUrl}`,
-      error.response?.data || error.message
-    );
+    const url = `https://storage.bunnycdn.com/${storageZone}/${fileName}`;
+
+    try {
+      await axios.delete(url, {
+        headers: {
+          AccessKey: accessKey,
+          "Content-Type": "application/octet-stream",
+        },
+      });
+    } catch (error) {
+      console.error(
+        `failed to delete image from bunny: ${fileUrl}`,
+        error.response?.data || error.message
+      );
+    }
   }
-}
 
   async deleteOrder(id: string, userId) {
     try {
@@ -700,11 +736,15 @@ async deleteBunnyImage(fileUrl: string): Promise<void> {
       const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
       const localDay = String(localNow.getDate()).padStart(2, "0");
       const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
-      let commandPendinf = await this.commandModel.find({ isFinished: true, isPickUp: false, deliveryDate: { $lt: todayDate }})
+      let commandPendinf = await this.commandModel
+        .find({
+          isFinished: true,
+          isPickUp: false,
+          deliveryDate: { $lt: todayDate },
+        })
         .populate({ path: "clientId", select: "_id role expoPushToken" });
       for (const command of commandPendinf) {
         if (command.clientId) {
-
           return await this.notificationsService.sendReminderNotification(
             command.clientId
           );
