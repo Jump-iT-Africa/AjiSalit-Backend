@@ -1,4 +1,17 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum,IsMongoId, IsDateString , IsArray, Matches, IsNumber, IsBoolean, MinLength, isBoolean} from "class-validator";
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsMongoId,
+  IsDateString,
+  IsArray,
+  Matches,
+  IsNumber,
+  IsBoolean,
+  MinLength,
+  isBoolean,
+} from "class-validator";
 import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -20,28 +33,27 @@ export class CreateCommandDto {
   price: number;
 
   @ApiProperty({
-    example: "تسبيق",
+    example: "prepayment",
     required: true,
   })
   @IsNotEmpty({ message: "you must add the situation" })
-  @IsEnum(["خالص", "غير خالص", "تسبيق"])
-  @Matches(/^(خالص|غير خالص|تسبيق)$/, {
-    message:
-      "The situation must be one of the following: خالص, غير خالص, تسبيق",
+  @IsEnum(["paid", "unpaid", "prepayment"])
+  @Matches(/^(paid|unpaid|prepayment)$/, {
+    message: "The situation must be one of the following: paid, unpaid, prepayment",
   })
   situation: string;
 
   @ApiProperty({
-    example: "جاهزة للتسليم",
+    example: "finished",
     required: true,
   })
   @IsOptional()
   @IsString()
-  @Matches(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, {
+  @Matches(/^(inProgress|finished|delivered)$/, {
     message:
-      "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم",
+      "The status must be one of the following: inProgress, finished, delivered",
   })
-  @IsEnum(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"])
+  @IsEnum(["inProgress", "finished", "delivered"])
   status: string;
 
   @ApiProperty({
@@ -66,7 +78,6 @@ export class CreateCommandDto {
   @ApiProperty({
     example: "2025-10-28",
     required: false,
-
   })
   @IsDateString({}, { message: "The date has to  be on this : YYYY-MM-DD" })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
@@ -75,7 +86,7 @@ export class CreateCommandDto {
   @IsOptional()
   pickupDate: string;
 
-  @ApiProperty({ type: 'string', format: 'binary', required:false})
+  @ApiProperty({ type: "string", format: "binary", required: false })
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
@@ -88,11 +99,9 @@ export class CreateCommandDto {
   @IsNotEmpty()
   qrCode: string;
 
-
   @IsBoolean()
   @IsOptional()
   isFinished: boolean;
-
 
   @IsBoolean()
   @IsOptional()

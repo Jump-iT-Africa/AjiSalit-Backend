@@ -25,7 +25,7 @@ export class ResponseCommandAndCompanyDTO {
   price: number;
 
   @ApiProperty({
-    example: "تسبيق",
+    example: "prepayment",
     description:
       "The situation of the order and it can be advanced, paid or not paid",
     required: true,
@@ -34,7 +34,7 @@ export class ResponseCommandAndCompanyDTO {
   situation: string;
 
   @ApiProperty({
-    example: "جاهزة للتسليم",
+    example: "finished",
     description: "The current status of the order",
     required: true,
   })
