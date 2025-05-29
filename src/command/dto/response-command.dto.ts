@@ -1,66 +1,61 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Types } from 'mongoose';
+import { ApiProperty } from "@nestjs/swagger";
+import { Types } from "mongoose";
 
 export default class ResponseDto {
-
   companyId: Types.ObjectId;
 
-
   @ApiProperty({
-    example: '50000',
-    description: 'Price of the service',
+    example: "50000",
+    description: "Price of the service",
     required: true,
   })
   price: number;
-  
 
   @ApiProperty({
-    example: 'تسبيق',
-    description: 'The situation of the order and it can be advanced, paid or not paid',
+    example: "paid",
+    description:
+      "The situation of the order and it can be advanced, paid or not paid",
     required: true,
   })
   situation: string;
 
   @ApiProperty({
-    example: "جاهزة للتسليم",
-    description: 'The current status of the order',
+    example: "finished",
+    description: "The current status of the order",
     required: true,
   })
   status: string;
 
   @ApiProperty({
     example: 2000,
-    description: 'advanced amount if it\'s already given',
+    description: "advanced amount if it's already given",
     required: false,
   })
   advancedAmount?: number;
 
-
   @ApiProperty({
-    example: '2025-10-26',
-    description: 'Delivery date of the service',
+    example: "2025-10-26",
+    description: "Delivery date of the service",
     required: true,
   })
   deliveryDate: string;
   @ApiProperty({
     example: null,
-    description: 'it will be unpdated in the pick up date',
+    description: "it will be unpdated in the pick up date",
     required: true,
   })
   pickupDate: string;
 
   @ApiProperty({
     example: ["image.jpg", "image2.jpg"],
-    description: 'images URLs related to the service',
+    description: "images URLs related to the service",
     required: false,
   })
   images?: string[];
 
-
-
   @ApiProperty({
-    example: 'null',
-    description: 'user ID related to the order, null if not scanned',
+    example: "null",
+    description: "user ID related to the order, null if not scanned",
     nullable: true,
     required: false,
   })
@@ -68,40 +63,38 @@ export default class ResponseDto {
 
   @ApiProperty({
     example: "true",
-    required: false
+    required: false,
   })
-  isDateChanged: boolean
-
+  isDateChanged: boolean;
 
   @ApiProperty({
     example: "true",
-    required: false
+    required: false,
   })
-  IsConfirmedByClient: boolean
+  IsConfirmedByClient: boolean;
 
   @ApiProperty({
     example: "sick",
-    required: false
+    required: false,
   })
-  ChangeDateReason: string
-
+  ChangeDateReason: string;
 
   @ApiProperty({
     example: null,
-    description: 'the new changed date',
+    description: "the new changed date",
     required: true,
   })
   newDate: string;
 
   @ApiProperty({
     example: 0,
-    description: "__v by default "
+    description: "__v by default ",
   })
-  __v: 0
+  __v: 0;
 
   @ApiProperty({
     example: "6809076a0d062a9147e7eb4c",
-    description: 'The id if the command'
+    description: "The id if the command",
   })
-  _id: Types.ObjectId
+  _id: Types.ObjectId;
 }

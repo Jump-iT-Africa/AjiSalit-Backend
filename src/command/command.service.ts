@@ -379,7 +379,7 @@ export class CommandService {
       let clientInfo = await this.userModel.findById(command.clientId).exec();
       let companyInfo = await this.userModel.findById(command.companyId).exec();
       console.log("ohhh a result", result, data);
-      if (data.status == "جاهزة للتسليم") {
+      if (data.status == "finished") {
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(
@@ -389,7 +389,7 @@ export class CommandService {
             );
           console.log("Here's my notification sender: ", notificationSender);
         }
-      } else if (data.status == "تم تسليم") {
+      } else if (data.status == "delivered") {
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(

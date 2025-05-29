@@ -161,13 +161,23 @@ export class CommandController {
     @UploadedFiles() images
   ) {
     try {
+      const ip = req.ip;
+      console.log("creaaaaaaaaaaaaaaaaaaaaaaaaaaate ip", ip);
       return await this.commandService.create(
         createCommandDto,
         req.user.id,
         images
       );
     } catch (e) {
-      if ( e instanceof JsonWebTokenError || e instanceof ForbiddenException || e instanceof UnprocessableEntityException || e instanceof ConflictException || e instanceof HttpException || e instanceof BadRequestException)
+      console.log("ohhhhhh", e);
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof ForbiddenException ||
+        e instanceof UnprocessableEntityException ||
+        e instanceof ConflictException ||
+        e instanceof HttpException ||
+        e instanceof BadRequestException
+      )
         throw e;
       throw new BadRequestException("Ops error in creating and here we go", e);
     }
@@ -188,7 +198,7 @@ export class CommandController {
   @ApiResponse({
     status: 403,
     description:
-      "Fobidden error: the user h  as company role and is not allowed to scan the qr code",
+      "Fobidden error: the user supposes to had role and is not allowed to scan the qr code",
     schema: {
       example: {
         statusCode: 403,
@@ -297,8 +307,8 @@ export class CommandController {
                   _id: "6821d68bed9b91a5b2bc176d",
                   companyId: "6821c62d479cfdf849cf5d24",
                   clientId: null,
-                  situation: "تسبيق",
-                  status: "جاهزة للتسليم",
+                  situation: "prepayment",
+                  status: "finished",
                   isExpired: false,
                   advancedAmount: 200,
                   price: 8000,
@@ -325,8 +335,8 @@ export class CommandController {
                     Lname: "Bouhamidi",
                     phoneNumber: "+212698878964",
                   },
-                  situation: "تسبيق",
-                  status: "جاهزة للتسليم",
+                  situation: "prepayment",
+                  status: "finished",
                   isExpired: false,
                   advancedAmount: 200,
                   price: 22000,
@@ -662,7 +672,8 @@ export class CommandController {
       if (
         e instanceof JsonWebTokenError ||
         e instanceof TokenExpiredError ||
-        e instanceof ForbiddenException || e instanceof BadRequestException
+        e instanceof ForbiddenException ||
+        e instanceof BadRequestException
       )
         throw e;
       throw new BadRequestException("Try again");
@@ -843,7 +854,7 @@ export class CommandController {
             value: {
               message: [
                 "status must be one of the following values: ",
-                "The status must be one of the following: في طور الانجاز, جاهزة للتسليم, تم تسليم",
+                "The status must be one of the following: inProgress, finished, delivered",
               ],
               error: "Bad Request",
               statusCode: 400,
