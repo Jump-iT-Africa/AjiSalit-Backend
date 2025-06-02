@@ -161,8 +161,8 @@ export class CommandController {
     @UploadedFiles() images
   ) {
     try {
-      const ip = req.ip;
-      console.log("creaaaaaaaaaaaaaaaaaaaaaaaaaaate ip", ip);
+      // const ip = req.ip;
+      // console.log("creaaaaaaaaaaaaaaaaaaaaaaaaaaate ip", ip);
       return await this.commandService.create(
         createCommandDto,
         req.user.id,

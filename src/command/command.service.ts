@@ -190,8 +190,6 @@ export class CommandService {
     try {
       let query = {};
       let allOrders;
-
-      console.log("I m here ");
       if (role == "admin") {
         const allOrders = await this.commandModel
           .find()
@@ -211,7 +209,7 @@ export class CommandService {
             select: "companyName field phoneNumber",
           })
           .exec();
-        console.log("there's an error", allOrders);
+        console.log("here are my orders", allOrders);
         if (!allOrders || allOrders.length == 0) {
           throw new NotFoundException("No orders found");
         }
