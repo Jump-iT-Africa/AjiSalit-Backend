@@ -1,5 +1,6 @@
 import { check, sleep } from 'k6';
 import http from 'k6/http'
+
 function randomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
