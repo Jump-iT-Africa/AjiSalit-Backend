@@ -140,7 +140,16 @@ export class UserController {
     },
   })
   async register(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) CreateUserDto: CreateUserDto) {
-    return this.userService.register(CreateUserDto);
+    try{
+      return this.userService.register(CreateUserDto);
+    }catch(e){
+      if(e instanceof ConflictException || e instanceof BadRequestException){
+        console.log("there's an error", e)
+        throw e 
+      }
+      console.log("there's an error", e)
+      throw new BadRequestException("There's an error here",e)
+    }
   }
 
   @Post("login")
