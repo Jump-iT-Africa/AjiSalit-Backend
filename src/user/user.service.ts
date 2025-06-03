@@ -149,9 +149,10 @@ export class UserService {
         throw error;
       }
       console.error("Registration error:", error);
-      return {
-        ErrorMessage: error,
-      };
+      throw new BadRequestException("There's an error on register", error)
+      // return {
+      //   ErrorMessage: error,
+      // };
     }
   }
 

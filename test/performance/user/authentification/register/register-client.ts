@@ -10,6 +10,7 @@ const baseUrl="https://api.ajisalit.com"
 // const baseUrl="http://localhost:3000"
 
 
+
 function generateRandomPassword() {
   return Math.floor(Math.random() * 900000) + 100000;
 }
