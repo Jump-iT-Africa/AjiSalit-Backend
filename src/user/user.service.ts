@@ -35,14 +35,15 @@ import { ResponseCompanyInfoForAdminDto } from "./dto/ResponseDto/response-all-c
 import { CommandService } from "../command/command.service";
 import { ResoponseAdminDto } from "./dto/ResponseDto/response-admin.dto";
 
-
 const secretKey = process.env.JWT_SECRET;
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel("User") private userModel: Model<UserDocument>,
-    @Inject(forwardRef(() => CommandService)) 
-    private readonly commandService: CommandService,) {}
+  constructor(
+    @InjectModel("User") private userModel: Model<UserDocument>,
+    @Inject(forwardRef(() => CommandService))
+    private readonly commandService: CommandService
+  ) {}
 
   async register(createUserDto: CreateUserDto) {
     try {
@@ -82,17 +83,17 @@ export class UserService {
 
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
-      console.log("test", hashedPassword, password);
+      // console.log("test", hashedPassword, password);
       const GeneratedRefCode = this.generateReferralCode();
 
       if (createUserDto.role == "company") {
         createUserDto.pocket = 250;
       }
-      console.log(
-        "the role after change the pocket balance",
-        createUserDto.role,
-        createUserDto.pocket
-      );
+      // console.log(
+      //   "the role after change the pocket balance",
+      //   createUserDto.role,
+      //   createUserDto.pocket
+      // );
 
       const newUser = new this.userModel({
         Fname,
@@ -145,11 +146,12 @@ export class UserService {
         token,
       };
     } catch (error) {
+      console.log(`errrrrrrrrreur ${error}`);
       if (error instanceof ConflictException) {
         throw error;
       }
       console.error("Registration error:", error);
-      throw new BadRequestException("There's an error on register", error)
+      throw new BadRequestException("There's an error on register", error);
       // return {
       //   ErrorMessage: error,
       // };
@@ -252,7 +254,9 @@ export class UserService {
         );
       }
 
-      const updateAuthentificator = await this.userModel.findByIdAndUpdate(id, updateDto, { new: true }).exec();
+      const updateAuthentificator = await this.userModel
+        .findByIdAndUpdate(id, updateDto, { new: true })
+        .exec();
       return "The account created successfully";
     } catch (e) {
       console.log(e);
@@ -282,11 +286,11 @@ export class UserService {
           enableImplicitConversion: true,
         });
         return data;
-      } else if (result.role == "admin"){
+      } else if (result.role == "admin") {
         let data = plainToClass(ResoponseAdminDto, result, {
           excludeExtraneousValues: true,
-          enableImplicitConversion:true
-        })
+          enableImplicitConversion: true,
+        });
         return data;
       }
     } catch (e) {
@@ -328,51 +332,62 @@ export class UserService {
       if (!account) {
         throw new NotFoundException("The account not found");
       }
-      if(userId.role !== "admin"){
-      if (account._id.toString() !== userId.id) {
-        throw new ForbiddenException(
-          "You aren't authorized to delete this account"
-        );
-      }
+      if (userId.role !== "admin") {
+        if (account._id.toString() !== userId.id) {
+          throw new ForbiddenException(
+            "You aren't authorized to delete this account"
+          );
+        }
       }
       let deleteAccount = await this.userModel.findByIdAndDelete(id).exec();
       return "The account was deleted successfully";
     } catch (e) {
-      if ( e instanceof jwt.JsonWebTokenError || e instanceof jwt.TokenExpiredError || e instanceof UnauthorizedException || e instanceof ForbiddenException)
-        throw e 
+      if (
+        e instanceof jwt.JsonWebTokenError ||
+        e instanceof jwt.TokenExpiredError ||
+        e instanceof UnauthorizedException ||
+        e instanceof ForbiddenException
+      )
+        throw e;
       throw new BadRequestException("Try again");
     }
   }
 
-  async updateUserInfo(id: string,updateUserDto: UpdateUserDto,imageFile: Express.Multer.File): Promise<User> {
+  async updateUserInfo(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    imageFile: Express.Multer.File
+  ): Promise<User> {
     try {
+      console.log("here's the body", updateUserDto, "and here's the image", imageFile)
       const toUpdate = await this.userModel.findById(id);
       if (!toUpdate) {
         throw new NotFoundException("the user not found");
       }
-      if (toUpdate.image === null && imageFile) {
-        console.log("we go here for image", toUpdate.image)
-        try {
-          const imageUrl = await this.commandService.uploadImageToBunny(
-            imageFile.buffer,
-            imageFile.originalname
-          );
-          toUpdate.image = imageUrl;
-        } catch (error) {
-          console.error("Image upload failed:", error);
-          throw new BadRequestException("Failed to upload image");
-        }
-      }else if(toUpdate.image && imageFile){
-          const deleteImage = await this.commandService.deleteBunnyImage(toUpdate.image)
-          console.log(deleteImage)
-          const imageUrl = await this.commandService.uploadImageToBunny(
-            imageFile.buffer,
-            imageFile.originalname
-          );
-          toUpdate.image = imageUrl;
-      }
+      // if (toUpdate.image === null && imageFile) {
+      //   console.log("we go here for image", toUpdate.image);
+      //   try {
+      //     const imageUrl = await this.commandService.uploadImageToBunny(
+      //       imageFile.buffer,
+      //       imageFile.originalname
+      //     );
+      //     toUpdate.image = imageUrl;
+      //   } catch (error) {
+      //     console.error("Image upload failed:", error);
+      //     throw new BadRequestException("Failed to upload image");
+      //   }
+      // } else if (toUpdate.image && imageFile) {
+      //   const deleteImage = await this.commandService.deleteBunnyImage(
+      //     toUpdate.image
+      //   );
+      //   console.log(deleteImage);
+      //   const imageUrl = await this.commandService.uploadImageToBunny(
+      //     imageFile.buffer,
+      //     imageFile.originalname
+      //   );
+      //   toUpdate.image = imageUrl;
+      // }
       const originalRefBy = toUpdate.refBy;
-
 
       delete updateUserDto.password;
       delete updateUserDto.ownRef;
@@ -380,7 +395,9 @@ export class UserService {
       const newRefBy = updateUserDto.refBy;
 
       if (newRefBy && newRefBy !== originalRefBy) {
-      const newReferrer = await this.userModel.findOne({ ownRef: newRefBy }).exec();
+        const newReferrer = await this.userModel
+          .findOne({ ownRef: newRefBy })
+          .exec();
 
         if (newReferrer) {
           await this.userModel.findByIdAndUpdate(
@@ -390,7 +407,9 @@ export class UserService {
           );
         }
         if (originalRefBy) {
-          const originalReferrer = await this.userModel.findOne({ ownRef: originalRefBy }).exec();
+          const originalReferrer = await this.userModel
+            .findOne({ ownRef: originalRefBy })
+            .exec();
           if (originalReferrer) {
             await this.userModel.findByIdAndUpdate(
               originalReferrer._id,
@@ -405,12 +424,12 @@ export class UserService {
       await toUpdate.save();
       return toUpdate;
     } catch (error) {
-      console.log("there's an error", error)
-      if (error.name === 'ValidationError') {
-        throw new BadRequestException(error.errors); 
+      console.log("there's an error", error);
+      if (error.name === "ValidationError") {
+        throw new BadRequestException(error.errors);
       }
-      if(error instanceof NotFoundException){
-        throw error
+      if (error instanceof NotFoundException) {
+        throw error;
       }
       throw new BadRequestException("Ops something went wrong ");
     }
@@ -431,16 +450,19 @@ export class UserService {
       verifyNumberDto.phoneNumber = phoneNumber.trim().replace(/\s/g, "");
       if (verifyNumberDto.phoneNumber[4] == "0") {
         verifyNumberDto.phoneNumber = verifyNumberDto.phoneNumber.replace(
-          verifyNumberDto.phoneNumber[4], ""
+          verifyNumberDto.phoneNumber[4],
+          ""
         );
       }
-      const user = await this.userModel.findOne({ phoneNumber: verifyNumberDto.phoneNumber}).exec();
+      const user = await this.userModel
+        .findOne({ phoneNumber: verifyNumberDto.phoneNumber })
+        .exec();
       console.log(user);
 
       if (user) {
         return {
           statusCode: 409,
-          isExist : true,
+          isExist: true,
           UserName: user.Fname,
           role: user.role,
           message: "Phone number already exists",

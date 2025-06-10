@@ -1,4 +1,4 @@
-import { check, sleep } from 'k6';
+import { check} from 'k6';
 import http from 'k6/http'
 
 function randomItem<T>(arr: T[]): T {
@@ -17,7 +17,7 @@ function generateRandomPassword() {
 
 function generateMoroccanPhoneNumber() {
   const prefix = '+2126'
-  const number = Math.floor(10000000 + Math.random() * 90000000)
+  const number = Math.floor(10000000 + Math.random() * 99990000)
   return prefix + number
 }
 const userAgents = [
@@ -50,12 +50,14 @@ export default function register(){
      'Content-Type': 'application/json',
   }
     const result = http.post(`${baseUrl}/user/register`,JSON.stringify(data), {headers: headers})
-        check(result, {
-        'is status 201': (r) => r.status === 201
+        const success = check(result, {
+            'is status 201': (r) => r.status === 201
         });
-    console.log('Status:', result.status)
-    console.log('Response:', result.body)
-    console.log("+++++++++++", result)
+
+        if (!success) {
+            console.error('Status:', result.status, result.error,'Response body:', result.body,'Request body:', JSON.stringify(data), success);
+  }
+
   return result
 }
 
