@@ -8,7 +8,7 @@ import { NotificationsGateway } from './notifications/notifications.gateway';
 import { SiteinfoModule } from './siteinfo/siteinfo.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FlagModule } from './flag/flag.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+// import { ThrottlerModule } from '@nestjs/throttler';
 import { QuizzModule } from './quizz/quizz.module';
 
 
@@ -25,14 +25,14 @@ import { QuizzModule } from './quizz/quizz.module';
     SiteinfoModule,
     ScheduleModule.forRoot(),
     FlagModule,
-    ThrottlerModule.forRoot({
-      throttlers: [
-        {
-          ttl: 60000,
-          limit: 10,
-        },
-      ],
-    }),
+    // ThrottlerModule.forRoot({
+    //   throttlers: [
+    //     {
+    //       ttl: 60000,
+    //       limit: 10,
+    //     },
+    //   ],
+    // }),
     QuizzModule,
   ],
   providers:[

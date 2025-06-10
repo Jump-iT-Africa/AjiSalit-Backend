@@ -143,6 +143,7 @@ export class UserController {
     try{
       return this.userService.register(CreateUserDto);
     }catch(e){
+      console.log(`errrrrrrrrreur ${e}`)
       if(e instanceof ConflictException || e instanceof BadRequestException){
         console.log("there's an error", e)
         throw e 
@@ -1265,7 +1266,6 @@ export class UserController {
   @UseGuards(IsAuthenticated)
   async updateField(@Body(new SanitizePipe(), new ValidationPipe({ whitelist: true })) updateFieldDto: UpdateFieldDto, @Req() req) {
     try {
-
       let result = await this.userService.UpdateField(
         req.user.id,
         updateFieldDto
