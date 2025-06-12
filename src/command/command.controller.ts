@@ -1162,20 +1162,20 @@ export class CommandController {
     summary:
       "The reminder Notification sent to the client to after the order is done to get his order",
   })
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_DAY_AT_3PM)
   async clientReminderNorification() {
     try {
       return await this.commandService.commandClientReminder();
     } catch (e) {
       throw e;
     }
-  }
+  } 
 
   @ApiOperation({
     summary:
       "The reminder Notification sent to the company in case the company does not deliver after the deadline",
   })
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_DAY_AT_9AM)
   async companyReminderNotification() {
     try {
       return await this.commandService.commandCompanyReminder();
