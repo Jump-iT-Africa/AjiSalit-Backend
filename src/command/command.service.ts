@@ -739,11 +739,13 @@ export class CommandService {
           isFinished: true,
           isPickUp: false,
           deliveryDate: { $lt: todayDate },
+          clientId: { $ne: null }
         })
-        .populate({ path: "clientId", select: "_id role expoPushToken" });
-      for (const command of commandPendinf) {
-        if (command.clientId) {
-          return await this.notificationsService.sendReminderNotification(
+        .populate({ path: "clientId", select: "_id role expoPushToken", match: { expoPushToken: { $ne: null }}})      
+
+      for (const command of commandPendinf) {          
+        if (command.clientId ) {
+           await this.notificationsService.sendReminderNotification(
             command.clientId
           );
         }
@@ -752,6 +754,8 @@ export class CommandService {
       console.log("there's an error", e);
     }
   }
+
+
   async commandCompanyReminder() {
     try {
       const localNow = new Date();
@@ -764,15 +768,15 @@ export class CommandService {
           deliveryDate: { $lt: todayDate },
           isFinished: false,
         })
-        .populate({ path: "companyId", select: "_id role expoPushToken" });
-
+        .populate({ path: "companyId", select: "_id role expoPushToken",match: { expoPushToken: { $ne: null }}});
+        
       commands.forEach(async (command) => {
         if (command.newDate == null && command.isFinished == false) {
           if (command.companyId)
             await this.notificationsService.sendReminderNotification(
               command.companyId
             );
-        } else if (
+        } else if (    
           command.newDate < new Date(todayDate) &&
           command.isFinished == false
         ) {
