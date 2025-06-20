@@ -12,15 +12,15 @@ export default class ResponseDto {
   price: number;
 
   @ApiProperty({
-    example: "paid",
+    example: "PAID",
     description:
-      "The situation of the order and it can be advanced, paid or not paid",
+      "The situation of the order and it can be advanced, PAID or not PAID",
     required: true,
   })
   situation: string;
 
   @ApiProperty({
-    example: "finished",
+    example: "FINISHED",
     description: "The current status of the order",
     required: true,
   })
@@ -38,7 +38,8 @@ export default class ResponseDto {
     description: "Delivery date of the service",
     required: true,
   })
-  deliveryDate: string;
+  estimatedDeliveryDate: string;
+  
   @ApiProperty({
     example: null,
     description: "it will be unpdated in the pick up date",
@@ -71,7 +72,7 @@ export default class ResponseDto {
     example: "true",
     required: false,
   })
-  IsConfirmedByClient: boolean;
+  isConfirmedByClient: boolean;
 
   @ApiProperty({
     example: "sick",
@@ -84,7 +85,7 @@ export default class ResponseDto {
     description: "the new changed date",
     required: true,
   })
-  newDate: string;
+  newEstimatedDeliveryDate: string;
 
   @ApiProperty({
     example: 0,

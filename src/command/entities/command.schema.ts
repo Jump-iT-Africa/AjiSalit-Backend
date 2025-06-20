@@ -19,20 +19,18 @@ export class Command {
 
   @Prop({
     required: true,
-    default: "upaid",
-    enum: ["paid", "unpaid", "prepayment"],
+    default: "UNPAID",
+    enum: ["PAID", "UNPAID", "PREPAYMENT"],
   })
   situation: string;
 
   @Prop({
     required: true,
-    default: "inProgress",
-    enum: ["inProgress", "finished", "delivered"],
+    default: "INPROGRESS",
+    enum: ["INPROGRESS", "FINISHED", "ARCHIVED", "EXPIRED"],
+    index: true,
   })
   status: string;
-
-  @Prop({ required: true, default: false, index: true })
-  isExpired: boolean;
 
   @Prop({ required: false, default: null })
   advancedAmount: number;
@@ -43,8 +41,8 @@ export class Command {
   @Prop({ required: false })
   images: [{ type: String }];
 
-  @Prop({ required: false, index: true })
-  deliveryDate: Date;
+  @Prop({ required: false, default: null, index: true })
+  estimatedDeliveryDate: Date;
 
   @Prop({ required: false, default: null, index: true })
   pickupDate: Date;
@@ -52,23 +50,17 @@ export class Command {
   @Prop({ required: true, unique: true, index: true })
   qrCode: string;
 
-  @Prop({ required: true, default: false, index: true })
-  isFinished: false;
-
-  @Prop({ required: true, default: false })
-  isPickUp: false;
-
   @Prop({ required: false, default: false })
   isDateChanged: boolean;
 
   @Prop({ required: false, default: false })
-  IsConfirmedByClient: boolean;
+  isConfirmedByClient: boolean;
 
-  @Prop({ required: false })
+  @Prop({ required: false, default: null })
   ChangeDateReason: string;
 
   @Prop({ required: false, default: null, index: true })
-  newDate: Date;
+  newEstimatedDeliveryDate: Date;
 }
 
 export const CommandSchema = SchemaFactory.createForClass(Command);
@@ -76,10 +68,9 @@ export const CommandSchema = SchemaFactory.createForClass(Command);
 CommandSchema.index({
   companyId: 1,
   clientId: 1,
-  isFinished: 1,
-  isPickUp: 1,
   pickupDate: 1,
-  deliveryDate: 1,
-  newDate: 1,
+  estimatedDeliveryDate: 1,
+  newEstimatedDeliveryDate: 1,
   qrCode: 1,
+  status: 1,
 });

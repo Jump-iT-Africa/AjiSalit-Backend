@@ -44,8 +44,6 @@ import { ResponseCommandAndCompanyDTO } from "./dto/response-command-and-company
 import { updateStatusConfirmationDto } from "./dto/update-confirmdelivery.dto";
 import { ClientRoleGuard } from "../user/guards/client-role.guard";
 import { AdminRoleGuard } from "../user/guards/admin-role.guard";
-import { isatty } from "tty";
-// import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
 import { CommandInterceptor } from "./interceptors/command.interceptor";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { SanitizePipe } from "../common/pipes/sanitize.pipe";
@@ -80,11 +78,11 @@ export class CommandController {
     content: {
       "application/json": {
         examples: {
-          "Using advanced amount in paid or not paid cases": {
+          "Using advanced amount in PAID or not PAID cases": {
             value: {
               statusCode: 422,
               message:
-                "Ops you have to choose the situation of partially paid to be able to add advanced amount",
+                "Ops you have to choose the situation of partially PAID to be able to add advanced amount",
               error: "Unprocessable Entity",
             },
           },
@@ -161,15 +159,12 @@ export class CommandController {
     @UploadedFiles() images
   ) {
     try {
-      // const ip = req.ip;
-      // console.log("creaaaaaaaaaaaaaaaaaaaaaaaaaaate ip", ip);
       return await this.commandService.create(
         createCommandDto,
         req.user.id,
         images
       );
     } catch (e) {
-      console.log("ohhhhhh", e);
       if (
         e instanceof JsonWebTokenError ||
         e instanceof ForbiddenException ||
@@ -258,6 +253,7 @@ export class CommandController {
         req.user.username
       );
     } catch (e) {
+      console.log("erroooooor", e)
       if (
         e instanceof JsonWebTokenError ||
         e instanceof TokenExpiredError ||
@@ -307,21 +303,18 @@ export class CommandController {
                   _id: "6821d68bed9b91a5b2bc176d",
                   companyId: "6821c62d479cfdf849cf5d24",
                   clientId: null,
-                  situation: "prepayment",
-                  status: "finished",
-                  isExpired: false,
+                  situation: "PREPAYMENT",
+                  status: "FINISHED",
                   advancedAmount: 200,
                   price: 8000,
                   images: ["image1.jpg", "image2.jpg"],
-                  deliveryDate: "2025-10-26T00:00:00.000Z",
+                  estimatedDeliveryDate: "2025-10-26T00:00:00.000Z",
                   pickupDate: "2025-10-28T00:00:00.000Z",
                   qrCode: "WEEEEEEE",
-                  isFinished: false,
-                  isPickUp: false,
                   isDateChanged: true,
-                  IsConfirmedByClient: false,
+                  isConfirmedByClient: false,
                   ChangeDateReason: "sick",
-                  newDate: "2025-10-30T00:00:00.000Z",
+                  newEstimatedDeliveryDate: "2025-10-30T00:00:00.000Z",
                   createdAt: "2025-05-12T11:07:55.605Z",
                   updatedAt: "2025-05-12T11:07:55.605Z",
                   __v: 0,
@@ -335,21 +328,18 @@ export class CommandController {
                     Lname: "Bouhamidi",
                     phoneNumber: "+212698878964",
                   },
-                  situation: "prepayment",
-                  status: "finished",
-                  isExpired: false,
+                  situation: "PREPAYMENT",
+                  status: "FINISHED",
                   advancedAmount: 200,
                   price: 22000,
                   images: ["image1.jpg", "image2.jpg"],
-                  deliveryDate: "2025-10-26T00:00:00.000Z",
+                  estimatedDeliveryDate: "2025-10-26T00:00:00.000Z",
                   pickupDate: "2025-10-28T00:00:00.000Z",
                   qrCode: "TOKYOO",
-                  isFinished: false,
-                  isPickUp: false,
                   isDateChanged: true,
-                  IsConfirmedByClient: false,
+                  isConfirmedByClient: false,
                   ChangeDateReason: "sick",
-                  newDate: "2025-10-30T00:00:00.000Z",
+                  newEstimatedDeliveryDate: "2025-10-30T00:00:00.000Z",
                   createdAt: "2025-05-12T11:08:18.738Z",
                   updatedAt: "2025-05-12T11:08:18.738Z",
                   __v: 0,
@@ -582,9 +572,13 @@ export class CommandController {
     try {
       return await this.commandService.findOne(id, req.user);
     } catch (e) {
-      if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
-        throw new UnauthorizedException("Try to login again");
-      throw new BadRequestException("Try again");
+      if (
+        e instanceof JsonWebTokenError ||
+        e instanceof TokenExpiredError ||
+        e instanceof NotFoundException
+      )
+        throw e;
+      throw new BadRequestException(e);
     }
   }
 
@@ -673,7 +667,8 @@ export class CommandController {
         e instanceof JsonWebTokenError ||
         e instanceof TokenExpiredError ||
         e instanceof ForbiddenException ||
-        e instanceof BadRequestException
+        e instanceof BadRequestException ||
+        e instanceof NotFoundException
       )
         throw e;
       throw new BadRequestException("Try again");
@@ -786,18 +781,13 @@ export class CommandController {
     },
   })
   @ApiBearerAuth()
+  @UseGuards(IsAuthenticated)
   async scanQrCode(@Param("qrCode") qrCode: string, @Req() req) {
     try {
-      let token = req.headers["authorization"]?.split(" ")[1];
-      let infoUser = validateJwt(token);
-
-      if (!infoUser) {
-        throw new UnauthorizedException("Try to login again");
-      }
       return this.commandService.getCommandByQrCode(
         qrCode,
-        infoUser.id,
-        infoUser.role
+        req.user.id,
+        req.user.role
       );
     } catch (e) {
       console.log(e);
@@ -853,8 +843,7 @@ export class CommandController {
           "Wrong status": {
             value: {
               message: [
-                "status must be one of the following values: ",
-                "The status must be one of the following: inProgress, finished, delivered",
+                "The status must be one of the following: INPROGRESS,FINISHED, ARCHIVED or EXPIRED",
               ],
               error: "Bad Request",
               statusCode: 400,
@@ -909,7 +898,6 @@ export class CommandController {
         updatestatusDTo
       );
     } catch (e) {
-      console.log("there's a problem oooo", e);
       if (
         e instanceof NotFoundException ||
         e instanceof ForbiddenException ||
@@ -1169,13 +1157,13 @@ export class CommandController {
     } catch (e) {
       throw e;
     }
-  } 
+  }
 
   @ApiOperation({
     summary:
       "The reminder Notification sent to the company in case the company does not deliver after the deadline",
   })
-  @Cron(CronExpression.EVERY_DAY_AT_9AM)
+  // @Cron(CronExpression.EVERY_5_SECONDS)
   async companyReminderNotification() {
     try {
       return await this.commandService.commandCompanyReminder();
