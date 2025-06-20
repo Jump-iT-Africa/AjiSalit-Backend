@@ -160,13 +160,14 @@ export class CommandService {
   async scanedUserId(qrcode: string, userId: string, username: string) {
     try {
       const updateCommad = await this.commandModel.findOne({ qrCode: qrcode });
-      let companyData = await this.userModel.findById(updateCommad.companyId);
       if (!updateCommad) throw new NotFoundException("The order not found");
       console.log("client idddd", updateCommad.clientId, updateCommad);
 
       if (updateCommad.clientId !== null) {
         throw new ConflictException("The qrCode is already scanned");
       }
+            // let companyData = await this.userModel.findById(updateCommad.companyId);
+
       const updatedCommand = await this.commandModel
         .findOneAndUpdate(
           { qrCode: qrcode },
@@ -176,7 +177,9 @@ export class CommandService {
         .exec();
       return "Congratulation the qrCode has been scanned successfully";
     } catch (e) {
-      if (e instanceof NotFoundException) {
+            console.log("erroooooor", e)
+
+      if (e instanceof NotFoundException ) {
         throw new NotFoundException("The order not found");
       }
       if (e instanceof BadRequestException) {
@@ -242,9 +245,7 @@ export class CommandService {
 
   async findOne(id: string, infoUser) {
     try {
-      console.log("here's the id of user");
       let query: any = { _id: id };
-
       if (infoUser.role == "client") {
         query.clientId = infoUser.id;
       } else if (infoUser.role == "company") {
@@ -267,7 +268,7 @@ export class CommandService {
       if (e instanceof NotFoundException) {
         throw e;
       }
-      throw new BadRequestException("Try again");
+      throw new BadRequestException(e);
     }
   }
 
@@ -285,12 +286,6 @@ export class CommandService {
       if (command.companyId.toString() !== authentificatedId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-      console.log(
-        "heeeere we aree",
-        command.price,
-        updateCommandDto.price,
-        updateCommandDto.advancedAmount
-      );
 
       if (
         command.price &&
@@ -327,6 +322,7 @@ export class CommandService {
           runValidators: true,
         })
         .exec();
+
       let clientInfo = await this.userModel
         .findById(updatedCommand.clientId)
         .exec();
@@ -371,16 +367,12 @@ export class CommandService {
       if (command.companyId.toString() !== userId) {
         throw new ForbiddenException("You are not allowed to update this oder");
       }
-      let isFinished = true;
-      data = { ...data, isFinished };
-      console.log("the data logic");
       let result = await this.commandModel
         .findByIdAndUpdate(orderId, data, { new: true })
         .exec();
       let clientInfo = await this.userModel.findById(command.clientId).exec();
       let companyInfo = await this.userModel.findById(command.companyId).exec();
-      console.log("ohhh a result", result, data);
-      if (data.status == "finished") {
+      if (data.status == "FINISHED") {
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(
@@ -388,9 +380,9 @@ export class CommandService {
               `📦Talabek wajed !`,
               `Salam ${clientInfo?.Fname} 👋, Ajiii Salit Talab dyalk wajed 3nd ${companyInfo.companyName !== null ? companyInfo.companyName : companyInfo.field} 🚀 `
             );
-          console.log("Here's my notification sender: ", notificationSender);
+          // console.log("Here's my notification sender: ", notificationSender);
         }
-      } else if (data.status == "delivered") {
+      } else if (data.status == "ARCHIVED") {
         if (clientInfo && clientInfo.expoPushToken && result) {
           let notificationSender =
             await this.notificationsService.sendPushNotification(
@@ -398,7 +390,7 @@ export class CommandService {
               `🎉 Chokran ala ti9a dailk fina `,
               `Salaaam ${clientInfo?.Fname} 👋, chokran 7it khdemti b l'application dyalna, mansash tkhli lina review https://shorturl.at/s9Tc2🚀 `
             );
-          console.log("Here's my notification sender: ", notificationSender);
+          // console.log("Here's my notification sender: ", notificationSender);
         }
       }
 
@@ -583,24 +575,27 @@ export class CommandService {
   }
 
   async confirmDeliveryByClient(orderId, clientInfo, updateStatusConfirmation) {
-    console.log("Happy coding", orderId);
     try {
+          console.log("Happy coding", orderId, clientInfo, updateStatusConfirmation);
+
       let command = await this.commandModel.findById(orderId).exec();
       if (!command) {
         throw new NotFoundException("Command not found");
       }
-      if (command.clientId.toString() !== clientInfo.id) {
+      if (command.clientId?.toString() !== clientInfo.id) {
         console.log("here are my id : ", command.clientId, clientInfo.id);
         throw new ForbiddenException(
           "You aren't allowed to update the status unless you are the client of this command"
         );
       }
+              console.log("jdjdj",command)
       let confirmDelivery = await this.commandModel
         .findByIdAndUpdate(orderId, updateStatusConfirmation, {
           new: true,
           runValidators: true,
         })
         .exec();
+        console.log("jdjdj",confirmDelivery)
       if (confirmDelivery) {
         return "Thank You for your feedback";
       }
@@ -608,7 +603,7 @@ export class CommandService {
       if (e instanceof NotFoundException || e instanceof ForbiddenException) {
         throw e;
       }
-      console.log("there's an error", e);
+      throw e
     }
   }
 
@@ -736,16 +731,20 @@ export class CommandService {
       const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
       let commandPendinf = await this.commandModel
         .find({
-          isFinished: true,
-          isPickUp: false,
-          deliveryDate: { $lt: todayDate },
-          clientId: { $ne: null }
+          status: "FINISHED",
+          // isPickUp: false,
+          estimatedDeliveryDate: { $lt: todayDate },
+          clientId: { $ne: null },
         })
-        .populate({ path: "clientId", select: "_id role expoPushToken", match: { expoPushToken: { $ne: null }}})      
+        .populate({
+          path: "clientId",
+          select: "_id role expoPushToken",
+          match: { expoPushToken: { $ne: null } },
+        });
 
-      for (const command of commandPendinf) {          
-        if (command.clientId ) {
-           await this.notificationsService.sendReminderNotification(
+      for (const command of commandPendinf) {
+        if (command.clientId) {
+          await this.notificationsService.sendReminderNotification(
             command.clientId
           );
         }
@@ -754,7 +753,6 @@ export class CommandService {
       console.log("there's an error", e);
     }
   }
-
 
   async commandCompanyReminder() {
     try {
@@ -765,20 +763,25 @@ export class CommandService {
       const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
       let commands = await this.commandModel
         .find({
-          deliveryDate: { $lt: todayDate },
-          isFinished: false,
+          estimatedDeliveryDate: { $lt: todayDate },
+          status: { $ne: "FINISHED" },
         })
-        .populate({ path: "companyId", select: "_id role expoPushToken",match: { expoPushToken: { $ne: null }}});
-        
+        .populate({
+          path: "companyId",
+          select: "_id role expoPushToken",
+          match: { expoPushToken: { $ne: null } },
+        });
+      console.log("here are ", commands);
+
       commands.forEach(async (command) => {
-        if (command.newDate == null && command.isFinished == false) {
+        if (command.newEstimatedDeliveryDate == null && command.status !== "FINISHED") {
           if (command.companyId)
             await this.notificationsService.sendReminderNotification(
               command.companyId
             );
-        } else if (    
-          command.newDate < new Date(todayDate) &&
-          command.isFinished == false
+        } else if (
+          command.newEstimatedDeliveryDate < new Date(todayDate) &&
+          command.status !== "FINISHED"
         ) {
           await this.notificationsService.sendReminderNotification(
             command.companyId

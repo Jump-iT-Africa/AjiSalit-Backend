@@ -14,6 +14,7 @@ import {
 } from "class-validator";
 import { Types } from "mongoose";
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 export class CreateCommandDto {
   @IsOptional()
@@ -33,27 +34,28 @@ export class CreateCommandDto {
   price: number;
 
   @ApiProperty({
-    example: "prepayment",
+    example: "PREPAYMENT",
     required: true,
   })
   @IsNotEmpty({ message: "you must add the situation" })
-  @IsEnum(["paid", "unpaid", "prepayment"])
-  @Matches(/^(paid|unpaid|prepayment)$/, {
-    message: "The situation must be one of the following: paid, unpaid, prepayment",
+  @IsEnum(["PAID", "UNPAID", "PREPAYMENT"])
+  @Matches(/^(PAID|UNPAID|PREPAYMENT)$/, {
+    message:
+      "The situation must be one of the following: PAID, UNPAID, PREPAYMENT",
   })
   situation: string;
 
   @ApiProperty({
-    example: "finished",
+    example: "INPROGRESS",
     required: true,
   })
   @IsOptional()
   @IsString()
-  @Matches(/^(inProgress|finished|delivered)$/, {
+  @Matches(/^(INPROGRESS|FINISHED|ARCHIVED|EXPIRED)$/, {
     message:
-      "The status must be one of the following: inProgress, finished, delivered",
+      "The status must be one of the following: INPROGRESS,FINISHED, ARCHIVED or EXPIRED",
   })
-  @IsEnum(["inProgress", "finished", "delivered"])
+  @IsEnum(["INPROGRESS", "FINISHED", "ARCHIVED", "EXPIRED"])
   status: string;
 
   @ApiProperty({
@@ -62,6 +64,7 @@ export class CreateCommandDto {
   })
   @IsOptional()
   @IsNumber({}, { message: "The Advanced Amount has to be a valid number " })
+  @Transform(({ value }) => value === "" ? null : value)
   advancedAmount: number;
 
   @ApiProperty({
@@ -73,23 +76,26 @@ export class CreateCommandDto {
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
     message: "The date must be in the format YYYY-MM-DD",
   })
-  deliveryDate: string;
+  @Transform(({ value }) => value === "" ? null : value)
+  estimatedDeliveryDate: string;
 
   @ApiProperty({
     example: "2025-10-28",
     required: false,
   })
-  @IsDateString({}, { message: "The date has to  be on this : YYYY-MM-DD" })
+  @IsDateString({}, { message: "The pickup date has to  be on this : YYYY-MM-DD" })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: "The date must be in the format YYYY-MM-DD",
+    message: "The pickup date must be in the format YYYY-MM-DD",
   })
   @IsOptional()
+  @Transform(({ value }) => value === "" ? null : value)
   pickupDate: string;
 
   @ApiProperty({ type: "string", format: "binary", required: false })
   @IsOptional()
   @IsString({ each: true })
   @IsArray()
+  @Transform(({ value }) => value === "" ? [] : value)
   images?: string[];
 
   @ApiProperty({
@@ -101,15 +107,7 @@ export class CreateCommandDto {
 
   @IsBoolean()
   @IsOptional()
-  isFinished: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  isPickUp: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  IsConfirmedByClient: boolean;
+  isConfirmedByClient: boolean;
 
   @ApiProperty({
     example: "true",
@@ -121,7 +119,9 @@ export class CreateCommandDto {
     example: "sick",
     required: false,
   })
-  ChangeDateReason: string;
+  @IsString()
+  @IsOptional()
+  ChangeDateReason?: string;
 
   @ApiProperty({
     example: "2025-10-30",
@@ -132,5 +132,5 @@ export class CreateCommandDto {
     message: "The date must be in the format YYYY-MM-DD",
   })
   @IsOptional()
-  newDate: string;
+  newEstimatedDeliveryDate: string;
 }

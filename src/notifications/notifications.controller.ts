@@ -222,7 +222,6 @@ export class NotificationsController {
         createNotificationDto
       );
     } catch (e) {
-      // console.log(e)
       if (e instanceof JsonWebTokenError || e instanceof TokenExpiredError)
         throw e;
       throw new BadRequestException("Try again");
