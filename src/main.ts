@@ -27,8 +27,8 @@ async function bootstrap() {
   .setTitle('AjiSalit API ')
   .setDescription('AjiSalit is an app that help you track your orders and get them on time')
   .setVersion('1.0')
-  // .addServer('http://localhost:3000/', 'Local environment')
-  
+  .addServer('http://localhost:3000/', 'Local environment')
+
   .addServer('https://api.ajisalit.com/', 'Production')
 
   .addBearerAuth()
