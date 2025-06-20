@@ -25,16 +25,16 @@ export class ResponseCommandAndCompanyDTO {
   price: number;
 
   @ApiProperty({
-    example: "prepayment",
+    example: "PREPAYMENT",
     description:
-      "The situation of the order and it can be advanced, paid or not paid",
+      "The situation of the order and it can be advanced, PAID or not PAID",
     required: true,
   })
   @Expose()
   situation: string;
 
   @ApiProperty({
-    example: "finished",
+    example: "FINISHED",
     description: "The current status of the order",
     required: true,
   })
@@ -54,7 +54,8 @@ export class ResponseCommandAndCompanyDTO {
     required: true,
   })
   @Expose()
-  deliveryDate: string;
+  estimatedDeliveryDate: string;
+
   @ApiProperty({
     example: null,
     description: "it will be unpdated in the pick up date",
@@ -96,7 +97,7 @@ export class ResponseCommandAndCompanyDTO {
     description: "the new changed date",
     required: true,
   })
-  newDate: string;
+  newEstimatedDeliveryDate: string;
 
   @ApiProperty({
     example: 0,

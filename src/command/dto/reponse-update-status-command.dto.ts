@@ -7,26 +7,31 @@ export class responseStatusDTO {
     description: "Command Id",
   })
   _id: Types.ObjectId;
+
   @ApiProperty({
     example: "680673aa30cbfdd8aa2b1676",
     description: "Commpany id",
   })
   companyId: Types.ObjectId;
+
   @ApiProperty({
     example: "68091f687844071f178dc266",
     description: "Client id",
   })
   clientId: Types.ObjectId;
+
   @ApiProperty({
-    example: "prepayment",
+    example: "PREPAYMENT",
     description: "situation",
   })
   situation: string;
+
   @ApiProperty({
-    example: "finished",
+    example: "FINISHED",
     description: "status",
   })
   status: string;
+
   @ApiProperty({
     example: 9000,
     description: "adavncedAmount",
@@ -47,7 +52,7 @@ export class responseStatusDTO {
     example: "2025-04-27T00:00:00.000Z",
     description: "Delivery Date",
   })
-  deliveryDate: string;
+  estimatedDeliveryDate: string;
   @ApiProperty({
     example: "2025-04-27T00:00:00.000Z",
     description: "Pick up date",
@@ -58,16 +63,7 @@ export class responseStatusDTO {
     description: "qrcode",
   })
   qrCode: string;
-  @ApiProperty({
-    example: false,
-    description: "finished or not",
-  })
-  isFinished: false;
-  @ApiProperty({
-    example: false,
-    description: "picked or not",
-  })
-  isPickUp: false;
+
   @ApiProperty({
     example: 0,
     description: "__v by default ",
