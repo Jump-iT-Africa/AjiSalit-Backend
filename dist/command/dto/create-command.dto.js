@@ -123,6 +123,8 @@ __decorate([
         example: "true",
         required: false,
     }),
+    (0, class_validator_1.IsBoolean)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
 ], CreateCommandDto.prototype, "isDateChanged", void 0);
 __decorate([
