@@ -113,6 +113,8 @@ export class CreateCommandDto {
     example: "true",
     required: false,
   })
+  @IsBoolean()
+  @IsOptional()
   isDateChanged: boolean;
 
   @ApiProperty({
