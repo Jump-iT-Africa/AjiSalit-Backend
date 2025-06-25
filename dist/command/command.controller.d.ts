@@ -7,13 +7,13 @@ import { updateStatusConfirmationDto } from "./dto/update-confirmdelivery.dto";
 export declare class CommandController {
     private readonly commandService;
     constructor(commandService: CommandService);
-    create(createCommandDto: CreateCommandDto, req: any, images: any): Promise<"try again" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    create(createCommandDto: CreateCommandDto, req: any, images: any): Promise<"try again" | (import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument, {}> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     })>;
     scanedUserId(qrcode: string, req: any): Promise<string>;
-    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findAll(req: any): Promise<(import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument, {}> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
@@ -26,12 +26,12 @@ export declare class CommandController {
         "Total of orders of every single day": any[];
         "Total of orders of every single month": any[];
     }>;
-    findOne(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    findOne(id: string, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument, {}> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    update(id: string, updateCommandDto: UpdateCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    update(id: string, updateCommandDto: UpdateCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument, {}> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
@@ -40,17 +40,17 @@ export declare class CommandController {
         message: string;
     }>;
     scanQrCode(qrCode: string, req: any): Promise<any>;
-    updateStatusToDone(orderId: string, updatestatusDTo: UpdateStatusCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    updateStatusToDone(orderId: string, updatestatusDTo: UpdateStatusCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument, {}> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    updatepickUpDate(orderId: string, updatepickUpDateDTo: UpdatepickUpDateCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any> & Required<{
+    updatepickUpDate(orderId: string, updatepickUpDateDTo: UpdatepickUpDateCommandDto, req: any): Promise<import("mongoose").Document<unknown, {}, import("./entities/command.schema").CommandDocument, {}> & import("./entities/command.schema").Command & import("mongoose").Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
     confirmDeliveryByClient(orderId: string, updateStatusConfirmation: updateStatusConfirmationDto, req: any): Promise<string>;
-    clientReminderNorification(): Promise<any>;
+    clientReminderNorification(): Promise<void>;
     companyReminderNotification(): Promise<void>;
 }
