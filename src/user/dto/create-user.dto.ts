@@ -48,6 +48,10 @@ export class CreateUserDto {
   @ApiProperty({ example: "company", required: true })
   @IsString()
   @IsOptional()
+    @Matches(/^(admin|client|company)$/, {
+    message:
+      "The role of the user should be admin, client or company",
+  })
   @IsEnum(["admin", "client", "company"])
   role: string;
 

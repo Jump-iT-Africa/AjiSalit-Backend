@@ -722,37 +722,70 @@ export class CommandService {
     }
   }
 
-  async commandClientReminder() {
-    try {
-      const localNow = new Date();
-      const localYear = localNow.getFullYear();
-      const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
-      const localDay = String(localNow.getDate()).padStart(2, "0");
-      const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
-      let commandPendinf = await this.commandModel
-        .find({
-          status: "FINISHED",
-          // isPickUp: false,
-          estimatedDeliveryDate: { $lt: todayDate },
-          clientId: { $ne: null },
-        })
-        .populate({
-          path: "clientId",
-          select: "_id role expoPushToken",
-          match: { expoPushToken: { $ne: null } },
-        });
+async commandClientReminder() {
+  try {
+    const localNow = new Date();
+    const localYear = localNow.getFullYear();
+    const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
+    const localDay = String(localNow.getDate()).padStart(2, "0");
+    const todayDateStr = `${localYear}-${localMonth}-${localDay}T00:00:00.000Z`;
+    const todayDate = new Date(todayDateStr);
 
-      for (const command of commandPendinf) {
-        if (command.clientId) {
-          await this.notificationsService.sendReminderNotification(
-            command.clientId
-          );
+    const commands = await this.commandModel.aggregate([
+      {
+        $match: {
+          status: "FINISHED",
+          estimatedDeliveryDate: { $lt: todayDate },
+          clientId: { $ne: null }
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "clientId",
+          foreignField: "_id",
+          as: "client"
+        }
+      },
+      { 
+        $unwind: "$client" 
+      },
+      {
+        $match: {
+          "client.expoPushToken": { $ne: null }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          status: 1,
+          estimatedDeliveryDate: 1,
+          client: {
+            _id: 1,
+            role: 1,
+            expoPushToken: 1
+          }
+        }
+      },
+      {
+        $group: {
+          _id: "$client.expoPushToken",
+          commands: { $push: "$$ROOT" }
         }
       }
-    } catch (e) {
-      console.log("there's an error", e);
+    ]);
+  console.log("Grouped commands: ", JSON.stringify(commands, null, 2));
+
+    for (const group of commands) {
+      const client = group.commands[0].client;
+      await this.notificationsService.sendReminderNotification(client);
     }
+
+  } catch (e) {
+    console.log("there's an error", e);
   }
+}
+
 
   async commandCompanyReminder() {
     try {
@@ -760,32 +793,61 @@ export class CommandService {
       const localYear = localNow.getFullYear();
       const localMonth = String(localNow.getMonth() + 1).padStart(2, "0");
       const localDay = String(localNow.getDate()).padStart(2, "0");
-      const todayDate = `${localYear}-${localMonth}-${localDay}T00:00:00.000+00:00`;
-      let commands = await this.commandModel
-        .find({
-          estimatedDeliveryDate: { $lt: todayDate },
-          status: { $ne: "FINISHED" },
-        })
-        .populate({
-          path: "companyId",
-          select: "_id role expoPushToken",
-          match: { expoPushToken: { $ne: null } },
-        });
-      console.log("here are ", commands);
+      const todayDateStr = `${localYear}-${localMonth}-${localDay}T00:00:00.000Z`;
+      const todayDate = new Date(todayDateStr);
+        const commands = await this.commandModel.aggregate([
+        {
+          $match: {
+            estimatedDeliveryDate: { $lt: todayDate },
+            status: "EXPIRED"
+          }
+        },
+        {
+          $lookup: {
+            from: "users", 
+            localField: "companyId",
+            foreignField: "_id",
+            as: "company"
+          }
+        },
+        { 
+          $unwind: "$company" 
+        },
+        {
+          $match: {
+            "company.expoPushToken": { $ne: null }
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            status: 1,
+            company: {
+              _id: 1,
+              role: 1,
+              expoPushToken: 1
+            }
+          },
+        },
+        {
+          $group: {
+            _id: "$company.expoPushToken",  
+            commands: { $push: "$$ROOT" }
+          }
+        }
+      ]);
 
-      commands.forEach(async (command) => {
-        if (command.newEstimatedDeliveryDate == null && command.status !== "FINISHED") {
-          if (command.companyId)
-            await this.notificationsService.sendReminderNotification(
-              command.companyId
-            );
-        } else if (
-          command.newEstimatedDeliveryDate < new Date(todayDate) &&
-          command.status !== "FINISHED"
-        ) {
-          await this.notificationsService.sendReminderNotification(
-            command.companyId
+      commands.forEach(async (group) => {
+        const commandsNeedingReminder = group.commands.filter((command) => {
+          return (
+            command.newEstimatedDeliveryDate == null ||
+            (command.newEstimatedDeliveryDate < new Date(todayDate) && command.status === "EXPIRED")
           );
+        });
+
+        if (commandsNeedingReminder.length > 0) {
+          const company = commandsNeedingReminder[0].company; 
+          await this.notificationsService.sendReminderNotification(company);
         }
       });
     } catch (e) {

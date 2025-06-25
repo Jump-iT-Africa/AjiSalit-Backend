@@ -119,7 +119,9 @@ export class NotificationsService {
 
   async sendReminderNotification(infoUser) {
     try {
-      let user = await this.userService.findOne(infoUser.id);
+      // console.log("laah notification", infoUser)
+      let user = await this.userService.findOne(infoUser._id);
+      // console.log("here from notification", user)
       if (!user) {
         throw new NotFoundException("the user not found");
       }
@@ -134,7 +136,7 @@ export class NotificationsService {
         `🕖  Mazal Makhditi talab dyalk !`,
         `Salam 👋, bghina gha nfkrouk Talab dailk kaytsnak  🚀 Dkhl l’app bash tchouf ljadid `
       );
-            console.log("Happy notification clien", notificationReminder);
+      console.log("Happy notification clien", notificationReminder);
 
       }
       if(infoUser.role == "company"){

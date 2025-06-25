@@ -13,6 +13,7 @@ exports.CreateCommandDto = void 0;
 const class_validator_1 = require("class-validator");
 const mongoose_1 = require("mongoose");
 const swagger_1 = require("@nestjs/swagger");
+const class_transformer_1 = require("class-transformer");
 class CreateCommandDto {
 }
 exports.CreateCommandDto = CreateCommandDto;
@@ -37,27 +38,27 @@ __decorate([
 ], CreateCommandDto.prototype, "price", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: "تسبيق",
+        example: "PREPAYMENT",
         required: true,
     }),
     (0, class_validator_1.IsNotEmpty)({ message: "you must add the situation" }),
-    (0, class_validator_1.IsEnum)(["خالص", "غير خالص", "تسبيق"]),
-    (0, class_validator_1.Matches)(/^(خالص|غير خالص|تسبيق)$/, {
-        message: "The situation must be one of the following: خالص, غير خالص, تسبيق",
+    (0, class_validator_1.IsEnum)(["PAID", "UNPAID", "PREPAYMENT"]),
+    (0, class_validator_1.Matches)(/^(PAID|UNPAID|PREPAYMENT)$/, {
+        message: "The situation must be one of the following: PAID, UNPAID, PREPAYMENT",
     }),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "situation", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        example: "جاهزة للتسليم",
+        example: "INPROGRESS",
         required: true,
     }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.Matches)(/^(في طور الانجاز|جاهزة للتسليم|تم تسليم)$/, {
-        message: "The status must be one of the following: قيد الانتظار, جاهزة للتسليم, تم تسليم",
+    (0, class_validator_1.Matches)(/^(INPROGRESS|FINISHED|ARCHIVED|EXPIRED)$/, {
+        message: "The status must be one of the following: INPROGRESS,FINISHED, ARCHIVED or EXPIRED",
     }),
-    (0, class_validator_1.IsEnum)(["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"]),
+    (0, class_validator_1.IsEnum)(["INPROGRESS", "FINISHED", "ARCHIVED", "EXPIRED"]),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "status", void 0);
 __decorate([
@@ -67,6 +68,7 @@ __decorate([
     }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)({}, { message: "The Advanced Amount has to be a valid number " }),
+    (0, class_transformer_1.Transform)(({ value }) => value === "" ? null : value),
     __metadata("design:type", Number)
 ], CreateCommandDto.prototype, "advancedAmount", void 0);
 __decorate([
@@ -79,25 +81,28 @@ __decorate([
     (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, {
         message: "The date must be in the format YYYY-MM-DD",
     }),
+    (0, class_transformer_1.Transform)(({ value }) => value === "" ? null : value),
     __metadata("design:type", String)
-], CreateCommandDto.prototype, "deliveryDate", void 0);
+], CreateCommandDto.prototype, "estimatedDeliveryDate", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "2025-10-28",
         required: false,
     }),
-    (0, class_validator_1.IsDateString)({}, { message: "The date has to  be on this : YYYY-MM-DD" }),
+    (0, class_validator_1.IsDateString)({}, { message: "The pickup date has to  be on this : YYYY-MM-DD" }),
     (0, class_validator_1.Matches)(/^\d{4}-\d{2}-\d{2}$/, {
-        message: "The date must be in the format YYYY-MM-DD",
+        message: "The pickup date must be in the format YYYY-MM-DD",
     }),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === "" ? null : value),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "pickupDate", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ type: 'string', format: 'binary', required: false }),
+    (0, swagger_1.ApiProperty)({ type: "string", format: "binary", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)({ each: true }),
     (0, class_validator_1.IsArray)(),
+    (0, class_transformer_1.Transform)(({ value }) => value === "" ? [] : value),
     __metadata("design:type", Array)
 ], CreateCommandDto.prototype, "images", void 0);
 __decorate([
@@ -112,17 +117,7 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Boolean)
-], CreateCommandDto.prototype, "isFinished", void 0);
-__decorate([
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CreateCommandDto.prototype, "isPickUp", void 0);
-__decorate([
-    (0, class_validator_1.IsBoolean)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Boolean)
-], CreateCommandDto.prototype, "IsConfirmedByClient", void 0);
+], CreateCommandDto.prototype, "isConfirmedByClient", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
         example: "true",
@@ -135,6 +130,8 @@ __decorate([
         example: "sick",
         required: false,
     }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateCommandDto.prototype, "ChangeDateReason", void 0);
 __decorate([
@@ -148,5 +145,5 @@ __decorate([
     }),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateCommandDto.prototype, "newDate", void 0);
+], CreateCommandDto.prototype, "newEstimatedDeliveryDate", void 0);
 //# sourceMappingURL=create-command.dto.js.map
