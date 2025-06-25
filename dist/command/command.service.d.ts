@@ -22,39 +22,39 @@ export declare class CommandService {
     private readonly bunnyStorageZone;
     constructor(connection: Connection, commandModel: Model<CommandDocument>, userModel: Model<UserDocument>, notificationsGateway: NotificationsGateway, notificationsService: NotificationsService, httpService: HttpService, configService: ConfigService);
     uploadImageToBunny(file: Buffer, filename: string): Promise<string>;
-    create(createCommandDto: CreateCommandDto, authentificatedId: string, images: any): Promise<"try again" | (mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    create(createCommandDto: CreateCommandDto, authentificatedId: string, images: any): Promise<"try again" | (mongoose.Document<unknown, {}, CommandDocument, {}> & Command & mongoose.Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     })>;
     scanedUserId(qrcode: string, userId: string, username: string): Promise<string>;
-    findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    findAll(userId: string, role: string): Promise<(mongoose.Document<unknown, {}, CommandDocument, {}> & Command & mongoose.Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     })[]>;
-    findOne(id: string, infoUser: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    findOne(id: string, infoUser: any): Promise<mongoose.Document<unknown, {}, CommandDocument, {}> & Command & mongoose.Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    update(authentificatedId: any, id: any, updateCommandDto: UpdateCommandDto): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    update(authentificatedId: any, id: any, updateCommandDto: UpdateCommandDto): Promise<mongoose.Document<unknown, {}, CommandDocument, {}> & Command & mongoose.Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    updateOrderToDoneStatus(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    updateOrderToDoneStatus(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument, {}> & Command & mongoose.Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
-    updateOrderpickUpDate(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument> & Command & mongoose.Document<unknown, any, any> & Required<{
+    updateOrderpickUpDate(userId: any, orderId: any, data: any): Promise<mongoose.Document<unknown, {}, CommandDocument, {}> & Command & mongoose.Document<unknown, any, any, Record<string, any>> & Required<{
         _id: unknown;
     }> & {
         __v: number;
     }>;
     extractFileNameFromCDN(url: string): string | null;
-    deleteBunnyImage(fileName: string): Promise<void>;
+    deleteBunnyImage(fileUrl: string): Promise<void>;
     deleteOrder(id: string, userId: any): Promise<{
         message: string;
     }>;
@@ -68,6 +68,6 @@ export declare class CommandService {
         "Total of orders of every single day": any[];
         "Total of orders of every single month": any[];
     }>;
-    commandClientReminder(): Promise<any>;
+    commandClientReminder(): Promise<void>;
     commandCompanyReminder(): Promise<void>;
 }

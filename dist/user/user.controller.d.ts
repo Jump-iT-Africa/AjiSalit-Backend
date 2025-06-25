@@ -30,11 +30,6 @@ export declare class UserController {
             listRefs: string[];
         };
         token: string;
-        ErrorMessage?: undefined;
-    } | {
-        ErrorMessage: any;
-        user?: undefined;
-        token?: undefined;
     }>;
     login(LoginUserDto: LoginUserDto): Promise<any>;
     getAllCompanies(): Promise<string | import("./dto/ResponseDto/response-all-companies.dto").ResponseCompanyInfoForAdminDto[]>;
@@ -46,9 +41,9 @@ export declare class UserController {
         "Total admins": number;
     }>;
     updatePocketBalance(companyId: string, updateBalance: UpdatePocketBalance): Promise<ResoponseCompanyInfoDto>;
-    findOne(req: any): Promise<ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto>;
+    findOne(req: any): Promise<ResoponseCompanyDto | import("./dto/ResponseDto/response-user.dto").ResponseUserDto | import("./dto/ResponseDto/response-admin.dto").ResoponseAdminDto>;
     deleteAccount(id: string, req: any): Promise<string>;
-    updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any): Promise<import("./entities/user.schema").User>;
+    updateUserProfile(id: string, updateUserDto: UpdateUserDto, req: any, image: any): Promise<import("./entities/user.schema").User>;
     verifyPhone(verifyNumberDto: VerifyNumberDto): Promise<{
         statusCode: number;
         isExist: boolean;

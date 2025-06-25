@@ -32,23 +32,20 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({
         required: true,
-        default: "غير خالص",
-        enum: ["خالص", "غير خالص", "تسبيق"],
+        default: "UNPAID",
+        enum: ["PAID", "UNPAID", "PREPAYMENT"],
     }),
     __metadata("design:type", String)
 ], Command.prototype, "situation", void 0);
 __decorate([
     (0, mongoose_1.Prop)({
         required: true,
-        default: "في طور الانجاز",
-        enum: ["في طور الانجاز", "جاهزة للتسليم", "تم تسليم"],
+        default: "INPROGRESS",
+        enum: ["INPROGRESS", "FINISHED", "ARCHIVED", "EXPIRED"],
+        index: true,
     }),
     __metadata("design:type", String)
 ], Command.prototype, "status", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, default: false, index: true }),
-    __metadata("design:type", Boolean)
-], Command.prototype, "isExpired", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: null }),
     __metadata("design:type", Number)
@@ -62,25 +59,17 @@ __decorate([
     __metadata("design:type", Array)
 ], Command.prototype, "images", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: false, index: true }),
+    (0, mongoose_1.Prop)({ required: false, default: null, index: true }),
     __metadata("design:type", Date)
-], Command.prototype, "deliveryDate", void 0);
+], Command.prototype, "estimatedDeliveryDate", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: null, index: true }),
     __metadata("design:type", Date)
 ], Command.prototype, "pickupDate", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, unique: true }),
+    (0, mongoose_1.Prop)({ required: true, unique: true, index: true }),
     __metadata("design:type", String)
 ], Command.prototype, "qrCode", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, default: false, index: true }),
-    __metadata("design:type", Boolean)
-], Command.prototype, "isFinished", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, default: false }),
-    __metadata("design:type", Boolean)
-], Command.prototype, "isPickUp", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: false }),
     __metadata("design:type", Boolean)
@@ -88,15 +77,15 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: false }),
     __metadata("design:type", Boolean)
-], Command.prototype, "IsConfirmedByClient", void 0);
+], Command.prototype, "isConfirmedByClient", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: false }),
+    (0, mongoose_1.Prop)({ required: false, default: null }),
     __metadata("design:type", String)
 ], Command.prototype, "ChangeDateReason", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: false, default: null, index: true }),
     __metadata("design:type", Date)
-], Command.prototype, "newDate", void 0);
+], Command.prototype, "newEstimatedDeliveryDate", void 0);
 exports.Command = Command = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Command);
@@ -104,10 +93,10 @@ exports.CommandSchema = mongoose_1.SchemaFactory.createForClass(Command);
 exports.CommandSchema.index({
     companyId: 1,
     clientId: 1,
-    isFinished: 1,
-    isPickUp: 1,
     pickupDate: 1,
-    deliveryDate: 1,
-    newDate: 1
+    estimatedDeliveryDate: 1,
+    newEstimatedDeliveryDate: 1,
+    qrCode: 1,
+    status: 1,
 });
 //# sourceMappingURL=command.schema.js.map
