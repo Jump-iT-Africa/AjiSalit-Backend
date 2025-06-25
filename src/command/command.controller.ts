@@ -1150,7 +1150,7 @@ export class CommandController {
     summary:
       "The reminder Notification sent to the client to after the order is done to get his order",
   })
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_DAY_AT_3PM)
   async clientReminderNorification() {
     try {
       return await this.commandService.commandClientReminder();
